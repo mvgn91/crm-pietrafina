@@ -1,0 +1,1120 @@
+/* ===== VARIABLES CSS MODERNAS (Ajustadas a paleta Blanco, Negro, Rojo, Fluent UI) ===== */
+:root {
+    /* Paleta de colores principal: Rojo de Pietra Fina */
+    --primary-50: #fef2f2;
+    --primary-100: #fee2e2;
+    --primary-500: #ef4444; /* Rojo principal de Pietra Fina */
+    --primary-600: #dc2626;
+    --primary-700: #b91c1c;
+    --primary-800: #991b1b;
+    --primary-900: #7f1d1d;
+    
+    /* Colores neutros: Blanco y Negro (Con énfasis en la claridad Fluent UI) */
+    --gray-50: #ffffff;   /* Blanco puro para fondos y tarjetas principales */
+    --gray-100: #f7f7f7;  /* Blanco muy claro para fondos sutiles y bordes de elementos */
+    --gray-200: #e8e8e8;  /* Gris claro para divisores y borders más marcados */
+    --gray-300: #d4d4d4;
+    --gray-400: #b0b0b0;
+    --gray-500: #888888;
+    --gray-600: #666666;  /* Gris medio para texto secundario / detalles */
+    --gray-700: #444444;
+    --gray-800: #222222;  /* Negro/gris muy oscuro para texto principal */
+    --gray-900: #000000;  /* Negro puro para títulos y elementos clave */
+    
+    /* Colores de estado (funcionales, con buen contraste y alineados a la marca) */
+    --success-500: #10b981; /* Verde (para Interesado/Completado) */
+    --warning-500: #f59e0b; /* Naranja (para Pendiente de Correo/Validación) */
+    --error-500: #ef4444;   /* Rojo (igual que primary-500 para Errores/Rechazado) */
+    --info-500: #3b82f6;    /* Azul (para En Prospección/Revisión Admin) */
+    
+    /* Sombras suaves y sutiles (Fluent UI Style) */
+    --shadow-sm: 0px 1px 2px rgba(0, 0, 0, 0.06), 0px 1px 1px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0px 2px 4px rgba(0, 0, 0, 0.08), 0px 2px 2px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0px 4px 8px rgba(0, 0, 0, 0.1), 0px 4px 4px rgba(0, 0, 0, 0.08);
+    --shadow-xl: 0px 8px 16px rgba(0, 0, 0, 0.12), 0px 8px 8px rgba(0, 0, 0, 0.1);
+    --shadow-2xl: 0px 25px 50px -12px rgba(0, 0, 0, 0.25);
+    
+    /* Bordes redondeados (Generosos y suaves, Fluent UI Style) */
+    --radius-sm: 0.25rem;  /* 4px */
+    --radius-md: 0.5rem;   /* 8px */
+    --radius-lg: 0.75rem;  /* 12px */
+    --radius-xl: 1rem;     /* 16px */
+    --radius-xxl: 1.5rem;  /* 24px */
+    --radius-full: 9999px; /* Círculo */
+    
+    /* Transiciones (Fluidas y rápidas para Fluent UI) */
+    --transition-fast: 150ms ease-out;
+    --transition-normal: 250ms ease-out;
+    --transition-slow: 400ms ease-out;
+}
+
+/* ===== ESTILOS BASE MEJORADOS ===== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--gray-50); /* Fondo blanco puro en toda la app */
+    color: var(--gray-800); /* Texto principal negro/gris muy oscuro */
+    line-height: 1.6;
+    font-size: 16px;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.font-playfair {
+    font-family: 'Playfair Display', Georgia, serif !important;
+    font-weight: 700;
+}
+
+.font-inter {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* ===== ANIMACIONES MODERNAS (Se mantienen y se afinan para Fluent UI) ===== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(50px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideOut {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(50px); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+@keyframes shimmer {
+    0% { background-position: -200px 0; }
+    100% { background-position: calc(200px + 100%) 0; }
+}
+
+@keyframes modalSlideIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(-20px) scale(0.95); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0) scale(1); 
+    }
+}
+
+@keyframes modalSlideOut {
+    from { 
+        opacity: 1; 
+        transform: translateY(0) scale(1); 
+    }
+    to { 
+        opacity: 0; 
+        transform: translateY(-20px) scale(0.95); 
+    }
+}
+
+.animate-fadeIn { animation: fadeIn 0.4s ease-out; }
+.animate-slideIn { animation: slideIn 0.3s ease-out; }
+.animate-slideOut { animation: slideOut 0.3s ease-in forwards; }
+.animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+.animate-modalIn { animation: modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.animate-modalOut { animation: modalSlideOut 0.2s ease-in forwards; }
+
+/* ===== HEADER MEJORADO (Blanco con texto Negro) ===== */
+#app-header {
+    background: var(--gray-50); /* Fondo blanco puro */
+    border-bottom: 1px solid var(--gray-100); /* Borde sutil */
+    box-shadow: var(--shadow-sm); /* Sombra muy sutil */
+    transition: all var(--transition-normal);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+#app-header:hover {
+    box-shadow: var(--shadow-md); /* Sombra ligeramente más marcada al hover */
+}
+
+#header-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    color: var(--gray-900); /* Texto en negro puro */
+    background: none;
+    -webkit-background-clip: unset;
+    -webkit-text-fill-color: unset;
+    background-clip: unset;
+}
+
+/* Estilos para el indicador de versión */
+#app-version-indicator {
+    font-family: 'monospace', 'Courier New', Courier, monospace;
+    font-size: 0.7rem; /* Tamaño de fuente para la versión */
+    color: var(--gray-600); /* Gris sutil */
+    margin-top: -0.2rem; /* Ajustar posición vertical */
+}
+
+/* Estilos para el indicador de estado online (Fluent UI, minimalista) */
+#online-status-indicator {
+    font-size: 0.75rem;
+    color: var(--gray-600); /* Color de texto base, el icono tendrá color */
+    align-items: center;
+    display: flex; /* Asegurar que el icono y texto estén en línea */
+}
+
+#online-status-indicator .fa-circle { /* Ícono de círculo pequeño */
+    font-size: 0.6em; /* Tamaño relativo al font-size del span padre */
+    margin-right: 0.3em;
+    line-height: 1; /* Asegurar alineación vertical */
+    vertical-align: middle;
+}
+/* Estos colores se controlarán vía JS en onAuthStateChanged */
+#online-status-indicator.is-online .fa-circle { color: var(--success-500); } /* Verde para online */
+#online-status-indicator.is-offline .fa-circle { color: var(--error-500); } /* Rojo para offline */
+
+
+/* ===== BOTONES MODERNOS (Rojos y Estilizados, Fluent UI) ===== */
+.btn-primary {
+    background: var(--primary-500); /* Rojo principal */
+    color: white;
+    border: none;
+    border-radius: var(--radius-md); /* Bordes redondeados suaves */
+    padding: 0.8rem 1.6rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all var(--transition-normal);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm); /* Sombra inicial sutil */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    letter-spacing: 0.01em;
+}
+
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+    transition: left var(--transition-slow);
+}
+
+.btn-primary:hover::before {
+    left: 100%;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px); /* Menos elevación, más Fluent */
+    box-shadow: var(--shadow-lg);
+    background: var(--primary-600); /* Rojo ligeramente más oscuro al hover */
+}
+
+.btn-primary:active {
+    transform: translateY(0); /* Sin depresión visual significativa */
+    box-shadow: var(--shadow-md);
+}
+
+/* Ajustes de color para botones específicos (manteniendo la paleta) */
+/* Estas clases vienen de Tailwind, las sobrescribimos con nuestras variables */
+.bg-red-700 { background-color: var(--primary-700) !important; } /* Gestión de Base de Datos (Rojo) */
+.hover\:bg-red-800:hover { background-color: var(--primary-800) !important; }
+.bg-slate-800 { background-color: var(--gray-900) !important; } /* Prospección de Clientes (Negro) */
+.hover\:bg-slate-900:hover { background-color: var(--gray-800) !important; }
+.bg-emerald-700 { background-color: var(--gray-700) !important; } /* Archivo de Prospección (Gris) */
+.hover\:bg-emerald-800:hover { background-color: var(--gray-800) !important; }
+.bg-gray-700 { background-color: var(--gray-700) !important; } /* Botón de Volver */
+.hover\:bg-gray-600:hover { background-color: var(--gray-600) !important; }
+.bg-slate-200 { background-color: var(--gray-200) !important; } /* Botón de Cerrar Sesión y Cancelar */
+.text-slate-700 { color: var(--gray-700) !important; }
+.hover\:bg-slate-300:hover { background-color: var(--gray-300) !important; }
+.bg-blue-600 { background-color: var(--info-500) !important; } /* Botones de Edición/Validación */
+.hover\:bg-blue-700:hover { background-color: #3373e2 !important; }
+.bg-green-600 { background-color: var(--success-500) !important; } /* Botones de Éxito/Guardar */
+.hover\:bg-green-700:hover { background-color: #0c8f62 !important; }
+.bg-orange-600 { background-color: var(--warning-500) !important; } /* Botón de Reagendar */
+.hover\:bg-orange-700:hover { background-color: #d1870b !important; }
+.bg-red-600 { background-color: var(--error-500) !important; }
+.hover\:bg-red-700:hover { background-color: var(--primary-700) !important; }
+.bg-purple-600 { background-color: #8b5cf6 !important; }
+.hover\:bg-purple-700:hover { background-color: #7b3fe6 !important; }
+
+/* Nuevo estilo para botones de acción en modales (Material Design) */
+.action-btn {
+    padding: 0.75rem 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-fast);
+    font-weight: 600;
+    font-size: 0.875rem;
+    border: none;
+    cursor: pointer;
+    gap: 0.5rem;
+    min-width: 120px;
+}
+
+.action-btn:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+.action-btn i {
+    font-size: 1rem;
+}
+
+/* ===== MODAL MEJORADO CON MATERIAL DESIGN ===== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    z-index: 1000;
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+}
+
+.modal-overlay:not(.hidden) {
+    opacity: 1;
+}
+
+.modal-overlay.hidden {
+    display: none;
+}
+
+.modal-container {
+    background: var(--gray-50);
+    border-radius: var(--radius-xxl);
+    box-shadow: var(--shadow-2xl);
+    width: 100%;
+    max-width: 800px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--gray-100);
+    position: relative;
+    transform: translateY(-20px) scale(0.95);
+    transition: all var(--transition-normal);
+}
+
+.modal-overlay:not(.hidden) .modal-container {
+    transform: translateY(0) scale(1);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem 2rem 1rem 2rem;
+    border-bottom: 1px solid var(--gray-100);
+    background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+    position: relative;
+}
+
+.modal-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
+    border-radius: var(--radius-xxl) var(--radius-xxl) 0 0;
+}
+
+.modal-header h3 {
+    color: var(--gray-900);
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-family: 'Playfair Display', serif;
+    margin: 0;
+}
+
+.modal-close-btn {
+    background: var(--gray-100);
+    border: none;
+    cursor: pointer;
+    padding: 0.75rem;
+    border-radius: var(--radius-full);
+    transition: all var(--transition-fast);
+    color: var(--gray-600);
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.modal-close-btn:hover {
+    background: var(--gray-200);
+    color: var(--gray-900);
+    transform: scale(1.1);
+}
+
+.modal-content {
+    padding: 2rem;
+    overflow-y: auto;
+    flex-grow: 1;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-300) transparent;
+}
+
+.modal-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: var(--gray-300);
+    border-radius: var(--radius-full);
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-400);
+}
+
+.modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1.5rem 2rem 2rem 2rem;
+    border-top: 1px solid var(--gray-100);
+    background: var(--gray-50);
+}
+
+/* ===== GRID DE DETALLES MEJORADO ===== */
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.detail-card {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    transition: all var(--transition-fast);
+    position: relative;
+    overflow: hidden;
+}
+
+.detail-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-500), var(--info-500));
+    transform: scaleX(0);
+    transition: transform var(--transition-normal);
+}
+
+.detail-card:hover {
+    border-color: var(--gray-300);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.detail-card:hover::before {
+    transform: scaleX(1);
+}
+
+.detail-label {
+    font-weight: 600;
+    color: var(--gray-700);
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.detail-label i {
+    color: var(--primary-500);
+    width: 16px;
+    text-align: center;
+}
+
+.detail-value {
+    color: var(--gray-900);
+    font-size: 1rem;
+    font-weight: 500;
+    word-break: break-word;
+}
+
+.detail-value.status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ===== SECCIÓN DE ACCIONES MEJORADA ===== */
+.action-section {
+    background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    border: 1px solid var(--gray-200);
+}
+
+.action-section h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.action-section h4 i {
+    color: var(--primary-500);
+}
+
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    font-size: 0.875rem;
+}
+
+.form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    transition: all var(--transition-fast);
+    background: var(--gray-50);
+    color: var(--gray-800);
+    font-family: 'Inter', sans-serif;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    background: var(--gray-50);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: var(--gray-100);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--gray-200);
+    transition: all var(--transition-fast);
+}
+
+.checkbox-group:hover {
+    background: var(--gray-200);
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-500);
+}
+
+.checkbox-group label {
+    font-size: 0.9rem;
+    color: var(--gray-700);
+    cursor: pointer;
+    margin: 0;
+}
+
+/* ===== TARJETAS MODERNAS (Fondo Blanco, Títulos y Contenido Negros/Grises) ===== */
+.prospect-card {
+    background: var(--gray-50); /* Fondo blanco puro */
+    border-radius: var(--radius-xl); /* Bordes más redondeados para Fluent UI */
+    padding: 1.5rem; /* Reducir ligeramente padding para móvil */
+    margin-bottom: 1rem; /* Reducir ligeramente margen */
+    box-shadow: var(--shadow-md); /* Sombra un poco más marcada para profundidad */
+    border: 1px solid var(--gray-100); /* Borde muy sutil */
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.prospect-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px; /* Borde de estado más delgado */
+    background: var(--primary-500); /* Fallback a rojo, será sobrescrito por clases de estado */
+    transform: scaleX(0);
+    transition: transform var(--transition-normal);
+}
+
+.prospect-card:hover {
+    transform: translateY(-4px); /* Menos elevación, más Fluent */
+    box-shadow: var(--shadow-lg); /* Sombra ligeramente más grande al hover */
+    border-color: var(--gray-200); /* Borde sutil al hover */
+}
+
+.prospect-card:hover::before {
+    transform: scaleX(1);
+}
+
+.card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem; /* Ajustar tamaño para móvil */
+    font-weight: 700;
+    color: var(--gray-900); /* Negro puro para el título de la tarjeta */
+    margin-bottom: 0.8rem; /* Ajustar margen */
+}
+
+.card-content {
+    margin-bottom: 1.25rem;
+}
+
+.card-detail {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.4rem; /* Reducir espacio entre detalles */
+    color: var(--gray-600); /* Gris oscuro para detalles */
+    font-size: 0.875rem; /* Ajustar tamaño de texto */
+}
+
+.card-detail .icon {
+    width: 1rem;
+    margin-right: 0.6rem;
+    color: var(--gray-800); /* Iconos en negro/gris oscuro */
+}
+
+.card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem; /* Reducir espacio entre botones de acción */
+}
+
+.card-actions button {
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    border: none;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    box-shadow: var(--shadow-sm);
+}
+
+/* ===== BADGES DE ESTADO MÁS SUTILES (Fluent UI, Paleta B/N/R) ===== */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    color: white;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-fast);
+}
+
+/* Colores de badges de estado: Ajustados a la paleta Blanco/Negro/Rojo */
+.status-badge.pending-email { background-color: var(--warning-500); }
+.status-badge.in-prospecting { background-color: var(--info-500); }
+.status-badge.pending-validation { background-color: var(--warning-500); }
+.status-badge.interesado { background-color: var(--success-500); }
+.status-badge.no-answer { background-color: var(--gray-700); }
+.status-badge.rejected { background-color: var(--primary-700); }
+.status-badge.rescheduled { background-color: var(--gray-900); } /* Negro puro */
+.status-badge.reactivate { background-color: var(--primary-500); } /* Rojo */
+.status-badge.admin-review-pending { background-color: var(--info-500); }
+.status-badge.completed { background-color: var(--success-500); }
+
+/* ===== ESTILOS PARA CARD BORDER BASADOS EN STATUS (priorizando colores de marca) ===== */
+.prospect-card.status-pending-email::before { background: var(--warning-500); }
+.prospect-card.status-in-prospecting::before { background: var(--info-500); }
+.prospect-card.status-pending-validation::before { background: var(--warning-500); }
+.prospect-card.status-interesado::before { background: var(--success-500); }
+.prospect-card.status-no-answer::before { background: var(--gray-700); }
+.prospect-card.status-rejected::before { background: var(--primary-700); }
+.prospect-card.status-rescheduled::before { background: var(--gray-900); }
+.prospect-card.status-reactivate::before { background: var(--primary-500); }
+.prospect-card.status-admin-review-pending::before { background: var(--info-500); }
+.prospect-card.status-completed::before { background: var(--success-500); }
+
+
+/* ===== FORMULARIOS MEJORADOS (Fondo Blanco, Texto Negro, Fluent UI) ===== */
+.form-input {
+    width: 100%;
+    padding: 0.75rem 1.1rem;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+    transition: all var(--transition-fast);
+    background: var(--gray-50); /* Fondo blanco */
+    color: var(--gray-800);
+    box-shadow: none;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 1px var(--primary-500), 0 0 0 3px rgba(239, 68, 68, 0.2); /* Sombra de enfoque más definida */
+    background: var(--gray-50);
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    font-size: 0.9rem;
+}
+
+/* ===== SECCIONES PRINCIPALES (Fondo Blanco, Texto Negro) ===== */
+#admin-screen,
+#prospector-screen,
+#archive-screen,
+#login-screen { /* Login screen también a blanco */
+    background: var(--gray-50); /* Fondo blanco puro para todas las pantallas principales */
+    border-radius: var(--radius-xxl); /* Bordes aún más redondeados */
+    box-shadow: var(--shadow-lg); /* Sombra suave para elevación */
+    padding: 2.5rem;
+    color: var(--gray-800);
+}
+
+/* Eliminar cualquier gradiente/fondo oscuro en las secciones internas de admin */
+.p-6.bg-slate-50, /* Clases de Tailwind que deben mapearse a nuestros colores */
+.p-6.bg-gray-800 { /* También presente en el HTML anterior, se mapea aquí */
+    background: var(--gray-50) !important; /* Fondo blanco */
+    border: 1px solid var(--gray-100) !important; /* Borde sutil */
+    box-shadow: var(--shadow-md) !important; /* Sombra sutil */
+    border-radius: var(--radius-lg) !important; /* Bordes redondeados */
+}
+
+/* Asegurar que todos los labels e inputs internos usen los colores correctos */
+#admin-screen .mb-8.p-6 label,
+#prospector-screen .mb-8.p-6 label,
+#archive-screen .mb-8.p-6 label,
+#login-screen .mb-8.p-6 label { /* Incluir login screen */
+    color: var(--gray-700);
+}
+#admin-screen .mb-8.p-6 input,
+#admin-screen .mb-8.p-6 select,
+#admin-screen .mb-8.p-6 textarea,
+#prospector-screen .mb-8.p-6 input,
+#prospector-screen .mb-8.p-6 select,
+#prospector-screen .mb-8.p-6 textarea,
+#archive-screen .mb-8.p-6 input,
+#archive-screen .mb-8.p-6 select,
+#archive-screen .mb-8.p-6 textarea,
+#login-screen .mb-8.p-6 input,
+#login-screen .mb-8.p-6 select,
+#login-screen .mb-8.p-6 textarea { /* Incluir login screen */
+    background: var(--gray-100);
+    border-color: var(--gray-200);
+    color: var(--gray-800);
+}
+#admin-screen .mb-8.p-6 input:focus, #admin-screen .mb-8.p-6 select:focus, #admin-screen .mb-8.p-6 textarea:focus,
+#prospector-screen .mb-8.p-6 input:focus, #prospector-screen .mb-8.p-6 select:focus, #prospector-screen .mb-8.p-6 textarea:focus,
+#archive-screen .mb-8.p-6 input:focus, #archive-screen .mb-8.p-6 select:focus, #archive-screen .mb-8.p-6 textarea:focus,
+#login-screen .mb-8.p-6 input:focus, #login-screen .mb-8.p-6 select:focus, #login-screen .mb-8.p-6 textarea:focus { /* Incluir login screen */
+    background: var(--gray-50);
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+/* Títulos de secciones (h2, h3) siempre negros */
+h2, h3 {
+    color: var(--gray-900);
+    text-shadow: none;
+}
+
+
+/* ===== DASHBOARD MEJORADO (Fondo Blanco, Contraste con Negro/Rojo) ===== */
+.chart-container {
+    background: var(--gray-50); /* Fondo blanco para el dashboard */
+    border-radius: var(--radius-xl);
+    padding: 1.75rem;
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-md);
+}
+/* Los colores de texto específicos de Chart.js se configuran en JS, usando variables CSS */
+.chart-container canvas {
+    color: var(--gray-800);
+}
+
+/* Resumen de resultados de prospección */
+#prospecting-results-summary > div {
+    background: var(--gray-50); /* Fondo blanco para cada caja */
+    border: 1px solid var(--gray-100);
+    box-shadow: var(--shadow-sm);
+    color: var(--gray-800);
+}
+#prospecting-results-summary p {
+    color: var(--gray-700);
+}
+#prospecting-results-summary p:last-child {
+    color: var(--gray-900);
+}
+
+
+/* ===== RESPONSIVE MEJORADO (Fluent UI para móvil) ===== */
+@media (max-width: 768px) {
+    .mobile-btn {
+        min-height: 48px;
+        min-width: unset;
+        padding: 0.75rem 1rem;
+        font-size: 0.85rem;
+        touch-action: manipulation;
+        border-radius: var(--radius-lg);
+    }
+    
+    .mobile-form {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .mobile-card {
+        padding: 1rem;
+        margin: 0.75rem;
+        border-radius: var(--radius-xxl);
+    }
+    
+    .mobile-header {
+        padding: 0.75rem 1rem;
+    }
+    
+    .mobile-nav {
+        flex-direction: column;
+        gap: 0.6rem;
+        width: 100%;
+    }
+    
+    .mobile-nav button {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .prospect-card {
+        margin: 0.75rem 0;
+        padding: 1.25rem;
+        border-radius: var(--radius-xl);
+    }
+    
+    .card-title {
+        font-size: 1.15rem;
+    }
+    
+    .card-detail {
+        font-size: 0.8rem;
+    }
+
+    .card-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .card-actions button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .login-screen {
+        padding: 1rem;
+        border-radius: var(--radius-xl);
+    }
+
+    /* Modal responsive */
+    .modal-overlay {
+        padding: 1rem;
+    }
+    
+    .modal-container {
+        max-width: 95vw;
+        max-height: 90vh;
+    }
+    
+    .modal-header,
+    .modal-content,
+    .modal-actions {
+        padding: 1.5rem 1rem;
+    }
+    
+    .modal-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .action-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .details-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .detail-card {
+        padding: 1rem;
+    }
+}
+
+/* ===== EFECTOS ESPECIALES (Mantener la estética) ===== */
+.cyberpunk-glow {
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.35);
+    transition: box-shadow var(--transition-normal);
+}
+
+.cyberpunk-glow:hover {
+    box-shadow: 0 0 40px rgba(239, 68, 68, 0.6);
+}
+
+/* ===== SCROLLBAR PERSONALIZADA (Mantener la estética) ===== */
+.overflow-y-auto::-webkit-scrollbar,
+.overflow-x-auto::-webkit-scrollbar {
+    width: 8px; /* Ancho de la scrollbar */
+    height: 8px; /* Altura de la scrollbar horizontal */
+    background-color: var(--gray-100);
+    border-radius: var(--radius-sm);
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb,
+.overflow-x-auto::-webkit-scrollbar-thumb {
+    background: var(--gray-400); /* Color del "pulgar" */
+    border-radius: var(--radius-sm);
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover,
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-500); /* Color del "pulgar" al hover */
+}
+
+
+/* ===== LOADING STATES (Mejorar visibilidad del shimmer) ===== */
+.loading-shimmer {
+    background: linear-gradient(90deg, var(--gray-200) 25%, var(--gray-100) 50%, var(--gray-200) 75%);
+    background-size: 400% 100%;
+    animation: shimmer 1.8s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* ===== TOAST NOTIFICATIONS (Más pulido, Fluent UI) ===== */
+.toast {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.25rem;
+    background: var(--gray-50); /* Fondo blanco para toast */
+    color: var(--gray-800); /* Texto oscuro */
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.5rem;
+    box-shadow: var(--shadow-xl);
+    border-left: 5px solid var(--success-500); /* Borde de color funcional */
+    z-index: 1000;
+    opacity: 0;
+    transform: translateX(120%);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.toast.error { border-left-color: var(--error-500); }
+.toast.warning { border-left-color: var(--warning-500); }
+.toast.info { border-left-color: var(--info-500); }
+
+/* ===== MEJORAS ADICIONALES (Cohesión de estilos) ===== */
+.glass-effect {
+    background: rgba(255, 255, 255, 0.9); /* Más opaco para mejor contraste en blanco */
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 0, 0, 0.08); /* Borde más oscuro y sutil */
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, var(--primary-600), var(--info-500));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hover-lift {
+    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.hover-lift:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Deshabilitar dark mode completamente */
+/* NO SE APLICA MEDIA QUERY (prefers-color-scheme: dark) */
+
+/* Estilos para las mejoras visuales desde script.js */
+.prospect-card.is-animating,
+.chart-container.is-animating,
+#admin-screen > div:not([id="login-form-container"]):not([id="role-selection-buttons"]).is-animating,
+#prospector-screen > div:not([id="login-form-container"]):not([id="role-selection-buttons"]).is-animating,
+#archive-screen > div:not([id="login-form-container"]):not([id="role-selection-buttons"]).is-animating {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.4s ease-out, transform 0.4s ease-out; 
+}
+
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(0);
+    animation: ripple-animation 0.5s linear;
+    pointer-events: none;
+}
+
+@keyframes ripple-animation {
+    to { transform: scale(4); opacity: 0; }
+}
+
+.keyboard-navigation *:focus {
+    outline: 2px solid var(--info-500) !important;
+    outline-offset: 3px !important;
+    border-radius: var(--radius-sm);
+}
+
+/* Estilo para botón de navegación activo (Fluent UI) */
+.active {
+    background: var(--gray-900) !important; /* Fondo negro */
+    color: var(--gray-50) !important; /* Texto blanco */
+    transform: scale(1.02) !important;
+    box-shadow: var(--shadow-md) !important; /* Sombra más discreta */
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.parallax-element { will-change: transform; }
+
+.loading-skeleton {
+    background: linear-gradient(90deg, var(--gray-200) 25%, var(--gray-100) 50%, var(--gray-200) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+/* Call Button */
+.call-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background-color: var(--success-500);
+    color: white;
+    border-radius: var(--radius-lg);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-sm);
+    border: none;
+    cursor: pointer;
+}
+
+.call-btn:hover {
+    background-color: #0c9e6e;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.call-btn i { 
+    font-size: 1rem; 
+}
+
+/* ===== ESTILOS ESPECÍFICOS PARA ELEMENTOS ESPECIALES ===== */
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--gray-100);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--gray-200);
+}
+
+.priority-high {
+    border-left: 4px solid var(--error-500);
+}
+
+.priority-medium {
+    border-left: 4px solid var(--warning-500);
+}
+
+.priority-low {
+    border-left: 4px solid var(--success-500);
+}
+
+/* Animaciones adicionales para elementos interactivos */
+.interactive-element {
+    transition: all var(--transition-normal);
+}
+
+.interactive-element:hover {
+    transform: scale(1.02);
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
