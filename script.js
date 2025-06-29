@@ -38,7 +38,11 @@ const DEMO_USERS = {
 };
 
 // UIDs reales de usuarios clave
-const ADMIN_UIDS = ["kRTRRDQ9k9hFzSqy1rDkMDtvaav2", "demo-admin-uid"];
+const ADMIN_UIDS = [
+  "kRTRRDQ9k9hFzSqy1rDkMDtvaav2", // Administrador
+  "Wv1BcMQlQreQ3doUPccObJdX6cS2", // Nicolás Capetillo
+  "demo-admin-uid"
+];
 const NICOLAS_UID = 'Wv1BcMQlQreQ3doUPccObJdX6cS2';
 const FRANCISCO_UID = 'n4WFgGtOtDQwYaV9QXy16bDvYE32';
 
@@ -716,90 +720,30 @@ const getStatusBadgeClass = (status) => {
  */
 const createProspectCardHTML = (prospect, isAdminView = false, isArchiveView = false) => {
     const effectiveDueDate = prospect.reagendadoPara || prospect.prospectingDueDate;
-    const deadlineText = effectiveDueDate ? getRemainingBusinessDays(prospect.prospectingDueDate, prospect.reagendadoPara) : 'N/A';
-    const statusIndicator = prospect.status === 'Seguimiento agendado' ? `<span style="color: var(--primary-700);" class="ml-1">(Reagendado)</span>` : '';
+    const statusIndicator = prospect.status === 'Seguimiento agendado' ? `<span style="color: #d32f2f; font-weight: bold;" class="ml-1">(Reagendado)</span>` : '';
 
-    let actionsHTML = '';
-
-    if (isAdminView) {
-        actionsHTML = `
-            ${prospect.status === 'Pendiente de Correo' ?
-                `<button data-id="${prospect.id}" class="confirm-email-btn bg-red-700 hover:bg-red-800 text-white font-inter rounded-lg mobile-btn">
-                    <i class="fas fa-paper-plane"></i> Enviar Correo
-                </button>` :
-                `<button data-id="${prospect.id}" class="view-details-btn bg-gray-600 hover:bg-gray-700 text-white font-inter rounded-lg mobile-btn">
-                    <i class="fas fa-eye"></i> Ver Detalles
-                </button>`
-            }
-            <button data-id="${prospect.id}" class="edit-prospect-admin-btn bg-blue-600 hover:bg-blue-700 text-white font-inter rounded-lg mobile-btn">
-                <i class="fas fa-edit"></i> Editar
-            </button>
-            ${prospect.status === 'Pendiente de Validación' ?
-                `<button data-id="${prospect.id}" class="validate-prospect-btn bg-green-600 hover:bg-green-700 text-white font-inter rounded-lg mobile-btn">
-                    <i class="fas fa-check"></i> Validar
-                </button>` : ''
-            }
-            ${prospect.status === 'Reactivar Contacto' ?
-                `<button data-id="${prospect.id}" class="reactivate-contact-btn bg-purple-600 hover:bg-purple-700 text-white font-inter rounded-lg mobile-btn">
-                    <i class="fas fa-redo"></i> Reactivar
-                </button>` : ''
-            }
-            ${prospect.status === 'Revisión Admin Pendiente' || prospect.status === 'Completado' ?
-                `<button data-id="${prospect.id}" class="admin-review-complete-btn bg-green-600 hover:bg-green-700 text-white font-inter rounded-lg mobile-btn">
-                    <i class="fas fa-check-circle"></i> Revisión Completa
-                </button>` : ''
-            }
-        `;
-    } else if (isArchiveView) {
-        actionsHTML = `
-            <button data-id="${prospect.id}" class="view-details-btn bg-gray-600 hover:bg-gray-700 text-white font-inter rounded-lg mobile-btn">
-                <i class="fas fa-eye"></i> Ver Detalles
-            </button>
-        `;
-    } else { // Prospector view
-        actionsHTML = `
-            ${(!prospect.assignedTo || prospect.assignedTo === currentUserId) &&
-              (prospect.status === 'En Prospección' || prospect.status === 'Seguimiento agendado') ?
-                `<button data-id="${prospect.id}" class="assign-prospect-btn bg-blue-600 hover:bg-blue-700 text-white font-inter rounded-lg mobile-btn">
-                    <i class="fas fa-user-plus"></i> ${prospect.assignedTo === currentUserId ? 'Contactar' : 'Asignar y Contactar'}
-                </button>` :
-                (prospect.assignedTo ? `<span class="text-sm" style="color: var(--gray-600);">Asignado a ${prospect.assignedByName || 'Otro'}</span>` : '')
-            }
-            ${(prospect.status === 'Interesado' || prospect.status === 'No contesta' || prospect.status === 'Rechazado' || prospect.status === 'Completado' || prospect.status === 'Revisión Admin Pendiente') ?
-                `<button data-id="${prospect.id}" class="view-details-btn bg-gray-600 hover:bg-gray-700 text-white font-inter rounded-lg mobile-btn ml-auto">
-                    <i class="fas fa-eye"></i> Ver Detalles
-                </button>` : ''
-            }
-        `;
-    }
-
-    return `
-        <div class="prospect-card ${getStatusBadgeClass(prospect.status).replace('status-badge ', 'status-')}">
-            <h4 class="card-title" style="color: var(--gray-900);">${prospect.businessName}</h4>
-            <div class="card-content">
-                <p class="card-detail" style="color: var(--gray-600);"><i class="fas fa-user icon"></i> ${prospect.contactPerson || 'N/A'}</p>
-                <p class="card-detail" style="color: var(--gray-600);"><i class="fas fa-envelope icon"></i> ${prospect.email}</p>
-                <p class="card-detail" style="color: var(--gray-600);"><i class="fas fa-phone icon"></i> ${prospect.phone}</p>
-                <p class="card-detail" style="color: var(--gray-600);"><i class="fas fa-tag icon"></i> ${prospect.classification}</p>
-                <p class="card-detail" style="color: var(--gray-600);">
-                    <i class="fas fa-info-circle icon"></i> Estatus:
-                    <span class="${getStatusBadgeClass(prospect.status)}">
-                        ${prospect.status} ${statusIndicator}
-                    </span>
-                </p>
-                <p class="card-detail" style="color: var(--gray-600);"><i class="fas fa-calendar-alt icon"></i> Fecha Correo: ${formatDate(prospect.sentEmailDate)}</p>
-                <p class="card-detail" style="color: var(--gray-600);"><i class="fas fa-hourglass-half icon"></i> Fecha Límite: ${formatDate(effectiveDueDate)}</p>
-                <p class="card-detail" style="color: var(--gray-600);"><i class="fas fa-clock icon"></i> Días Restantes: ${deadlineText}</p>
-                ${prospect.assignedTo ? `<p class="card-detail" style="color: var(--gray-600);"><i class="fas fa-user-circle icon"></i> Asignado a: ${prospect.assignedByName}</p>` : ''}
-                ${isArchiveView && prospect.contactResult ? `<p class="card-detail" style="color: var(--gray-600);"><i class="fas fa-handshake icon"></i> Resultado: ${prospect.contactResult}</p>` : ''}
-                ${prospect.contactedBy && prospect.contactedBy.name ? `<p class="card-detail" style="color: var(--gray-600);"><i class="fas fa-phone-alt icon"></i> Contactado por: ${prospect.contactedBy.name}</p>` : ''}
-                ${prospect.observations ? `<p class="card-detail" style="color: var(--gray-600);"><i class="fas fa-comment-dots icon"></i> Obs: ${prospect.observations.substring(0, 50)}${prospect.observations.length > 50 ? '...' : ''}</p>` : ''}
-            </div>
-            <div class="card-actions">
-                ${actionsHTML}
-            </div>
+    // Compacta: solo info clave
+    let compactHTML = `
+      <div class="prospect-card minimal-card" style="background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; box-shadow: 0 2px 8px #0001; margin-bottom: 1rem; padding: 1.2rem 1.5rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <h4 style="color: #111; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.2rem;">${prospect.businessName}</h4>
+            <div style="color: #444; font-size: 0.98rem; margin-bottom: 0.1rem;"><i class="fas fa-phone icon"></i> ${prospect.phone}</div>
+            <div style="color: #444; font-size: 0.98rem; margin-bottom: 0.1rem;"><i class="fas fa-calendar-alt icon"></i> ${formatDate(prospect.sentEmailDate)}</div>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: flex-end;">
+            <span style="background: #222; color: #fff; font-size: 0.85rem; border-radius: 8px; padding: 0.2rem 0.7rem; margin-bottom: 0.2rem; min-width: 90px; text-align: center;">${prospect.status} ${statusIndicator}</span>
+            <button data-id="${prospect.id}" class="view-details-btn" style="background: #fff; color: #d32f2f; border: 1px solid #d32f2f; border-radius: 6px; padding: 0.2rem 0.8rem; font-size: 0.95rem; font-weight: 600; margin-top: 0.3rem; cursor: pointer;">Ver Detalle</button>
+          </div>
         </div>
+      </div>
     `;
+
+    // Versión extendida (al hacer clic en Ver Detalle)
+    // Aquí puedes reutilizar el bloque anterior, pero mostrando toda la info y acciones
+    // ...
+
+    return compactHTML;
 };
 
 /**

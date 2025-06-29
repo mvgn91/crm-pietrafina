@@ -1,3 +1,7 @@
+/* Asegura que el modal de reagendar esté siempre al frente */
+#reschedule-modal {
+    z-index: 2000 !important;
+}
 /* ===== VARIABLES CSS MODERNAS (Ajustadas a paleta Blanco, Negro, Rojo, Fluent UI) ===== */
 :root {
     /* Paleta de colores principal: Rojo de Pietra Fina */
