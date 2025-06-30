@@ -328,7 +328,7 @@ const handleDemoLogin = async (email, password) => {
 
         elements.onlineStatusIndicator.classList.remove('is-offline');
         elements.onlineStatusIndicator.classList.add('is-online');
-        elements.onlineStatusIndicator.querySelector('i').className = 'fas fa-circle mr-1';
+        elements.onlineStatusIndicator.querySelector('i').className = 'fas fa-wifi mr-1';
         elements.onlineStatusIndicator.querySelector('span').textContent = 'Online';
 
         elements.authStatusDiv.innerHTML = `
@@ -634,6 +634,20 @@ elements.addProspectForm.addEventListener('submit', async (e) => {
             reagendadoPara: null
         };
 
+        // Validación de duplicados por nombre o teléfono
+        const q1 = query(collection(db, 'prospects'), where('businessName', '==', businessName));
+        const q2 = query(collection(db, 'prospects'), where('phone', '==', phone));
+        const [nameSnap, phoneSnap] = await Promise.all([getDocs(q1), getDocs(q2)]);
+        if (!nameSnap.empty) {
+            showToast('Ya existe un prospecto con ese nombre de empresa.', 'error');
+            hideLoading(submitButton, originalButtonText);
+            return;
+        }
+        if (!phoneSnap.empty) {
+            showToast('Ya existe un prospecto con ese número de teléfono.', 'error');
+            hideLoading(submitButton, originalButtonText);
+            return;
+        }
         await addDoc(collection(db, 'prospects'), newProspect);
         showToast('Prospecto añadido exitosamente', 'success');
         elements.addProspectForm.reset();
@@ -1308,9 +1322,43 @@ const showProspectDetailsModal = (prospectId) => {
         elements.editProspectBtn.onclick = () => {
             showEditProspectModal(prospectId);
         };
+
+        // --- Botón "Campaña de contacto enviada" para admin y Nicolás Capetillo, solo si status es "Pendiente de Correo" ---
+        // Evitar duplicados: eliminar si ya existe
+        const existingBtn = document.getElementById('contact-campaign-sent-btn');
+        if (existingBtn) existingBtn.remove();
+
+        // Mostrar para admin (UID en ADMIN_UIDS) y Nicolás Capetillo (NICOLAS_UID)
+        const isAdminUID = ADMIN_UIDS.includes(currentUserId);
+        const isNicolas = currentUserId === NICOLAS_UID;
+        if ((isAdminUID || isNicolas) && prospect.status === 'Pendiente de Correo') {
+            const btn = document.createElement('button');
+            btn.id = 'contact-campaign-sent-btn';
+            btn.type = 'button';
+            btn.className = 'action-btn bg-green-600 hover:bg-green-700 text-white flex items-center gap-2 mt-2';
+            btn.style.width = '100%';
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Campaña de contacto enviada';
+            btn.onclick = async (event) => {
+                const originalText = btn.innerHTML;
+                showLoading(btn, 'Actualizando...');
+                try {
+                    await updateProspectStatus(prospect.id, 'En Prospección');
+                    showToast('Prospecto movido a "En Prospección"', 'success');
+                    elements.detailModal.classList.add('hidden');
+                } catch (e) {
+                    showToast('Error al actualizar el estado', 'error');
+                } finally {
+                    hideLoading(btn, originalText);
+                }
+            };
+            elements.adminActionsArea.appendChild(btn);
+        }
     } else {
         elements.adminActionsArea.classList.add('hidden');
         elements.editProspectActionArea.classList.add('hidden');
+        // Si no es admin, asegurarse de eliminar el botón si existe
+        const existingBtn = document.getElementById('contact-campaign-sent-btn');
+        if (existingBtn) existingBtn.remove();
     }
 
     // Show/hide reschedule action
