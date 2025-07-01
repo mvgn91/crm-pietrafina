@@ -89,7 +89,30 @@ function App() {
                   {PROSPECTOS.map(p => (
                     <li key={p.id} style={{ marginBottom: 16, background: '#f1f5f9', borderRadius: 8, padding: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
                       <span style={{ fontWeight: 500 }}>{p.nombre}</span>
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                      {/* Ejemplo de etiqueta de estatus visual para "CLIENTE CONVERTIDO" */}
+                      {p.nombre === 'Juan Pérez' && (
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          borderRadius: 5,
+                          padding: '2px 10px',
+                          background: '#e6f4ea',
+                          color: '#17803a',
+                          border: '1px solid #b6e2c6',
+                          letterSpacing: 0.2,
+                          lineHeight: 1.2,
+                          minHeight: 22,
+                          userSelect: 'none',
+                        }}>
+                          <span style={{fontSize:14,marginRight:4}}>★</span>CLIENTE CONVERTIDO
+                        </span>
+                      )}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        {/* Ejemplo de uso de EtiquetaStatus para "CLIENTE CONVERTIDO" */}
+                        {/* <EtiquetaStatus texto="CLIENTE CONVERTIDO" color="#e6f4ea" textoColor="#17803a" icono={<span style={{fontSize:14}}>★</span>} /> */}
                         <button onClick={() => setDetalle(p.id)} style={{ background: '#2b6cb0', color: 'white', border: 'none', borderRadius: 4, padding: '6px 16px', cursor: 'pointer', fontWeight: 500 }}>Ver detalles</button>
                         <WhatsAppMiniButton />
                       </div>

@@ -1,4 +1,6 @@
+
 import WhatsAppMaterialSender from './WhatsAppMaterialSender';
+
 
 const PROSPECTOS_INICIALES = [
   { id: 1, nombre: 'Juan Pérez', telefono: '5215551112233', email: 'juan@mail.com', correoEnviado: false },
@@ -79,9 +81,43 @@ export default function WhatsAppSection() {
                 <td style={{ padding: 12 }}>{p.email}</td>
                 <td style={{ padding: 12, textAlign: 'center' }}>
                   {p.correoEnviado ? (
-                    <span style={{ color: '#16a34a', fontWeight: 600 }}>Enviado</span>
+                    <span style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      fontSize: 13,
+                      fontWeight: 600,
+                      borderRadius: 5,
+                      padding: '2px 10px',
+                      background: '#e6f4ea',
+                      color: '#17803a',
+                      border: '1px solid #b6e2c6',
+                      letterSpacing: 0.2,
+                      lineHeight: 1.2,
+                      minHeight: 22,
+                      userSelect: 'none',
+                    }}>
+                      <span style={{fontSize:14,marginRight:4}}>✔️</span>Enviado
+                    </span>
                   ) : (
-                    <span style={{ color: '#f59e42', fontWeight: 600 }}>Pendiente de correo</span>
+                    <span style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      fontSize: 13,
+                      fontWeight: 600,
+                      borderRadius: 5,
+                      padding: '2px 10px',
+                      background: '#fff7e6',
+                      color: '#b26a00',
+                      border: '1px solid #ffe0b2',
+                      letterSpacing: 0.2,
+                      lineHeight: 1.2,
+                      minHeight: 22,
+                      userSelect: 'none',
+                    }}>
+                      <span style={{fontSize:14,marginRight:4}}>⏳</span>Pendiente de correo
+                    </span>
                   )}
                 </td>
                 <td style={{ padding: 12, textAlign: 'center' }}>

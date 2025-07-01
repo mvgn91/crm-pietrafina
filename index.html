@@ -90,6 +90,9 @@
                     <button id="archive-button" class="bg-emerald-700 hover:bg-emerald-800 text-white font-inter py-4 px-8 btn-primary rounded-md mobile-btn">
                         <i class="fas fa-archive mr-3"></i> Archivo de Prospección
                     </button>
+                    <button id="whatsapp-massive-button" class="bg-green-600 hover:bg-green-700 text-white font-inter py-4 px-8 btn-primary rounded-md mobile-btn">
+                        <i class="fab fa-whatsapp mr-3"></i> Enviar Material por WhatsApp
+                    </button>
                     <button id="logout-button" class="bg-slate-200 text-slate-700 font-inter py-3 px-6 rounded-md hover:bg-slate-300 transition duration-200 mobile-btn">
                         <i class="fas fa-sign-out-alt mr-2"></i> Cerrar Sesión
                     </button>
@@ -194,6 +197,14 @@
                             <p id="interesadoCount" class="text-2xl font-bold text-green-600">0</p>
                         </div>
                         <div class="bg-slate-50 p-4 rounded-md shadow-sm border border-slate-200">
+                            <p class="text-sm text-slate-700">Cliente convertido</p>
+                            <p id="clienteConvertidoCount" class="text-2xl font-bold text-green-700">0</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-md shadow-sm border border-slate-200">
+                            <p class="text-sm text-slate-700">Ya es nuestro cliente</p>
+                            <p id="yaEsClienteCount" class="text-2xl font-bold text-green-800">0</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-md shadow-sm border border-slate-200">
                             <p class="text-sm text-slate-700">Tasa de Conversión</p>
                             <p id="conversionRate" class="text-2xl font-bold text-purple-600">0%</p>
                         </div>
@@ -216,7 +227,7 @@
                                 <option value="Rechazado">Rechazado</option>
                                 <option value="Seguimiento agendado">Seguimiento agendado</option>
                                 <option value="Reactivar Contacto">Reactivar Contacto</option>
-                                <option value="Revisión Admin Pendiente">Revisión Admin Pendiente</option>
+                                
                                 <option value="Completado">Completado</option>
                             </select>
                         </div>
@@ -297,7 +308,7 @@
                             <option value="No contesta">No contesta</option>
                             <option value="Rechazado">Rechazado</option>
                             <option value="Completado">Completado</option>
-                            <option value="Revisión Admin Pendiente">Pendiente de Revisión</option>
+                            
                         </select>
                     </div>
                     <div class="flex-grow">
@@ -473,13 +484,25 @@
                                 <option value="No contesta">No contesta</option>
                                 <option value="Rechazado">Rechazado</option>
                                 <option value="Seguimiento agendado">Seguimiento agendado</option>
-                                <option value="Revisión Admin Pendiente">Finalizar Proceso (Revisión Admin)</option>
+                                
+                                <option value="Ya es nuestro cliente">Ya es nuestro cliente</option>
+                                <option value="Convertido a cliente">Convertido a cliente</option>
                             </select>
                         </div>
                         
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="materialSent">
-                            <label for="materialSent">Material enviado al cliente</label>
+
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <button id="whatsappSendBtn" type="button" class="action-btn bg-green-500 hover:bg-green-600 text-white" style="margin-left: 8px; display: flex; align-items: center; gap: 6px;">
+                                <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
+                            </button>
+                        </div>
+
+                        <div id="whatsappMessageArea" style="display: none; margin-top: 10px;">
+                            <label for="whatsappMessage" style="font-weight: 500; color: #166534;">Mensaje para WhatsApp:</label>
+                            <textarea id="whatsappMessage" rows="3" class="form-textarea" style="width: 100%; margin-top: 4px;"></textarea>
+                            <button id="whatsappConfirmSendBtn" type="button" class="action-btn bg-green-600 hover:bg-green-700 text-white" style="margin-top: 6px; float: right;">
+                                <i class="fab fa-whatsapp"></i> Enviar mensaje
+                            </button>
                         </div>
                         
                         <button id="saveFollowUpBtn" class="action-btn bg-slate-800 hover:bg-slate-900 text-white w-full">

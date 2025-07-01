@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enviar Material por WhatsApp | CRM Pietra Fina</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="antialiased font-inter text-slate-800" style="background: var(--gray-50);">
+  <canvas id="interactive-bg" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;pointer-events:none"></canvas>
+  <section class="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-2xl shadow-2xl border border-gray-100" style="position:relative;z-index:1;">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+      <h2 class="text-2xl font-playfair font-bold flex items-center mb-2 md:mb-0 text-gray-900"><i class="fab fa-whatsapp mr-3"></i> Enviar Material por WhatsApp</h2>
+      <div class="w-full md:w-1/2">
+        <label for="whatsapp-massive-search" class="form-label block mb-1">Buscar prospecto por nombre, teléfono o email:</label>
+        <input id="whatsapp-massive-search" type="text" class="form-input w-full" placeholder="Ejemplo: Juan, 5551234567, correo@email.com">
+      </div>
+    </div>
+    <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-md">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-gray-100 text-gray-700">
+            <th class="p-4 font-semibold">Nombre</th>
+            <th class="p-4 font-semibold">Teléfono</th>
+            <th class="p-4 font-semibold">Email</th>
+            <th class="p-4 font-semibold">Acción</th>
+          </tr>
+        </thead>
+        <tbody id="whatsapp-massive-tbody">
+          <tr><td colspan="4" class="text-center p-8 text-gray-500">Cargando prospectos...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Modal para mensaje editable -->
+  <div id="whatsapp-massive-modal" class="modal-overlay hidden" style="z-index:2;">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>Enviar WhatsApp</h3>
+        <button id="whatsapp-massive-modal-close" class="modal-close-btn"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-content">
+        <label for="whatsapp-massive-message" class="form-label">Mensaje para WhatsApp:</label>
+        <textarea id="whatsapp-massive-message" rows="4" class="form-textarea" style="width:100%"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button id="whatsapp-massive-send-btn" class="action-btn bg-green-600 hover:bg-green-700 text-white"><i class="fab fa-whatsapp"></i> Enviar</button>
+        <button id="whatsapp-massive-cancel-btn" class="action-btn bg-slate-200 text-slate-700">Cancelar</button>
+      </div>
+    </div>
+  </div>
+  <script src="./whatsapp-massive.js"></script>
+</body>
+</html>

@@ -1,3 +1,23 @@
+// --- Botón de acceso masivo a WhatsApp ---
+document.addEventListener('DOMContentLoaded', function () {
+  const btn = document.getElementById('whatsapp-massive-button');
+  if (btn) {
+    btn.addEventListener('click', function () {
+      window.location.href = './whatsapp-massive.html';
+    });
+  }
+
+  // --- Fondo Matrix: inicialización global ---
+  // Si existe un canvas con id 'interactive-bg', inicializa el fondo Matrix ahí
+  const matrixCanvas = document.getElementById('interactive-bg');
+  if (matrixCanvas) {
+    if (typeof window.startMatrix === 'function') {
+      window.startMatrix();
+    } else if (typeof startMatrix === 'function') {
+      startMatrix();
+    }
+  }
+});
 // Importa las funciones necesarias de los SDKs de Firebase (v11.6.1)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -271,7 +291,11 @@ const elements = {
     followUpNotesInput: document.getElementById('followUpNotes'),
     contactResultSelect: document.getElementById('contactResult'),
     materialSentCheckbox: document.getElementById('materialSent'),
-    saveFollowUpBtn: document.getElementById('saveFollowUpBtn'),
+    whatsappSendBtn: document.getElementById('whatsappSendBtn'),
+    whatsappMessageArea: document.getElementById('whatsappMessageArea'),
+whatsappMessage: document.getElementById('whatsappMessage'),
+whatsappConfirmSendBtn: document.getElementById('whatsappConfirmSendBtn'),
+saveFollowUpBtn: document.getElementById('saveFollowUpBtn'),
     deleteProspectBtn: document.getElementById('deleteProspectBtn'),
     rescheduleActionArea: document.getElementById('reschedule-action-area'),
     adminActionsArea: document.getElementById('admin-actions-area'),
@@ -613,6 +637,7 @@ elements.addProspectForm.addEventListener('submit', async (e) => {
     showLoading(submitButton, 'Añadiendo...');
 
     try {
+
         const newProspect = {
             businessName,
             contactPerson: contactPerson || null,
@@ -631,13 +656,22 @@ elements.addProspectForm.addEventListener('submit', async (e) => {
             assignedTo: null,
             assignedByName: null,
             adminFinalReviewNeeded: false,
-            reagendadoPara: null
+            reagendadoPara: null,
+            isClient: false // Nuevo campo para marcar si es cliente
         };
 
-        // Validación de duplicados por nombre o teléfono
+        // Validación de duplicados por nombre o teléfono, y bloqueo si ya es cliente
         const q1 = query(collection(db, 'prospects'), where('businessName', '==', businessName));
         const q2 = query(collection(db, 'prospects'), where('phone', '==', phone));
         const [nameSnap, phoneSnap] = await Promise.all([getDocs(q1), getDocs(q2)]);
+        let isClientDuplicate = false;
+        nameSnap.forEach(doc => { if (doc.data().isClient) isClientDuplicate = true; });
+        phoneSnap.forEach(doc => { if (doc.data().isClient) isClientDuplicate = true; });
+        if (isClientDuplicate) {
+            showToast('Este contacto ya es cliente de Pietra Fina. No se puede volver a ingresar.', 'error');
+            hideLoading(submitButton, originalButtonText);
+            return;
+        }
         if (!nameSnap.empty) {
             showToast('Ya existe un prospecto con ese nombre de empresa.', 'error');
             hideLoading(submitButton, originalButtonText);
@@ -723,7 +757,7 @@ const getStatusBadgeClass = (status) => {
         case 'Rechazado': return 'status-badge rejected';
         case 'Seguimiento agendado': return 'status-badge rescheduled';
         case 'Reactivar Contacto': return 'status-badge reactivate';
-        case 'Revisión Admin Pendiente': return 'status-badge admin-review-pending';
+        // case 'Revisión Admin Pendiente': return 'status-badge admin-review-pending'; // Eliminado del flujo
         case 'Completado': return 'status-badge completed';
         default: return 'status-badge';
     }
@@ -735,7 +769,8 @@ const getStatusBadgeClass = (status) => {
 
 const createProspectCardHTML = (prospect, isAdminView = false, isArchiveView = false) => {
     const effectiveDueDate = prospect.reagendadoPara || prospect.prospectingDueDate;
-    const statusIndicator = prospect.status === 'Seguimiento agendado' ? `<span style="color: #d32f2f; font-weight: bold;" class="ml-1">(Reagendado)</span>` : '';
+    // Solo mostrar "Seguimiento reagendado" como etiqueta, sin (Reagendado)
+    const statusIndicator = '';
 
     // --- Campana de alerta roja si reagendado para hoy o ayer ---
     let bellHTML = '';
@@ -750,17 +785,46 @@ const createProspectCardHTML = (prospect, isAdminView = false, isArchiveView = f
         }
     }
 
+
+    // Estética mejorada para "YA ES NUESTRO CLIENTE"
+    let clientBadge = '';
+    if (isArchiveView && prospect.isClient && prospect.contactResult === 'Ya es nuestro cliente') {
+        clientBadge = `
+          <span style="
+            display: inline-flex;
+            align-items: center;
+            background: #f6fff9;
+            color: #178a4c;
+            border: 1px solid #b6e7c9;
+            font-size: 0.85em;
+            border-radius: 4px;
+            padding: 0.05em 0.35em 0.05em 0.3em;
+            margin-left: 0.4em;
+            font-weight: 500;
+            letter-spacing: 0.1px;
+            box-shadow: none;
+            gap: 0.25em;
+            min-width: 0;
+            text-transform: capitalize;
+            ">
+            <i class='fas fa-user-check' style='font-size:0.8em; margin-right:0.18em;'></i>
+            Ya es nuestro cliente
+          </span>`;
+    } else if (isArchiveView && prospect.contactResult === 'Convertido a cliente') {
+        clientBadge = `<span style="background: #22c55e; color: #fff; font-size: 0.85rem; border-radius: 8px; padding: 0.2rem 0.7rem; margin-left: 0.5em; min-width: 110px; text-align: center; font-weight: 600;">CLIENTE CONVERTIDO</span>`;
+    }
+
     // Compacta: solo info clave
     let compactHTML = `
       <div class="prospect-card minimal-card" style="background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; box-shadow: 0 2px 8px #0001; margin-bottom: 1rem; padding: 1.2rem 1.5rem;">
         <div style="display: flex; align-items: center; justify-content: space-between;">
           <div>
-            <h4 style="color: #111; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.2rem;">${bellHTML}${prospect.businessName}</h4>
+            <h4 style="color: #111; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.2rem;">${bellHTML}${prospect.businessName} ${clientBadge}</h4>
             <div style="color: #444; font-size: 0.98rem; margin-bottom: 0.1rem;"><i class="fas fa-phone icon"></i> ${prospect.phone}</div>
             <div style="color: #444; font-size: 0.98rem; margin-bottom: 0.1rem;"><i class="fas fa-calendar-alt icon"></i> ${formatDate(prospect.sentEmailDate)}</div>
           </div>
           <div style="display: flex; flex-direction: column; align-items: flex-end;">
-            <span style="background: #222; color: #fff; font-size: 0.85rem; border-radius: 8px; padding: 0.2rem 0.7rem; margin-bottom: 0.2rem; min-width: 90px; text-align: center;">${prospect.status} ${statusIndicator}</span>
+            <span class="status-badge ${getStatusBadgeClass(prospect.status)}">${prospect.status}</span>
             <button data-id="${prospect.id}" class="view-details-btn" style="background: #fff; color: #d32f2f; border: 1px solid #d32f2f; border-radius: 6px; padding: 0.2rem 0.8rem; font-size: 0.95rem; font-weight: 600; margin-top: 0.3rem; cursor: pointer;">Ver Detalle</button>
           </div>
         </div>
@@ -1172,13 +1236,20 @@ const renderArchiveCards = () => {
     if (currentUserRole !== 'admin' && currentUserRole !== 'prospector') return;
     console.log("Renderizando Tarjetas de Archivo.");
 
-    const finalStatuses = ['Interesado', 'No contesta', 'Rechazado', 'Completado', 'Revisión Admin Pendiente'];
+
+    // NUEVO: Eliminar "Revisión Admin Pendiente" del flujo y del filtro (ya no se usa en ningún lado)
+    const finalStatuses = ['Interesado', 'No contesta', 'Rechazado', 'Completado', 'Convertido'];
     const filterStatus = elements.archiveStatusFilter.value;
     const searchTerm = elements.archiveSearchFilter.value.toLowerCase();
 
+    // Mostrar en archivo solo los que realmente están en estatus final o cliente, NO los que están en prospección
     const archivedProspects = allProspects.filter(p => {
-        const matchesStatus = (filterStatus === 'all' && finalStatuses.includes(p.status)) || p.status === filterStatus;
-        const matchesSearch = !searchTerm || p.businessName.toLowerCase().includes(searchTerm) || (p.contactPerson && p.contactPerson.toLowerCase().includes(searchTerm));
+        const isFinal = finalStatuses.includes(p.status) || p.isClient;
+        // Excluir si está en prospección o reagendado
+        const isActive = p.status === 'En Prospección' || p.status === 'Seguimiento agendado';
+        if (!isFinal || isActive) return false;
+        const matchesStatus = (filterStatus === 'all' && isFinal) || (filterStatus !== 'all' && (p.status === filterStatus || (filterStatus === 'Cliente' && p.isClient) || (filterStatus === 'Convertido' && p.status === 'Convertido')));
+        const matchesSearch = !searchTerm || (p.businessName && p.businessName.toLowerCase().includes(searchTerm)) || (p.contactPerson && p.contactPerson.toLowerCase().includes(searchTerm));
         return matchesStatus && matchesSearch;
     }).sort((a, b) => {
         const dateA = a.lastUpdated ? new Date(a.lastUpdated) : new Date(0);
@@ -1375,8 +1446,8 @@ const showProspectDetailsModal = (prospectId) => {
         if (existingBtn) existingBtn.remove();
     }
 
-    // Show/hide reschedule action
-    if (canUserReschedule(currentUserId, currentUserRole, currentUserName) && prospect.status !== 'Completado' && prospect.status !== 'Rechazado') {
+    // Permitir reagendar desde archivo de prospección sin importar el estatus
+    if (canUserReschedule(currentUserId, currentUserRole, currentUserName) && (currentUserRole === 'admin' || currentUserRole === 'prospector')) {
         elements.rescheduleActionArea.classList.remove('hidden');
         elements.rescheduleFollowUpBtn.onclick = () => {
             elements.rescheduleModal.classList.remove('hidden');
@@ -1524,22 +1595,34 @@ const saveFollowUpBtnClickHandler = async (event) => {
             });
         }
 
-        const finalStatus = 'Revisión Admin Pendiente';
-
+        // NUEVO FLUJO: Si es "Ya es nuestro cliente" o "Convertido a cliente", va directo a archivo con etiqueta adecuada
+        let finalStatus = 'Completado';
+        let isClientFlag = false;
+        if (newContactResult === 'Ya es nuestro cliente') {
+            finalStatus = 'Completado';
+            isClientFlag = true;
+        } else if (newContactResult === 'Convertido a cliente') {
+            finalStatus = 'Convertido a cliente';
+            isClientFlag = true;
+        } else if ([ 'Interesado', 'No contesta', 'Rechazado' ].includes(newContactResult)) {
+            finalStatus = newContactResult;
+        }
         await updateDoc(prospectRef, {
             contactResult: newContactResult,
             status: finalStatus,
             followUpNotes: updatedFollowUpNotes,
             materialSent: materialSent,
             contactedBy: { uid: currentUserId, name: currentUserName },
-            pendingValidationResult: newContactResult,
+            pendingValidationResult: null,
             lastUpdated: new Date().toISOString().split('T')[0],
             prospectingDueDate: null,
             sentEmailDate: null,
-            reagendadoPara: null
+            reagendadoPara: null,
+            ...(isClientFlag ? { isClient: true } : {})
         });
 
-        showToast('Seguimiento guardado. Pendiente de validación del administrador.', 'success');
+        // NUEVO: Cerrar el modal y mostrar solo la notificación de archivado, sin referencia a validación
+        showToast('Seguimiento guardado y prospecto archivado.', 'success');
         elements.detailModal.classList.add('hidden');
     }
     catch (e) {
@@ -1780,14 +1863,14 @@ const updateDashboard = () => {
     const statusCounts = {
         'Pendiente de Correo': allProspects.filter(p => p.status === 'Pendiente de Correo').length,
         'En Prospección': allProspects.filter(p => p.status === 'En Prospección').length,
-        'Pendiente de Validación': allProspects.filter(p => p.status === 'Pendiente de Validación').length,
         'Interesado': allProspects.filter(p => p.status === 'Interesado').length,
         'No contesta': allProspects.filter(p => p.status === 'No contesta').length,
         'Rechazado': allProspects.filter(p => p.status === 'Rechazado').length,
         'Seguimiento agendado': allProspects.filter(p => p.status === 'Seguimiento agendado').length,
         'Reactivar Contacto': allProspects.filter(p => p.status === 'Reactivar Contacto').length,
-        'Revisión Admin Pendiente': allProspects.filter(p => p.status === 'Revisión Admin Pendiente').length,
-        'Completado': allProspects.filter(p => p.status === 'Completado').length
+        'Completado': allProspects.filter(p => p.status === 'Completado').length,
+        'Cliente convertido': allProspects.filter(p => (p.status === 'Convertido a cliente' || p.contactResult === 'Convertido a cliente') && p.isClient).length,
+        'Ya es nuestro cliente': allProspects.filter(p => p.contactResult === 'Ya es nuestro cliente' && p.isClient).length
     };
 
     const statusCtx = document.getElementById('statusChart').getContext('2d');
@@ -1835,24 +1918,25 @@ const updateDashboard = () => {
         conversionChart.destroy();
     }
     const totalContacted = allProspects.filter(p =>
-        ['Interesado', 'No contesta', 'Rechazado', 'Completado'].includes(p.status)
+        ['Interesado', 'No contesta', 'Rechazado', 'Completado', 'Convertido a cliente'].includes(p.status) || ['Ya es nuestro cliente', 'Convertido a cliente'].includes(p.contactResult)
     ).length;
-    const successful = statusCounts['Interesado'] + statusCounts['Completado'];
     const unsuccessful = statusCounts['No contesta'] + statusCounts['Rechazado'];
 
     conversionChart = new Chart(conversionCtx, {
         type: 'bar',
         data: {
-            labels: ['Exitosos', 'Sin Éxito', 'En Proceso'],
+            labels: ['Cliente convertido', 'Ya es nuestro cliente', 'Sin Éxito', 'En Proceso'],
             datasets: [{
                 label: 'Cantidad',
                 data: [
-                    successful,
+                    statusCounts['Cliente convertido'],
+                    statusCounts['Ya es nuestro cliente'],
                     unsuccessful,
                     allProspects.length - totalContacted
                 ],
                 backgroundColor: [
-                    getComputedStyle(document.documentElement).getPropertyValue('--gray-900'),
+                    '#22c55e', // verde para convertido
+                    '#16a34a', // verde más oscuro para ya es nuestro cliente
                     getComputedStyle(document.documentElement).getPropertyValue('--primary-500'),
                     getComputedStyle(document.documentElement).getPropertyValue('--gray-600')
                 ]
