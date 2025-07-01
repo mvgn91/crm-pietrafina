@@ -103,20 +103,17 @@ document.addEventListener('DOMContentLoaded', function () {
       tbody.innerHTML = '<tr><td colspan="5" class="text-center p-6 text-slate-500">No se encontraron prospectos.</td></tr>';
       return;
     }
-    tbody.innerHTML = list.map((p, i) => `
-      <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-slate-50'} hover:bg-green-50 transition">
-        <td class="p-3 font-medium text-slate-800">${p.businessName || ''} <span class="block text-xs text-slate-500">${p.contactPerson || ''}</span></td>
-        <td class="p-3 text-slate-700">${p.phone || ''}</td>
-        <td class="p-3 text-slate-700">${p.email || ''} <span class="block text-xs text-slate-500">${p.status || ''}</span></td>
-        <td class="p-3">
-          <button class="action-btn bg-green-600 hover:bg-green-700 text-white whatsapp-massive-send" data-id="${p.id}"><i class="fab fa-whatsapp"></i> Enviar WhatsApp</button>
-      url: 'https://1drv.ms/b/c/240b98da269be9b3/EdANAQcVZyhFvilI5fJGdnUB4DFt15vYTnbXM58jEbpsjA?e=iM5wIr'
-    },
-    {
-      name: 'SELECCION DE MATERIALES PREMIUM',
-      url: 'https://1drv.ms/b/c/240b98da269be9b3/EfoE-_7mq1dAmulQyma2Rv8B47E_6gtCrdvpmVkGgNbncg?e=UvpjHC'
+      tbody.innerHTML = list.map((p, i) => `
+        <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-slate-50'} hover:bg-green-50 transition">
+          <td class="p-3 font-medium text-slate-800">${p.businessName || ''} <span class="block text-xs text-slate-500">${p.contactPerson || ''}</span></td>
+          <td class="p-3 text-slate-700">${p.phone || ''}</td>
+          <td class="p-3 text-slate-700">${p.email || ''} <span class="block text-xs text-slate-500">${p.status || ''}</span></td>
+          <td class="p-3">
+            <button class="action-btn bg-green-600 hover:bg-green-700 text-white whatsapp-massive-send" data-id="${p.id}"><i class="fab fa-whatsapp"></i> Enviar WhatsApp</button>
+          </td>
+        </tr>
+      `).join('');
     }
-  ];
 
   // Inicializar Firebase y Firestore
   async function initializeFirebase() {
@@ -210,12 +207,14 @@ document.addEventListener('DOMContentLoaded', function () {
   function showLoadingState() {
     tbody.innerHTML = `
       <tr>
-        <td colspan="4" class="text-center p-8 text-gray-500">
+        <td colspan="5" class="text-center p-8 text-gray-500">
           <div class="flex flex-col items-center">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mb-4"></div>
             <p>Cargando prospectos desde Firestore...</p>
           </div>
         </td>
+      </tr>
+    `;
   }
 
   // Función para cargar datos de prueba si Firestore no está disponible
@@ -265,9 +264,9 @@ document.addEventListener('DOMContentLoaded', function () {
     let nombre = selectedProspect.businessName || '';
     renderMaterialsSelector();
     // Mensaje base
-    modalMessage.value = `Hola ${nombre}, te comparto el material solicitado.\n\n` +
-      MATERIALS.map(m => `• ${m.name}: ${m.url}`).join('\n') +
-      `\n\nSi tienes dudas, estoy a tus órdenes.`;
+    modalMessage.value = 'Hola ' + nombre + ', te comparto el material solicitado.\n\n' +
+      MATERIALS.map(function(m) { return '• ' + m.name + ': ' + m.url; }).join('\n') +
+      '\n\nSi tienes dudas, estoy a tus órdenes.';
     modal.classList.remove('hidden');
     modalMessage.focus();
   });
