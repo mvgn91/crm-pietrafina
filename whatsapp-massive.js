@@ -294,101 +294,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (!telefono) {
       alert('No hay teléfono válido para este prospecto.');
-  // Función para renderizar la tabla con estilos aplicados
-  function renderTable(list) {
-    if (!list || list.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="4" class="text-center p-8 text-gray-500">
-            <div class="flex flex-col items-center">
-              <i class="fas fa-inbox text-4xl mb-4 text-gray-400"></i>
-              <p class="text-lg font-medium mb-2">No se encontraron prospectos</p>
-              <p class="text-sm">Verifica tu conexión a Firestore o agrega prospectos desde el CRM principal</p>
-            </div>
-          </td>
-        </tr>
-      `;
       return;
     }
-
-    tbody.innerHTML = list.map((prospect, index) => {
-      const businessName = prospect.businessName || 'Sin nombre';
-      const contactPerson = prospect.contactPerson || '';
-      const phone = prospect.phone || 'Sin teléfono';
-      const email = prospect.email || 'Sin email';
-      const classification = prospect.classification || '';
-      const status = prospect.status || '';
-      const rowClass = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
-      
-      // Determinar el color del estado
-      let statusColor = 'text-gray-600';
-      if (status.includes('Interesado')) statusColor = 'text-green-600';
-      else if (status.includes('Prospección')) statusColor = 'text-blue-600';
-      else if (status.includes('Rechazado')) statusColor = 'text-red-600';
-      else if (status.includes('Pendiente')) statusColor = 'text-yellow-600';
-      
-      return `
-        <tr class="${rowClass} hover:bg-green-50 transition-all duration-200 border-b border-gray-100">
-          <td class="p-4 font-medium text-gray-800">
-            <div class="flex flex-col">
-              <div class="flex items-center mb-1">
-                <i class="fas fa-building text-gray-600 mr-2"></i>
-                <span class="font-semibold">${businessName}</span>
-              </div>
-              ${contactPerson ? `
-                <div class="flex items-center text-sm text-gray-600">
-                  <i class="fas fa-user text-gray-400 mr-2"></i>
-                  <span>${contactPerson}</span>
-                </div>
-              ` : ''}
-              ${classification ? `
-                <div class="flex items-center text-xs text-gray-500 mt-1">
-                  <i class="fas fa-tag text-gray-400 mr-2"></i>
-                  <span>${classification}</span>
-                </div>
-              ` : ''}
-            </div>
-          </td>
-          <td class="p-4 text-gray-700">
-            <div class="flex items-center">
-              <i class="fas fa-phone text-gray-600 mr-2"></i>
-              <span class="font-mono">${phone}</span>
-            </div>
-          </td>
-          <td class="p-4 text-gray-700">
-            <div class="flex flex-col">
-              <div class="flex items-center mb-1">
-                <i class="fas fa-envelope text-gray-600 mr-2"></i>
-                <span class="truncate max-w-xs">${email}</span>
-              </div>
-              ${status ? `
-                <div class="flex items-center text-xs ${statusColor}">
-                  <i class="fas fa-circle text-xs mr-2"></i>
-                  <span class="font-medium">${status}</span>
-                </div>
-              ` : ''}
-            </div>
-          </td>
-          <td class="p-4">
-            <button 
-              class="action-btn bg-green-600 hover:bg-green-700 text-white whatsapp-send-btn transition-all duration-200 transform hover:scale-105 w-full sm:w-auto" 
-              data-id="${prospect.id}"
-              data-name="${businessName}"
-              data-contact="${contactPerson}"
-              data-phone="${phone}"
-              data-email="${email}"
-            >
-              <i class="fab fa-whatsapp mr-2"></i>
-              Enviar Material
-            </button>
-          </td>
-        </tr>
-      `;
-    }).join('');
-
-    // Agregar event listeners a los botones
-    addButtonListeners();
-  }
+    // Abrir WhatsApp con el mensaje
+    const whatsappUrl = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+    window.open(whatsappUrl, '_blank');
+    closeModal();
+  });
 
   // Función para agregar event listeners a los botones de WhatsApp
   function addButtonListeners() {
