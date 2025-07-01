@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const modalSend = document.getElementById('whatsapp-massive-send-btn');
   const modalCancel = document.getElementById('whatsapp-massive-cancel-btn');
 
-
   let selectedProspect = null;
   let prospects = [];
   let db = null;
@@ -50,70 +49,6 @@ document.addEventListener('DOMContentLoaded', function () {
         </label>
       `).join('');
   }
-
-
-  // Cargar prospectos directamente desde Firestore (todos los estatus) con logs y manejo de errores
-  function tryLoadProspectsFromFirestore() {
-    if (window.firebase && window.firebase.firestore) {
-      console.log('[WhatsApp Massive] Firebase y Firestore detectados. Intentando cargar prospectos...');
-      try {
-        const db = window.firebase.firestore();
-        db.collection('prospects').onSnapshot(
-          snapshot => {
-            prospects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            console.log(`[WhatsApp Massive] Prospectos recibidos:`, prospects);
-            renderTable(prospects);
-          },
-          error => {
-            console.error('[WhatsApp Massive] Error al escuchar Firestore:', error);
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center p-6 text-red-500">Error al conectar con Firestore: ' + (error.message || error) + '</td></tr>';
-          }
-        );
-      } catch (err) {
-        console.error('[WhatsApp Massive] Error al inicializar Firestore:', err);
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center p-6 text-red-500">Error al inicializar Firestore: ' + (err.message || err) + '</td></tr>';
-      }
-    } else if (window.allProspects && window.allProspects.length > 0) {
-      // Fallback: usar los prospectos globales si existen
-      console.log('[WhatsApp Massive] Usando window.allProspects como fallback.');
-      prospects = window.allProspects;
-      renderTable(prospects);
-    } else {
-      // Fallback: escuchar el evento si se usa otro método
-      console.log('[WhatsApp Massive] Esperando evento prospectsLoaded...');
-      window.addEventListener('prospectsLoaded', function(event) {
-        prospects = event.detail;
-        renderTable(prospects);
-      });
-    }
-  }
-
-  tryLoadProspectsFromFirestore();
-
-  function renderTable(list) {
-    // Actualizar contadores
-    const totalCount = document.getElementById('total-prospects-count');
-    const whatsappCount = document.getElementById('whatsapp-prospects-count');
-    const filteredCount = document.getElementById('filtered-prospects-count');
-    if (totalCount) totalCount.textContent = list.length;
-    if (whatsappCount) whatsappCount.textContent = list.filter(p => p.phone && p.phone.length >= 10).length;
-    if (filteredCount) filteredCount.textContent = list.length;
-
-    if (!list.length) {
-      tbody.innerHTML = '<tr><td colspan="5" class="text-center p-6 text-slate-500">No se encontraron prospectos.</td></tr>';
-      return;
-    }
-      tbody.innerHTML = list.map((p, i) => `
-        <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-slate-50'} hover:bg-green-50 transition">
-          <td class="p-3 font-medium text-slate-800">${p.businessName || ''} <span class="block text-xs text-slate-500">${p.contactPerson || ''}</span></td>
-          <td class="p-3 text-slate-700">${p.phone || ''}</td>
-          <td class="p-3 text-slate-700">${p.email || ''} <span class="block text-xs text-slate-500">${p.status || ''}</span></td>
-          <td class="p-3">
-            <button class="action-btn bg-green-600 hover:bg-green-700 text-white whatsapp-massive-send" data-id="${p.id}"><i class="fab fa-whatsapp"></i> Enviar WhatsApp</button>
-          </td>
-        </tr>
-      `).join('');
-    }
 
   // Inicializar Firebase y Firestore
   async function initializeFirebase() {
@@ -253,200 +188,6 @@ document.addEventListener('DOMContentLoaded', function () {
     showToast('Usando datos de demostración (Firestore no disponible)', 'warning');
   }
 
-  searchInput.addEventListener('input', filterProspects);
-
-  tbody.addEventListener('click', function (e) {
-    const btn = e.target.closest('.whatsapp-massive-send');
-    if (!btn) return;
-    const id = btn.getAttribute('data-id');
-    selectedProspect = prospects.find(p => String(p.id) === String(id));
-    if (!selectedProspect) return;
-    let nombre = selectedProspect.businessName || '';
-    renderMaterialsSelector();
-    // Mensaje base
-    modalMessage.value = 'Hola ' + nombre + ', te comparto el material solicitado.\n\n' +
-      MATERIALS.map(function(m) { return '• ' + m.name + ': ' + m.url; }).join('\n') +
-      '\n\nSi tienes dudas, estoy a tus órdenes.';
-    modal.classList.remove('hidden');
-    modalMessage.focus();
-  });
-
-  function closeModal() {
-    modal.classList.add('hidden');
-    selectedProspect = null;
-  }
-  modalClose.addEventListener('click', closeModal);
-  modalCancel.addEventListener('click', closeModal);
-
-  modalSend.addEventListener('click', function () {
-    if (!selectedProspect) return;
-    let telefono = (selectedProspect.phone || '').replace(/\D/g, '');
-    // Obtener materiales seleccionados
-    const checked = Array.from(document.querySelectorAll('.material-checkbox:checked')).map(cb => MATERIALS[cb.value]);
-    let nombre = selectedProspect.businessName || '';
-    let mensaje = `Hola ${nombre}, te comparto el material solicitado.\n\n` +
-      checked.map(m => `• ${m.name}: ${m.url}`).join('\n') +
-      `\n\nSi tienes dudas, estoy a tus órdenes.`;
-    // Si el usuario editó el mensaje manualmente, respétalo
-    if (modalMessage.value && modalMessage.value !== '' && modalMessage.value !== modalMessage.defaultValue) {
-      mensaje = modalMessage.value;
-    }
-    if (!telefono) {
-      alert('No hay teléfono válido para este prospecto.');
-      return;
-    }
-    // Abrir WhatsApp con el mensaje
-    const whatsappUrl = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
-    window.open(whatsappUrl, '_blank');
-    closeModal();
-  });
-
-  // Función para agregar event listeners a los botones de WhatsApp
-  function addButtonListeners() {
-    const whatsappButtons = document.querySelectorAll('.whatsapp-send-btn');
-    whatsappButtons.forEach(button => {
-      button.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        selectedProspect = {
-          id: this.getAttribute('data-id'),
-          businessName: this.getAttribute('data-name'),
-          contactPerson: this.getAttribute('data-contact'),
-          phone: this.getAttribute('data-phone'),
-          email: this.getAttribute('data-email')
-        };
-        
-        openWhatsAppModal();
-      });
-    });
-  }
-
-  // Función para abrir el modal de WhatsApp
-  function openWhatsAppModal() {
-    if (!selectedProspect) return;
-    
-    const businessName = selectedProspect.businessName || 'Cliente';
-    const contactPerson = selectedProspect.contactPerson;
-    
-    // Determinar el saludo personalizado
-    let greeting = `¡Hola`;
-    if (contactPerson && contactPerson.trim()) {
-      greeting += ` ${contactPerson}`;
-    }
-    greeting += `! 👋`;
-    
-    // Crear mensaje con todos los materiales
-    const materialsText = MATERIALS.map(material => 
-      `📄 *${material.name}*\n${material.url}`
-    ).join('\n\n');
-    
-    const defaultMessage = `${greeting}
-
-Soy del equipo de *Pietra Fina* y me da mucho gusto contactarte.
-
-Te comparto nuestros materiales promocionales para ${businessName}:
-
-${materialsText}
-
-Estos documentos incluyen:
-• Nuestro catálogo completo de productos
-• Lookbook con proyectos realizados
-• Selección de materiales premium
-
-Si tienes alguna pregunta específica sobre nuestros productos o necesitas una cotización personalizada, no dudes en contactarme.
-
-¡Quedo atento a tus comentarios! 🏗️✨
-
-*Equipo Pietra Fina*`;
-
-    modalMessage.value = defaultMessage;
-    modal.classList.remove('hidden');
-    modal.style.display = 'flex';
-    
-    // Agregar animación de entrada
-    setTimeout(() => {
-      modal.querySelector('.modal-container').classList.add('animate-modalIn');
-    }, 10);
-    
-    modalMessage.focus();
-  }
-
-  // Función para cerrar el modal
-  function closeModal() {
-    const container = modal.querySelector('.modal-container');
-    container.classList.remove('animate-modalIn');
-    container.classList.add('animate-modalOut');
-    
-    setTimeout(() => {
-      modal.classList.add('hidden');
-      modal.style.display = 'none';
-      container.classList.remove('animate-modalOut');
-      selectedProspect = null;
-    }, 200);
-  }
-
-  // Función para enviar WhatsApp
-  function sendWhatsApp() {
-    if (!selectedProspect) {
-      showToast('No hay prospecto seleccionado', 'error');
-      return;
-    }
-
-    let phone = selectedProspect.phone || '';
-    phone = phone.replace(/\D/g, ''); // Remover caracteres no numéricos
-    
-    if (!phone) {
-      showToast('No hay teléfono válido para este prospecto', 'error');
-      return;
-    }
-
-    // Asegurar que el teléfono tenga el formato correcto para México
-    if (phone.length === 10 && !phone.startsWith('52')) {
-      phone = '52' + phone;
-    } else if (phone.length === 11 && phone.startsWith('1')) {
-      phone = '52' + phone.substring(1);
-    }
-
-    const message = modalMessage.value.trim();
-    if (!message) {
-      showToast('El mensaje no puede estar vacío', 'error');
-      return;
-    }
-
-    const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-    
-    try {
-      window.open(whatsappUrl, '_blank');
-      showToast(`Material enviado a ${selectedProspect.businessName}`, 'success');
-      
-      // Opcional: Registrar el envío en Firestore
-      logWhatsAppSend();
-      
-      closeModal();
-    } catch (error) {
-      console.error('Error al abrir WhatsApp:', error);
-      showToast('Error al abrir WhatsApp', 'error');
-    }
-  }
-
-  // Función para registrar el envío en Firestore (opcional)
-  async function logWhatsAppSend() {
-    try {
-      if (db && selectedProspect) {
-        await db.collection('whatsapp_sends').add({
-          prospectId: selectedProspect.id,
-          businessName: selectedProspect.businessName,
-          phone: selectedProspect.phone,
-          sentAt: firebase.firestore.FieldValue.serverTimestamp(),
-          materials: MATERIALS.map(m => m.name)
-        });
-        console.log('Envío de WhatsApp registrado en Firestore');
-      }
-    } catch (error) {
-      console.error('Error registrando envío:', error);
-    }
-  }
-
   // Función para filtrar prospectos
   function filterProspects() {
     const query = searchInput.value.trim().toLowerCase();
@@ -570,4 +311,35 @@ Si tienes alguna pregunta específica sobre nuestros productos o necesitas una c
   // Inicializar la aplicación
   console.log('Inicializando WhatsApp Massive...');
   loadProspectsFromFirestore();
+
+  function renderTable(list) {
+    // Actualizar contadores
+    const totalCount = document.getElementById('total-prospects-count');
+    const whatsappCount = document.getElementById('whatsapp-prospects-count');
+    const filteredCount = document.getElementById('filtered-prospects-count');
+    if (totalCount) totalCount.textContent = list.length;
+    if (whatsappCount) whatsappCount.textContent = list.filter(p => p.phone && p.phone.length >= 10).length;
+    if (filteredCount) filteredCount.textContent = list.length;
+
+    if (!list.length) {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center p-6 text-slate-500">No se encontraron prospectos.</td></tr>';
+      return;
+    }
+      tbody.innerHTML = list.map((p, i) => `
+        <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-slate-50'} hover:bg-green-50 transition">
+          <td class="p-3 font-medium text-slate-800">${p.businessName || ''} <span class="block text-xs text-slate-500">${p.contactPerson || ''}</span></td>
+          <td class="p-3 text-slate-700">${p.phone || ''}</td>
+          <td class="p-3 text-slate-700">${p.email || ''} <span class="block text-xs text-slate-500">${p.status || ''}</span></td>
+          <td class="p-3">
+            <button class="action-btn bg-green-600 hover:bg-green-700 text-white whatsapp-massive-send" data-id="${p.id}"><i class="fab fa-whatsapp"></i> Enviar WhatsApp</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+  // ...
+
+  // ...
+
+  // ...
   
