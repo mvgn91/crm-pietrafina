@@ -10,6 +10,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="./style.css">
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
 </head>
 <body class="antialiased font-inter text-slate-800 min-h-screen" style="background: var(--gray-50);">
   <!-- Canvas de fondo interactivo -->
@@ -24,7 +29,7 @@
           <h1 class="text-xl sm:text-2xl font-playfair font-bold text-gray-900">
             CRM Pietra Fina - WhatsApp
           </h1>
-          <p class="font-mono text-xs text-slate-500">2.8 ver.</p>
+          <p class="font-mono text-xs text-slate-500">2.8 ver. | Conectado a Firestore</p>
         </div>
       </div>
       <a href="./index.html" class="action-btn bg-slate-800 hover:bg-slate-900 text-white">
@@ -44,7 +49,13 @@
             <i class="fab fa-whatsapp mr-3 text-green-600"></i> 
             Enviar Material por WhatsApp
           </h2>
-          <p class="text-gray-600 font-inter">Selecciona un prospecto para enviar material promocional</p>
+          <p class="text-gray-600 font-inter">
+            Selecciona un prospecto para enviar material promocional
+            <span class="inline-flex items-center ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+              <i class="fas fa-database mr-1"></i>
+              Datos en tiempo real
+            </span>
+          </p>
         </div>
         
         <div class="w-full lg:w-1/2">
@@ -56,8 +67,46 @@
             id="whatsapp-massive-search" 
             type="text" 
             class="form-input w-full" 
-            placeholder="Nombre, teléfono o email..."
+            placeholder="Nombre, contacto, teléfono, email o clasificación..."
+            title="Presiona Ctrl+F para enfocar rápidamente"
           >
+          <div class="text-xs text-gray-500 mt-1">
+            <i class="fas fa-lightbulb mr-1"></i>
+            Tip: Usa Ctrl+F para búsqueda rápida
+          </div>
+        </div>
+      </div>
+
+      <!-- Estadísticas rápidas -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
+          <div class="flex items-center">
+            <i class="fas fa-users text-green-600 text-2xl mr-3"></i>
+            <div>
+              <p class="text-sm text-green-700 font-medium">Total Prospectos</p>
+              <p id="total-prospects-count" class="text-2xl font-bold text-green-800">-</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
+          <div class="flex items-center">
+            <i class="fab fa-whatsapp text-blue-600 text-2xl mr-3"></i>
+            <div>
+              <p class="text-sm text-blue-700 font-medium">Con WhatsApp</p>
+              <p id="whatsapp-prospects-count" class="text-2xl font-bold text-blue-800">-</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
+          <div class="flex items-center">
+            <i class="fas fa-filter text-purple-600 text-2xl mr-3"></i>
+            <div>
+              <p class="text-sm text-purple-700 font-medium">Filtrados</p>
+              <p id="filtered-prospects-count" class="text-2xl font-bold text-purple-800">-</p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -68,7 +117,7 @@
             <tr class="bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700">
               <th class="p-4 font-semibold border-b border-gray-200">
                 <i class="fas fa-building mr-2"></i>
-                Empresa
+                Empresa / Contacto
               </th>
               <th class="p-4 font-semibold border-b border-gray-200">
                 <i class="fas fa-phone mr-2"></i>
@@ -76,7 +125,7 @@
               </th>
               <th class="p-4 font-semibold border-b border-gray-200">
                 <i class="fas fa-envelope mr-2"></i>
-                Email
+                Email / Estado
               </th>
               <th class="p-4 font-semibold border-b border-gray-200 text-center">
                 <i class="fas fa-paper-plane mr-2"></i>
@@ -89,7 +138,8 @@
               <td colspan="4" class="text-center p-8 text-gray-500">
                 <div class="flex flex-col items-center">
                   <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mb-4"></div>
-                  <p>Cargando prospectos...</p>
+                  <p>Conectando con Firestore...</p>
+                  <p class="text-sm text-gray-400 mt-1">Cargando prospectos en tiempo real</p>
                 </div>
               </td>
             </tr>
@@ -98,25 +148,54 @@
       </div>
 
       <!-- Información adicional -->
-      <div class="mt-8 p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl border border-green-200">
-        <h3 class="text-lg font-playfair font-bold text-gray-800 mb-3">
-          <i class="fas fa-info-circle mr-2 text-green-600"></i>
-          Materiales incluidos en el envío:
-        </h3>
-        <ul class="space-y-2 text-gray-700">
-          <li class="flex items-center">
-            <i class="fas fa-file-pdf mr-3 text-red-500"></i>
-            <strong>Catálogo de Productos</strong> - Nuestra línea completa de materiales
-          </li>
-          <li class="flex items-center">
-            <i class="fas fa-images mr-3 text-blue-500"></i>
-            <strong>Lookbook de Obras</strong> - Proyectos realizados y referencias
-          </li>
-          <li class="flex items-center">
-            <i class="fas fa-star mr-3 text-yellow-500"></i>
-            <strong>Selección Premium</strong> - Materiales exclusivos y de alta gama
-          </li>
-        </ul>
+      <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Materiales incluidos -->
+        <div class="p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl border border-green-200">
+          <h3 class="text-lg font-playfair font-bold text-gray-800 mb-3">
+            <i class="fas fa-file-alt mr-2 text-green-600"></i>
+            Materiales incluidos en el envío:
+          </h3>
+          <ul class="space-y-2 text-gray-700">
+            <li class="flex items-center">
+              <i class="fas fa-file-pdf mr-3 text-red-500"></i>
+              <strong>Catálogo de Productos</strong> - Nuestra línea completa de materiales
+            </li>
+            <li class="flex items-center">
+              <i class="fas fa-images mr-3 text-blue-500"></i>
+              <strong>Lookbook de Obras</strong> - Proyectos realizados y referencias
+            </li>
+            <li class="flex items-center">
+              <i class="fas fa-star mr-3 text-yellow-500"></i>
+              <strong>Selección Premium</strong> - Materiales exclusivos y de alta gama
+            </li>
+          </ul>
+        </div>
+
+        <!-- Instrucciones de uso -->
+        <div class="p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200">
+          <h3 class="text-lg font-playfair font-bold text-gray-800 mb-3">
+            <i class="fas fa-info-circle mr-2 text-blue-600"></i>
+            Cómo usar esta herramienta:
+          </h3>
+          <ul class="space-y-2 text-gray-700 text-sm">
+            <li class="flex items-start">
+              <i class="fas fa-search mr-3 text-blue-500 mt-0.5"></i>
+              <span><strong>Busca</strong> por nombre, teléfono, email o clasificación</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-edit mr-3 text-green-500 mt-0.5"></i>
+              <span><strong>Personaliza</strong> el mensaje antes de enviar</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fab fa-whatsapp mr-3 text-green-600 mt-0.5"></i>
+              <span><strong>Envía</strong> directamente desde WhatsApp Web/App</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-chart-line mr-3 text-purple-500 mt-0.5"></i>
+              <span><strong>Rastrea</strong> automáticamente los envíos realizados</span>
+            </li>
+          </ul>
+        </div>
       </div>
     </section>
   </main>
@@ -138,25 +217,32 @@
         <div class="mb-4 p-4 bg-green-50 rounded-lg border border-green-200">
           <p class="text-sm text-green-800">
             <i class="fas fa-lightbulb mr-2"></i>
-            <strong>Tip:</strong> Puedes personalizar el mensaje antes de enviarlo. 
-            Los enlaces a los materiales ya están incluidos.
+            <strong>Tip:</strong> El mensaje está personalizado con el nombre del prospecto y incluye todos los materiales. 
+            Puedes editarlo antes de enviar.
           </p>
         </div>
         
         <label for="whatsapp-massive-message" class="form-label mb-2 block">
           <i class="fas fa-edit mr-2"></i>
-          Mensaje para WhatsApp:
+          Mensaje personalizado para WhatsApp:
         </label>
         <textarea 
           id="whatsapp-massive-message" 
-          rows="8" 
-          class="form-textarea w-full resize-vertical"
-          placeholder="Escribe tu mensaje personalizado aquí..."
+          rows="12" 
+          class="form-textarea w-full resize-vertical font-mono text-sm"
+          placeholder="El mensaje se generará automáticamente con los datos del prospecto..."
         ></textarea>
         
-        <div class="mt-4 text-xs text-gray-500">
-          <i class="fas fa-info-circle mr-1"></i>
-          El mensaje se abrirá en WhatsApp Web o la aplicación móvil
+        <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <div class="text-xs text-blue-700">
+            <i class="fas fa-info-circle mr-1"></i>
+            <strong>Información:</strong>
+          </div>
+          <ul class="text-xs text-blue-600 mt-1 space-y-1">
+            <li>• El mensaje se abrirá en WhatsApp Web o la aplicación móvil</li>
+            <li>• Los enlaces a los materiales están incluidos automáticamente</li>
+            <li>• El envío se registrará en el sistema para seguimiento</li>
+          </ul>
         </div>
       </div>
       
@@ -177,6 +263,22 @@
   <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
 
   <!-- Scripts -->
+  <script>
+    // Configuración de Firebase - REEMPLAZA CON TUS DATOS REALES
+    const firebaseConfig = {
+      apiKey: "AIzaSyBvBpgTn8eTVLQqGGGvQGGvQGGvQGGvQGG", // Reemplaza con tu API Key
+      authDomain: "crm-pietrafina.firebaseapp.com",
+      projectId: "crm-pietrafina",
+      storageBucket: "crm-pietrafina.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abcdef123456"
+    };
+
+    // Inicializar Firebase
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
   <script src="./matrix-bg.js"></script>
   <script src="./whatsapp-massive.js"></script>
   
