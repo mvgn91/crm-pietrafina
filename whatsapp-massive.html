@@ -4,53 +4,289 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Enviar Material por WhatsApp | CRM Pietra Fina</title>
-  <link rel="stylesheet" href="./style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="./style.css">
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
 </head>
-<body class="antialiased font-inter text-slate-800" style="background: var(--gray-50);">
-  <canvas id="interactive-bg" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;pointer-events:none"></canvas>
-  <section class="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-2xl shadow-2xl border border-gray-100" style="position:relative;z-index:1;">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
-      <h2 class="text-2xl font-playfair font-bold flex items-center mb-2 md:mb-0 text-gray-900"><i class="fab fa-whatsapp mr-3"></i> Enviar Material por WhatsApp</h2>
-      <div class="w-full md:w-1/2">
-        <label for="whatsapp-massive-search" class="form-label block mb-1">Buscar prospecto por nombre, teléfono o email:</label>
-        <input id="whatsapp-massive-search" type="text" class="form-input w-full" placeholder="Ejemplo: Juan, 5551234567, correo@email.com">
+<body class="antialiased font-inter text-slate-800 min-h-screen" style="background: var(--gray-50);">
+  <!-- Canvas de fondo interactivo -->
+  <canvas id="interactive-bg" class="fixed inset-0 w-full h-full -z-10 opacity-75"></canvas>
+
+  <!-- Header -->
+  <header class="bg-white/90 backdrop-blur-sm sticky top-0 z-20 border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <img src="https://static.wixstatic.com/media/769a0c_8d5b9317c0a84f4f856798df627db1e2~mv2.jpg/v1/fill/w_104,h_96,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/LOGO%20NEGRO%20DEF_edited.jpg" alt="Logo de Pietra Fina" class="h-12 rounded-xl">
+        <div>
+          <h1 class="text-xl sm:text-2xl font-playfair font-bold text-gray-900">
+            CRM Pietra Fina - WhatsApp
+          </h1>
+          <p class="font-mono text-xs text-slate-500">2.8 ver. | Conectado a Firestore</p>
+        </div>
       </div>
+      <a href="./index.html" class="action-btn bg-slate-800 hover:bg-slate-900 text-white">
+        <i class="fas fa-arrow-left mr-2"></i>
+        Volver al CRM
+      </a>
     </div>
-    <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-md">
-      <table class="w-full text-left border-collapse">
-        <thead>
-          <tr class="bg-gray-100 text-gray-700">
-            <th class="p-4 font-semibold">Nombre</th>
-            <th class="p-4 font-semibold">Teléfono</th>
-            <th class="p-4 font-semibold">Email</th>
-            <th class="p-4 font-semibold">Acción</th>
-          </tr>
-        </thead>
-        <tbody id="whatsapp-massive-tbody">
-          <tr><td colspan="4" class="text-center p-8 text-gray-500">Cargando prospectos...</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+  </header>
+
+  <!-- Contenido principal -->
+  <main class="max-w-7xl mx-auto p-6">
+    <section class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+      <!-- Título y búsqueda -->
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8 gap-6">
+        <div>
+          <h2 class="text-3xl font-playfair font-bold flex items-center mb-2 text-gray-900">
+            <i class="fab fa-whatsapp mr-3 text-green-600"></i> 
+            Enviar Material por WhatsApp
+          </h2>
+          <p class="text-gray-600 font-inter">
+            Selecciona un prospecto para enviar material promocional
+            <span class="inline-flex items-center ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+              <i class="fas fa-database mr-1"></i>
+              Datos en tiempo real
+            </span>
+          </p>
+        </div>
+        
+        <div class="w-full lg:w-1/2">
+          <label for="whatsapp-massive-search" class="form-label block mb-2">
+            <i class="fas fa-search mr-2"></i>
+            Buscar prospecto:
+          </label>
+          <input 
+            id="whatsapp-massive-search" 
+            type="text" 
+            class="form-input w-full" 
+            placeholder="Nombre, contacto, teléfono, email o clasificación..."
+            title="Presiona Ctrl+F para enfocar rápidamente"
+          >
+          <div class="text-xs text-gray-500 mt-1">
+            <i class="fas fa-lightbulb mr-1"></i>
+            Tip: Usa Ctrl+F para búsqueda rápida
+          </div>
+        </div>
+      </div>
+
+      <!-- Estadísticas rápidas -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
+          <div class="flex items-center">
+            <i class="fas fa-users text-green-600 text-2xl mr-3"></i>
+            <div>
+              <p class="text-sm text-green-700 font-medium">Total Prospectos</p>
+              <p id="total-prospects-count" class="text-2xl font-bold text-green-800">-</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
+          <div class="flex items-center">
+            <i class="fab fa-whatsapp text-blue-600 text-2xl mr-3"></i>
+            <div>
+              <p class="text-sm text-blue-700 font-medium">Con WhatsApp</p>
+              <p id="whatsapp-prospects-count" class="text-2xl font-bold text-blue-800">-</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
+          <div class="flex items-center">
+            <i class="fas fa-filter text-purple-600 text-2xl mr-3"></i>
+            <div>
+              <p class="text-sm text-purple-700 font-medium">Filtrados</p>
+              <p id="filtered-prospects-count" class="text-2xl font-bold text-purple-800">-</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de prospectos -->
+      <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-md">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700">
+              <th class="p-4 font-semibold border-b border-gray-200">
+                <i class="fas fa-building mr-2"></i>
+                Empresa / Contacto
+              </th>
+              <th class="p-4 font-semibold border-b border-gray-200">
+                <i class="fas fa-phone mr-2"></i>
+                Teléfono
+              </th>
+              <th class="p-4 font-semibold border-b border-gray-200">
+                <i class="fas fa-envelope mr-2"></i>
+                Email / Estado
+              </th>
+              <th class="p-4 font-semibold border-b border-gray-200 text-center">
+                <i class="fas fa-paper-plane mr-2"></i>
+                Acción
+              </th>
+            </tr>
+          </thead>
+          <tbody id="whatsapp-massive-tbody">
+            <tr>
+              <td colspan="4" class="text-center p-8 text-gray-500">
+                <div class="flex flex-col items-center">
+                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mb-4"></div>
+                  <p>Conectando con Firestore...</p>
+                  <p class="text-sm text-gray-400 mt-1">Cargando prospectos en tiempo real</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Información adicional -->
+      <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Materiales incluidos -->
+        <div class="p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl border border-green-200">
+          <h3 class="text-lg font-playfair font-bold text-gray-800 mb-3">
+            <i class="fas fa-file-alt mr-2 text-green-600"></i>
+            Materiales incluidos en el envío:
+          </h3>
+          <ul class="space-y-2 text-gray-700">
+            <li class="flex items-center">
+              <i class="fas fa-file-pdf mr-3 text-red-500"></i>
+              <strong>Catálogo de Productos</strong> - Nuestra línea completa de materiales
+            </li>
+            <li class="flex items-center">
+              <i class="fas fa-images mr-3 text-blue-500"></i>
+              <strong>Lookbook de Obras</strong> - Proyectos realizados y referencias
+            </li>
+            <li class="flex items-center">
+              <i class="fas fa-star mr-3 text-yellow-500"></i>
+              <strong>Selección Premium</strong> - Materiales exclusivos y de alta gama
+            </li>
+          </ul>
+        </div>
+
+        <!-- Instrucciones de uso -->
+        <div class="p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200">
+          <h3 class="text-lg font-playfair font-bold text-gray-800 mb-3">
+            <i class="fas fa-info-circle mr-2 text-blue-600"></i>
+            Cómo usar esta herramienta:
+          </h3>
+          <ul class="space-y-2 text-gray-700 text-sm">
+            <li class="flex items-start">
+              <i class="fas fa-search mr-3 text-blue-500 mt-0.5"></i>
+              <span><strong>Busca</strong> por nombre, teléfono, email o clasificación</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-edit mr-3 text-green-500 mt-0.5"></i>
+              <span><strong>Personaliza</strong> el mensaje antes de enviar</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fab fa-whatsapp mr-3 text-green-600 mt-0.5"></i>
+              <span><strong>Envía</strong> directamente desde WhatsApp Web/App</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-chart-line mr-3 text-purple-500 mt-0.5"></i>
+              <span><strong>Rastrea</strong> automáticamente los envíos realizados</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
 
   <!-- Modal para mensaje editable -->
-  <div id="whatsapp-massive-modal" class="modal-overlay hidden" style="z-index:2;">
+  <div id="whatsapp-massive-modal" class="modal-overlay hidden">
     <div class="modal-container">
       <div class="modal-header">
-        <h3>Enviar WhatsApp</h3>
-        <button id="whatsapp-massive-modal-close" class="modal-close-btn"><i class="fas fa-times"></i></button>
+        <h3>
+          <i class="fab fa-whatsapp mr-2 text-green-600"></i>
+          Enviar Material por WhatsApp
+        </h3>
+        <button id="whatsapp-massive-modal-close" class="modal-close-btn">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
+      
       <div class="modal-content">
-        <label for="whatsapp-massive-message" class="form-label">Mensaje para WhatsApp:</label>
-        <textarea id="whatsapp-massive-message" rows="4" class="form-textarea" style="width:100%"></textarea>
+        <div class="mb-4 p-4 bg-green-50 rounded-lg border border-green-200">
+          <p class="text-sm text-green-800">
+            <i class="fas fa-lightbulb mr-2"></i>
+            <strong>Tip:</strong> El mensaje está personalizado con el nombre del prospecto y incluye todos los materiales. 
+            Puedes editarlo antes de enviar.
+          </p>
+        </div>
+        
+        <label for="whatsapp-massive-message" class="form-label mb-2 block">
+          <i class="fas fa-edit mr-2"></i>
+          Mensaje personalizado para WhatsApp:
+        </label>
+        <textarea 
+          id="whatsapp-massive-message" 
+          rows="12" 
+          class="form-textarea w-full resize-vertical font-mono text-sm"
+          placeholder="El mensaje se generará automáticamente con los datos del prospecto..."
+        ></textarea>
+        
+        <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <div class="text-xs text-blue-700">
+            <i class="fas fa-info-circle mr-1"></i>
+            <strong>Información:</strong>
+          </div>
+          <ul class="text-xs text-blue-600 mt-1 space-y-1">
+            <li>• El mensaje se abrirá en WhatsApp Web o la aplicación móvil</li>
+            <li>• Los enlaces a los materiales están incluidos automáticamente</li>
+            <li>• El envío se registrará en el sistema para seguimiento</li>
+          </ul>
+        </div>
       </div>
+      
       <div class="modal-actions">
-        <button id="whatsapp-massive-send-btn" class="action-btn bg-green-600 hover:bg-green-700 text-white"><i class="fab fa-whatsapp"></i> Enviar</button>
-        <button id="whatsapp-massive-cancel-btn" class="action-btn bg-slate-200 text-slate-700">Cancelar</button>
+        <button id="whatsapp-massive-send-btn" class="action-btn bg-green-600 hover:bg-green-700 text-white">
+          <i class="fab fa-whatsapp mr-2"></i>
+          Enviar por WhatsApp
+        </button>
+        <button id="whatsapp-massive-cancel-btn" class="action-btn bg-slate-200 hover:bg-slate-300 text-slate-700">
+          <i class="fas fa-times mr-2"></i>
+          Cancelar
+        </button>
       </div>
     </div>
   </div>
+
+  <!-- Contenedor de notificaciones toast -->
+  <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+  <!-- Scripts -->
+  <script>
+    // Configuración de Firebase - DATOS REALES
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyB2VgG-spKXngIcC5pbP_Knpi3e06c6z4E",
+      authDomain: "crm-pietrafina.firebaseapp.com",
+      projectId: "crm-pietrafina",
+      storageBucket: "crm-pietrafina.firebasestorage.app",
+      messagingSenderId: "765972736898",
+      appId: "1:765972736898:web:3cffb3322601fa5d607d9b",
+      measurementId: "G-2BZ0J4T69V"
+    };
+
+    // Inicializar Firebase
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
+  <script src="./matrix-bg.js"></script>
   <script src="./whatsapp-massive.js"></script>
+  
+  <footer class="w-full text-center py-4 bg-white border-t border-gray-200 mt-8">
+    <span class="text-xs text-gray-500 font-inter tracking-wide">POWERED BY MVGN LABS 2025</span>
+  </footer>
 </body>
 </html>

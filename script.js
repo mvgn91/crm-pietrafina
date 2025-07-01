@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // --- Fondo Matrix: inicialización global ---
-  // Si existe un canvas con id 'interactive-bg', inicializa el fondo Matrix ahí
   const matrixCanvas = document.getElementById('interactive-bg');
   if (matrixCanvas) {
     if (typeof window.startMatrix === 'function') {
@@ -17,6 +16,9 @@ document.addEventListener('DOMContentLoaded', function () {
       startMatrix();
     }
   }
+
+  // --- Reparación: Eliminar llamada temprana a loadProspects() ---
+  // La carga de prospectos solo debe ocurrir tras la autenticación (onAuthStateChanged)
 });
 // Importa las funciones necesarias de los SDKs de Firebase (v11.6.1)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -1462,7 +1464,9 @@ const showProspectDetailsModal = (prospectId) => {
         elements.prospectorActionArea.classList.remove('hidden');
         elements.followUpNotesInput.value = '';
         elements.contactResultSelect.value = '';
-        elements.materialSentCheckbox.checked = prospect.materialSent || false;
+        if (elements.materialSentCheckbox) {
+            elements.materialSentCheckbox.checked = prospect.materialSent || false;
+        }
 
         if (prospect.followUpNotes && prospect.followUpNotes.length > 0) {
             elements.followUpNotesInput.value = prospect.followUpNotes[prospect.followUpNotes.length - 1].notes;

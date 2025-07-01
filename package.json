@@ -1,13 +1,14 @@
 {
-  "name": "vite-react-typescript-starter",
+  "name": "crm-pietrafina",
   "private": true,
-  "version": "0.0.0",
+  "version": "2.8.0",
   "type": "module",
   "scripts": {
-    "start": "echo 'Usa firebase serve o firebase emulators:start'"
+    "serve": "firebase serve",
+    "build": "echo 'No build needed for vanilla HTML'",
+    "dev": "echo 'Use firebase serve for development'"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "autoprefixer": "^10.4.18",
     "postcss": "^8.4.35",
