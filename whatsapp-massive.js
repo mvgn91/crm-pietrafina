@@ -51,34 +51,13 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Inicializar Firebase y Firestore
-  async function initializeFirebase() {
+  function initializeFirebase() {
     try {
-      // Verificar si Firebase ya está inicializado
       if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
         db = firebase.firestore();
         console.log('Firebase ya inicializado, usando instancia existente');
         return true;
       }
-
-      // Si no está inicializado, intentar inicializarlo
-      if (typeof firebase !== 'undefined') {
-        const firebaseConfig = {
-          apiKey: "AIzaSyBvBpgTn8eTVLQqGGGvQGGvQGGvQGGvQGG", // Reemplaza con tu config
-          authDomain: "crm-pietrafina.firebaseapp.com",
-          projectId: "crm-pietrafina",
-          storageBucket: "crm-pietrafina.appspot.com",
-          messagingSenderId: "123456789",
-          appId: "1:123456789:web:abcdef123456"
-        };
-
-        if (!firebase.apps.length) {
-          firebase.initializeApp(firebaseConfig);
-        }
-        db = firebase.firestore();
-        console.log('Firebase inicializado correctamente');
-        return true;
-      }
-      
       console.warn('Firebase no está disponible');
       return false;
     } catch (error) {
@@ -91,27 +70,20 @@ document.addEventListener('DOMContentLoaded', function () {
   async function loadProspectsFromFirestore() {
     try {
       showLoadingState();
-      
-      const firebaseInitialized = await initializeFirebase();
-      
+      const firebaseInitialized = initializeFirebase();
       if (!firebaseInitialized || !db) {
         console.warn('Firestore no disponible, usando datos de prueba');
         loadTestData();
         return;
       }
-
       console.log('Cargando prospectos desde Firestore...');
-      
-      // Cargar todos los prospectos de la colección
       const snapshot = await db.collection('prospects').get();
-      
       if (snapshot.empty) {
         console.log('No se encontraron prospectos en Firestore');
         prospects = [];
         renderTable(prospects);
         return;
       }
-
       prospects = [];
       snapshot.forEach(doc => {
         const data = doc.data();
@@ -127,10 +99,8 @@ document.addEventListener('DOMContentLoaded', function () {
           createdAt: data.createdAt || data.fechaCreacion || null
         });
       });
-
       console.log(prospects.length + ' prospectos cargados desde Firestore');
       renderTable(prospects);
-      
     } catch (error) {
       console.error('Error cargando prospectos desde Firestore:', error);
       showToast('Error al cargar prospectos desde la base de datos', 'error');
