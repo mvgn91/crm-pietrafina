@@ -30,26 +30,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   ];
 
-  // Crear checkboxes dinámicamente en el modal
-  function renderMaterialsSelector() {
-    let container = document.getElementById('whatsapp-massive-materials');
-    if (!container) {
-      // Crear el contenedor si no existe
-      const modalContent = document.querySelector('.modal-content');
-      container = document.createElement('div');
-      container.id = 'whatsapp-massive-materials';
-      container.className = 'mb-4';
-      modalContent.insertBefore(container, modalContent.querySelector('label'));
-    }
-    container.innerHTML = `<div class="mb-2 font-semibold text-sm text-gray-700">Selecciona los materiales a enviar:</div>` +
-      MATERIALS.map((mat, i) => `
-        <label class="flex items-center space-x-2 mb-1">
-          <input type="checkbox" class="material-checkbox" value="${i}" checked>
-          <span>${mat.name}</span>
-        </label>
-      `).join('');
-  }
-
   // Inicializar Firebase y Firestore
   function initializeFirebase() {
     try {
@@ -76,14 +56,17 @@ document.addEventListener('DOMContentLoaded', function () {
         loadTestData();
         return;
       }
+      
       console.log('Cargando prospectos desde Firestore...');
       const snapshot = await db.collection('prospects').get();
+      
       if (snapshot.empty) {
         console.log('No se encontraron prospectos en Firestore');
         prospects = [];
         renderTable(prospects);
         return;
       }
+      
       prospects = [];
       snapshot.forEach(doc => {
         const data = doc.data();
@@ -99,8 +82,10 @@ document.addEventListener('DOMContentLoaded', function () {
           createdAt: data.createdAt || data.fechaCreacion || null
         });
       });
-      console.log(prospects.length + ' prospectos cargados desde Firestore');
+      
+      console.log(`${prospects.length} prospectos cargados desde Firestore`);
       renderTable(prospects);
+      
     } catch (error) {
       console.error('Error cargando prospectos desde Firestore:', error);
       showToast('Error al cargar prospectos desde la base de datos', 'error');
@@ -112,10 +97,11 @@ document.addEventListener('DOMContentLoaded', function () {
   function showLoadingState() {
     tbody.innerHTML = `
       <tr>
-        <td colspan="5" class="text-center p-8 text-gray-500">
+        <td colspan="4" class="text-center p-8 text-gray-500">
           <div class="flex flex-col items-center">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mb-4"></div>
-            <p>Cargando prospectos desde Firestore...</p>
+            <p>Conectando con Firestore...</p>
+            <p class="text-sm text-gray-400 mt-1">Cargando prospectos en tiempo real</p>
           </div>
         </td>
       </tr>
@@ -156,6 +142,247 @@ document.addEventListener('DOMContentLoaded', function () {
     ];
     renderTable(prospects);
     showToast('Usando datos de demostración (Firestore no disponible)', 'warning');
+  }
+
+  // Función para renderizar la tabla con prospectos
+  function renderTable(list) {
+    // Actualizar contadores
+    updateCounters(list);
+
+    if (!list.length) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="4" class="text-center p-8 text-gray-500">
+            <div class="flex flex-col items-center">
+              <i class="fas fa-inbox text-4xl mb-4 text-gray-300"></i>
+              <p class="text-lg font-medium">No se encontraron prospectos</p>
+              <p class="text-sm text-gray-400 mt-1">Intenta ajustar los filtros de búsqueda</p>
+            </div>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = list.map((prospect, index) => {
+      const hasPhone = prospect.phone && prospect.phone.length >= 10;
+      const statusColor = getStatusColor(prospect.status);
+      
+      return `
+        <tr class="${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-green-50 transition-colors duration-200">
+          <td class="p-4 border-b border-gray-100">
+            <div class="font-semibold text-gray-900">${prospect.businessName || 'Sin nombre'}</div>
+            ${prospect.contactPerson ? `<div class="text-sm text-gray-600 mt-1">${prospect.contactPerson}</div>` : ''}
+            ${prospect.classification ? `<div class="text-xs text-gray-500 mt-1 bg-gray-100 px-2 py-1 rounded-full inline-block">${prospect.classification}</div>` : ''}
+          </td>
+          <td class="p-4 border-b border-gray-100">
+            <div class="flex items-center">
+              ${hasPhone ? `
+                <i class="fas fa-phone text-green-600 mr-2"></i>
+                <span class="font-mono text-sm">${prospect.phone}</span>
+              ` : `
+                <i class="fas fa-phone-slash text-red-400 mr-2"></i>
+                <span class="text-gray-400 text-sm">Sin teléfono</span>
+              `}
+            </div>
+          </td>
+          <td class="p-4 border-b border-gray-100">
+            <div class="text-sm text-gray-700">${prospect.email || 'Sin email'}</div>
+            ${prospect.status ? `
+              <div class="mt-1">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusColor}">
+                  ${prospect.status}
+                </span>
+              </div>
+            ` : ''}
+          </td>
+          <td class="p-4 border-b border-gray-100 text-center">
+            ${hasPhone ? `
+              <button 
+                class="whatsapp-send-btn inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md"
+                data-prospect-id="${prospect.id}"
+                title="Enviar material por WhatsApp"
+              >
+                <i class="fab fa-whatsapp mr-2"></i>
+                Enviar Material
+              </button>
+            ` : `
+              <span class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-500 font-medium rounded-lg cursor-not-allowed">
+                <i class="fas fa-ban mr-2"></i>
+                Sin WhatsApp
+              </span>
+            `}
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    // Agregar event listeners a los botones de WhatsApp
+    addWhatsAppEventListeners();
+  }
+
+  // Función para obtener el color del status
+  function getStatusColor(status) {
+    const statusColors = {
+      'Pendiente de Correo': 'bg-yellow-100 text-yellow-800',
+      'En Prospección': 'bg-blue-100 text-blue-800',
+      'Pendiente de Validación': 'bg-orange-100 text-orange-800',
+      'Interesado': 'bg-green-100 text-green-800',
+      'No contesta': 'bg-gray-100 text-gray-800',
+      'Rechazado': 'bg-red-100 text-red-800',
+      'Seguimiento agendado': 'bg-purple-100 text-purple-800',
+      'Reactivar Contacto': 'bg-indigo-100 text-indigo-800',
+      'Completado': 'bg-emerald-100 text-emerald-800'
+    };
+    return statusColors[status] || 'bg-gray-100 text-gray-800';
+  }
+
+  // Función para actualizar contadores
+  function updateCounters(list) {
+    const totalCount = document.getElementById('total-prospects-count');
+    const whatsappCount = document.getElementById('whatsapp-prospects-count');
+    const filteredCount = document.getElementById('filtered-prospects-count');
+    
+    const totalProspects = prospects.length;
+    const whatsappProspects = prospects.filter(p => p.phone && p.phone.length >= 10).length;
+    const filteredProspects = list.length;
+    
+    if (totalCount) totalCount.textContent = totalProspects;
+    if (whatsappCount) whatsappCount.textContent = whatsappProspects;
+    if (filteredCount) filteredCount.textContent = filteredProspects;
+  }
+
+  // Función para agregar event listeners a los botones de WhatsApp
+  function addWhatsAppEventListeners() {
+    const whatsappButtons = document.querySelectorAll('.whatsapp-send-btn');
+    whatsappButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+        const prospectId = this.getAttribute('data-prospect-id');
+        const prospect = prospects.find(p => p.id === prospectId);
+        if (prospect) {
+          openModal(prospect);
+        }
+      });
+    });
+  }
+
+  // Función para abrir el modal con los datos del prospecto
+  function openModal(prospect) {
+    selectedProspect = prospect;
+    const message = generateWhatsAppMessage(prospect);
+    modalMessage.value = message;
+    modal.classList.remove('hidden');
+    
+    // Enfocar el textarea para edición inmediata
+    setTimeout(() => {
+      modalMessage.focus();
+    }, 100);
+  }
+
+  // Función para cerrar el modal
+  function closeModal() {
+    modal.classList.add('hidden');
+    selectedProspect = null;
+    modalMessage.value = '';
+  }
+
+  // Función para generar el mensaje personalizado de WhatsApp
+  function generateWhatsAppMessage(prospect) {
+    const contactName = prospect.contactPerson || 'Estimado/a';
+    const businessName = prospect.businessName || 'su empresa';
+    
+    let message = `¡Hola ${contactName}!\n\n`;
+    message += `Espero que se encuentre muy bien. Mi nombre es [TU NOMBRE] de Pietra Fina.\n\n`;
+    message += `Me da mucho gusto contactarle porque hemos identificado que ${businessName} podría beneficiarse enormemente de nuestros materiales premium para proyectos de alta gama.\n\n`;
+    message += `Le comparto nuestro material exclusivo:\n\n`;
+    
+    MATERIALS.forEach((material, index) => {
+      message += `📋 *${material.name}*\n${material.url}\n\n`;
+    });
+    
+    message += `Estos materiales incluyen:\n`;
+    message += `✨ Nuestra línea completa de productos premium\n`;
+    message += `🏗️ Proyectos realizados y referencias de obras\n`;
+    message += `💎 Selección exclusiva de materiales de lujo\n\n`;
+    message += `¿Le gustaría que agendemos una reunión para platicar sobre cómo podemos colaborar en sus próximos proyectos?\n\n`;
+    message += `Quedo atento a sus comentarios.\n\n`;
+    message += `Saludos cordiales,\n`;
+    message += `[TU NOMBRE]\n`;
+    message += `Pietra Fina\n`;
+    message += `📱 [TU TELÉFONO]\n`;
+    message += `📧 [TU EMAIL]`;
+    
+    return message;
+  }
+
+  // Función para enviar mensaje por WhatsApp
+  function sendWhatsApp() {
+    if (!selectedProspect) {
+      showToast('Error: No hay prospecto seleccionado', 'error');
+      return;
+    }
+
+    if (!selectedProspect.phone) {
+      showToast('Error: El prospecto no tiene número de teléfono', 'error');
+      return;
+    }
+
+    const message = modalMessage.value.trim();
+    if (!message) {
+      showToast('Error: El mensaje no puede estar vacío', 'error');
+      return;
+    }
+
+    // Limpiar el número de teléfono (remover espacios, guiones, etc.)
+    let cleanPhone = selectedProspect.phone.replace(/\D/g, '');
+    
+    // Asegurar que el número tenga el formato correcto para México
+    if (cleanPhone.startsWith('52')) {
+      // Ya tiene código de país
+    } else if (cleanPhone.length === 10) {
+      // Número de 10 dígitos, agregar código de país
+      cleanPhone = '52' + cleanPhone;
+    } else if (cleanPhone.length === 11 && cleanPhone.startsWith('1')) {
+      // Número con 1 al inicio (formato antiguo), remover el 1 y agregar 52
+      cleanPhone = '52' + cleanPhone.substring(1);
+    }
+
+    // Codificar el mensaje para URL
+    const encodedMessage = encodeURIComponent(message);
+    
+    // Crear URL de WhatsApp
+    const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
+    
+    // Abrir WhatsApp
+    window.open(whatsappUrl, '_blank');
+    
+    // Registrar el envío (opcional - puedes implementar esto más tarde)
+    registerWhatsAppSend(selectedProspect);
+    
+    // Mostrar confirmación
+    showToast(`Material enviado a ${selectedProspect.businessName}`, 'success');
+    
+    // Cerrar modal
+    closeModal();
+  }
+
+  // Función para registrar el envío en Firestore (opcional)
+  async function registerWhatsAppSend(prospect) {
+    try {
+      if (db) {
+        await db.collection('whatsapp_sends').add({
+          prospectId: prospect.id,
+          businessName: prospect.businessName,
+          phone: prospect.phone,
+          sentAt: firebase.firestore.FieldValue.serverTimestamp(),
+          materials: MATERIALS.map(m => m.name)
+        });
+        console.log('Envío registrado en Firestore');
+      }
+    } catch (error) {
+      console.error('Error registrando envío:', error);
+    }
   }
 
   // Función para filtrar prospectos
@@ -231,8 +458,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Event Listeners
   if (searchInput) {
-    searchInput.addEventListener('input', filterProspects);
-    
     // Búsqueda en tiempo real con debounce
     let searchTimeout;
     searchInput.addEventListener('input', function() {
@@ -281,34 +506,4 @@ document.addEventListener('DOMContentLoaded', function () {
   // Inicializar la aplicación
   console.log('Inicializando WhatsApp Massive...');
   loadProspectsFromFirestore();
-
-  function renderTable(list) {
-    // Actualizar contadores
-    const totalCount = document.getElementById('total-prospects-count');
-    const whatsappCount = document.getElementById('whatsapp-prospects-count');
-    const filteredCount = document.getElementById('filtered-prospects-count');
-    if (totalCount) totalCount.textContent = list.length;
-    if (whatsappCount) whatsappCount.textContent = list.filter(p => p.phone && p.phone.length >= 10).length;
-    if (filteredCount) filteredCount.textContent = list.length;
-
-    if (!list.length) {
-      tbody.innerHTML = '<tr><td colspan="5" class="text-center p-6 text-slate-500">No se encontraron prospectos.</td></tr>';
-      return;
-    }
-      tbody.innerHTML = list.map((p, i) => `
-        <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-slate-50'} hover:bg-green-50 transition">
-          <td class="p-3 font-medium text-slate-800">${p.businessName || ''} <span class="block text-xs text-slate-500">${p.contactPerson || ''}</span></td>
-          <td class="p-3 text-slate-700">${p.phone || ''}</td>
-          <td class="p-3 text-slate-700">${p.email || ''} <span class="block text-xs text-slate-500">${p.status || ''}</span></td>
-          <td class="p-3">
-            <button class="action-btn bg-green-600 hover:bg-green-700 text-white whatsapp-massive-send" data-id="${p.id}"><i class="fab fa-whatsapp"></i> Enviar WhatsApp</button>
-          </td>
-        </tr>
-      `).join('');
-    }
-
-  // ...
-  // (Aquí pueden ir más funciones o lógica si lo necesitas)
 });
-  // ...
-
