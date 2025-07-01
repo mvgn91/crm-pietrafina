@@ -732,16 +732,30 @@ const getStatusBadgeClass = (status) => {
 /**
  * Genera el HTML para una tarjeta de prospecto.
  */
+
 const createProspectCardHTML = (prospect, isAdminView = false, isArchiveView = false) => {
     const effectiveDueDate = prospect.reagendadoPara || prospect.prospectingDueDate;
     const statusIndicator = prospect.status === 'Seguimiento agendado' ? `<span style="color: #d32f2f; font-weight: bold;" class="ml-1">(Reagendado)</span>` : '';
+
+    // --- Campana de alerta roja si reagendado para hoy o ayer ---
+    let bellHTML = '';
+    if (prospect.reagendadoPara) {
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const reagDate = new Date(prospect.reagendadoPara);
+        reagDate.setHours(0,0,0,0);
+        const diffDays = Math.floor((today - reagDate) / (1000*60*60*24));
+        if (diffDays === 0 || diffDays === 1) {
+            bellHTML = `<span title="Reagendado para hoy o ayer" style="color: #d32f2f; font-size: 1.3em; margin-right: 0.3em; vertical-align: middle;">🔔</span>`;
+        }
+    }
 
     // Compacta: solo info clave
     let compactHTML = `
       <div class="prospect-card minimal-card" style="background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; box-shadow: 0 2px 8px #0001; margin-bottom: 1rem; padding: 1.2rem 1.5rem;">
         <div style="display: flex; align-items: center; justify-content: space-between;">
           <div>
-            <h4 style="color: #111; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.2rem;">${prospect.businessName}</h4>
+            <h4 style="color: #111; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.2rem;">${bellHTML}${prospect.businessName}</h4>
             <div style="color: #444; font-size: 0.98rem; margin-bottom: 0.1rem;"><i class="fas fa-phone icon"></i> ${prospect.phone}</div>
             <div style="color: #444; font-size: 0.98rem; margin-bottom: 0.1rem;"><i class="fas fa-calendar-alt icon"></i> ${formatDate(prospect.sentEmailDate)}</div>
           </div>
