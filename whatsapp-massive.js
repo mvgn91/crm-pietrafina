@@ -338,8 +338,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
   // ...
-
+  // (Aquí pueden ir más funciones o lógica si lo necesitas)
+});
   // ...
 
-  // ...
-  
