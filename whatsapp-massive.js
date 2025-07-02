@@ -1,4 +1,4 @@
-// WhatsApp Material Sender - Integración con Firestore (VERSIÓN CORREGIDA PARA MÓVILES)
+// WhatsApp Material Sender - Integración con Firestore (VERSIÓN CORREGIDA PARA MÚLTIPLES DISPOSITIVOS)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, collection, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -36,7 +36,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 document.addEventListener('DOMContentLoaded', function () {
-  console.log('WhatsApp Massive JS cargado (VERSIÓN CORREGIDA PARA MÓVILES)');
+  console.log('WhatsApp Massive JS cargado (VERSIÓN CORREGIDA PARA MÚLTIPLES DISPOSITIVOS)');
   
   const tbody = document.getElementById('whatsapp-massive-tbody');
   const searchInput = document.getElementById('whatsapp-massive-search');
@@ -413,6 +413,11 @@ document.addEventListener('DOMContentLoaded', function () {
     return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   }
 
+  // Función para detectar si es Windows
+  function isWindows() {
+    return navigator.platform.indexOf('Win') > -1;
+  }
+
   // Función para detectar el navegador
   function getBrowserInfo() {
     const userAgent = navigator.userAgent;
@@ -451,10 +456,11 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    console.log('🚀 Iniciando envío de WhatsApp (VERSIÓN CORREGIDA PARA MÓVILES)...');
+    console.log('🚀 Iniciando envío de WhatsApp (VERSIÓN CORREGIDA PARA MÚLTIPLES DISPOSITIVOS)...');
     console.log('📱 Número final para WhatsApp:', cleanPhone);
     console.log('💬 Mensaje a enviar:', message);
     console.log('🌐 Dispositivo móvil:', isMobileDevice());
+    console.log('💻 Es Windows:', isWindows());
     console.log('🔍 Navegador:', getBrowserInfo());
 
     try {
@@ -496,8 +502,16 @@ document.addEventListener('DOMContentLoaded', function () {
     
     let whatsappUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
 
-    // Intentar con whatsapp://send para iOS/Android primero
-    if (isMobileDevice()) {
+    if (isWindows()) {
+      console.log('💻 Windows detectado - priorizando WhatsApp Web.');
+      // Para Windows, intentar abrir WhatsApp Web directamente
+      const webWhatsappUrl = `https://web.whatsapp.com/send?phone=${phone}&text=${encodedMessage}`;
+      window.open(webWhatsappUrl, '_blank');
+      // Copiar al portapapeles como fallback principal para la app de escritorio
+      await copyToClipboard(finalMessage);
+      showToast('Mensaje copiado al portapapeles. Pégalo en WhatsApp Web o en la aplicación de escritorio.', 'info');
+
+    } else if (isMobileDevice()) {
       console.log('📱 Dispositivo móvil detectado.');
       let mobileUrl = '';
       if (isIOS()) {
@@ -528,8 +542,8 @@ document.addEventListener('DOMContentLoaded', function () {
         showToast('Error al abrir WhatsApp. Mensaje copiado al portapapeles. Pégalo en WhatsApp.', 'error');
       }
     } else {
-      // En escritorio, usar múltiples métodos
-      console.log('💻 Dispositivo de escritorio - usando múltiples métodos');
+      // En escritorio (no Windows), usar múltiples métodos
+      console.log('💻 Dispositivo de escritorio (no Windows) - usando múltiples métodos');
       
       // Método 1: window.open con configuración específica
       try {
@@ -569,7 +583,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
     
-    // Estrategia 4: Mostrar información adicional al usuario
+    // Estrategia final: Mostrar información adicional al usuario
     setTimeout(() => {
       showWhatsAppInstructions(phone, finalMessage);
     }, 2000);
@@ -780,9 +794,11 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // Inicializar la aplicación
-  console.log('🚀 Inicializando WhatsApp Massive (VERSIÓN CORREGIDA PARA MÓVILES)...');
+  console.log('🚀 Inicializando WhatsApp Massive (VERSIÓN CORREGIDA PARA MÚLTIPLES DISPOSITIVOS)...');
   loadProspectsFromFirestore();
 });
+
+
 
 
 
