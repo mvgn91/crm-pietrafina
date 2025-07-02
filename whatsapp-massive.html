@@ -59,20 +59,42 @@
         </div>
         
         <div class="w-full lg:w-1/2">
-          <label for="whatsapp-massive-search" class="form-label block mb-2">
-            <i class="fas fa-search mr-2"></i>
-            Buscar prospecto:
-          </label>
-          <input 
-            id="whatsapp-massive-search" 
-            type="text" 
-            class="form-input w-full" 
-            placeholder="Nombre, contacto, teléfono, email o clasificación..."
-            title="Presiona Ctrl+F para enfocar rápidamente"
-          >
-          <div class="text-xs text-gray-500 mt-1">
-            <i class="fas fa-lightbulb mr-1"></i>
-            Tip: Usa Ctrl+F para búsqueda rápida
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="status-filter" class="form-label block mb-2">
+                <i class="fas fa-filter mr-2"></i>
+                Filtrar por estado:
+              </label>
+              <select id="status-filter" class="form-input w-full">
+                <option value="">Todos los estados</option>
+                <option value="Pendiente de Correo">Pendiente de Correo</option>
+                <option value="En Prospección">En Prospección</option>
+                <option value="Pendiente de Validación">Pendiente de Validación</option>
+                <option value="Interesado">Interesado</option>
+                <option value="No contesta">No contesta</option>
+                <option value="Rechazado">Rechazado</option>
+                <option value="Seguimiento agendado">Seguimiento agendado</option>
+                <option value="Reactivar Contacto">Reactivar Contacto</option>
+                <option value="Completado">Completado</option>
+              </select>
+            </div>
+            <div>
+              <label for="whatsapp-massive-search" class="form-label block mb-2">
+                <i class="fas fa-search mr-2"></i>
+                Buscar prospecto:
+              </label>
+              <input
+                id="whatsapp-massive-search"
+                type="text"
+                class="form-input w-full"
+                placeholder="Nombre, contacto, teléfono, email o clasificación..."
+                title="Presiona Ctrl+F para enfocar rápidamente"
+              >
+              <div class="text-xs text-gray-500 mt-1">
+                <i class="fas fa-lightbulb mr-1"></i>
+                Tip: Usa Ctrl+F para búsqueda rápida
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -700,12 +700,23 @@ document.addEventListener('DOMContentLoaded', function () {
       const phone = (prospect.phone || '').toLowerCase();
       const email = (prospect.email || '').toLowerCase();
       const classification = (prospect.classification || '').toLowerCase();
+      const status = (prospect.status || '').toLowerCase();
       
-      return businessName.includes(query) || 
-             contactPerson.includes(query) ||
-             phone.includes(query) || 
-             email.includes(query) ||
-             classification.includes(query);
+      // Filtrado por estado
+      if (statusFilter && status !== statusFilter) {
+        return false;
+      }
+      
+      // Filtrado por texto
+      if (query) {
+        return businessName.includes(query) ||
+               contactPerson.includes(query) ||
+               phone.includes(query) ||
+               email.includes(query) ||
+               classification.includes(query);
+      }
+      
+      return true;
     });
 
     renderProspects(filtered);
