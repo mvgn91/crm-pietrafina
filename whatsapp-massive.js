@@ -374,7 +374,7 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    const message = modalMessage.value.trim();
+    const message = generateWhatsAppMessage(selectedProspect).trim();
     if (!message) {
       showToast('Error: El mensaje no puede estar vacío', 'error');
       return;
