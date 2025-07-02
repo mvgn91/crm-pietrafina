@@ -720,11 +720,25 @@ document.addEventListener('DOMContentLoaded', function () {
       return true;
     });
 
-    renderProspects(filtered);
+    const sorted = filtered.sort((a, b) => {
+      const dateA = a.lastContact ? new Date(a.lastContact) : new Date(0);
+      const dateB = b.lastContact ? new Date(b.lastContact) : new Date(0);
+      return dateB - dateA;
+    });
     
-    // Mostrar resultado de búsqueda
-    if (query && filtered.length === 0) {
-      showToast(`No se encontraron resultados para "${query}"`, 'info');
+    renderProspects(sorted);
+    
+    // Mostrar feedback al usuario
+    if (sorted.length === 0) {
+      const activeFilters = [];
+      if (statusFilter) activeFilters.push(`estado: ${statusFilter}`);
+      if (query) activeFilters.push(`búsqueda: "${query}"`);
+      
+      const filterMessage = activeFilters.length > 0 ?
+        `No se encontraron prospectos con ${activeFilters.join(' y ')}` :
+        'No se encontraron prospectos';
+        
+      showToast(filterMessage, 'info');
     }
   }
 
