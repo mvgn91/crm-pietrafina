@@ -358,7 +358,43 @@ document.addEventListener('DOMContentLoaded', function () {
     return message;
   }
 
-  // Función para enviar mensaje por WhatsApp
+  // Función para limpiar y formatear número de teléfono
+  function cleanPhoneNumber(phone) {
+    if (!phone) return null;
+    
+    // Remover todos los caracteres que no sean números
+    let cleanPhone = phone.replace(/\D/g, '');
+    
+    console.log('Número original:', phone);
+    console.log('Número limpio:', cleanPhone);
+    
+    // Validar que el número tenga al menos 10 dígitos
+    if (cleanPhone.length < 10) {
+      console.warn('Número muy corto:', cleanPhone);
+      return null;
+    }
+    
+    // Formatear según las reglas de México
+    if (cleanPhone.startsWith('52') && cleanPhone.length >= 12) {
+      // Ya tiene código de país México (52)
+      return cleanPhone;
+    } else if (cleanPhone.length === 10) {
+      // Número de 10 dígitos, agregar código de país México
+      return '52' + cleanPhone;
+    } else if (cleanPhone.length === 11 && cleanPhone.startsWith('1')) {
+      // Número con 1 al inicio (formato antiguo), remover el 1 y agregar 52
+      return '52' + cleanPhone.substring(1);
+    } else if (cleanPhone.length === 12 && cleanPhone.startsWith('521')) {
+      // Formato 521XXXXXXXXX, mantener como está
+      return cleanPhone;
+    } else {
+      // Para otros casos, intentar con el número tal como está
+      console.warn('Formato de número no reconocido:', cleanPhone);
+      return cleanPhone;
+    }
+  }
+
+  // Función para enviar mensaje por WhatsApp - CORREGIDA
   function sendWhatsApp() {
     if (!selectedProspect) {
       showToast('Error: No hay prospecto seleccionado', 'error');
@@ -370,7 +406,7 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    // The message is taken directly from the textarea, allowing for edits.
+    // Obtener el mensaje del textarea (permite ediciones del usuario)
     const message = modalMessage.value.trim();
     
     if (!message) {
@@ -378,54 +414,80 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    // Limpiar el número de teléfono (remover espacios, guiones, etc.)
-    let cleanPhone = selectedProspect.phone.replace(/\D/g, '');
+    // Limpiar y formatear el número de teléfono
+    const cleanPhone = cleanPhoneNumber(selectedProspect.phone);
     
-    // Asegurar que el número tenga el formato correcto para México
-    if (cleanPhone.startsWith('52')) {
-      // Ya tiene código de país
-    } else if (cleanPhone.length === 10) {
-      // Número de 10 dígitos, agregar código de país
-      cleanPhone = '52' + cleanPhone;
-    } else if (cleanPhone.length === 11 && cleanPhone.startsWith('1')) {
-      // Número con 1 al inicio (formato antiguo), remover el 1 y agregar 52
-      cleanPhone = '52' + cleanPhone.substring(1);
+    if (!cleanPhone) {
+      showToast('Error: Formato de número de teléfono inválido', 'error');
+      return;
     }
 
-    // Codificar el mensaje para URL
-    const encodedMessage = encodeURIComponent(message);
-    
-    // Crear URL de WhatsApp
-    const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
-    
-    // Abrir WhatsApp
-    window.open(whatsappUrl, '_blank');
-    
-    // Registrar el envío (opcional - puedes implementar esto más tarde)
-    registerWhatsAppSend(selectedProspect);
-    
-    // Mostrar confirmación
-    showToast(`Material enviado a ${selectedProspect.businessName}`, 'success');
-    
-    // Cerrar modal
-    closeModal();
+    console.log('Número final para WhatsApp:', cleanPhone);
+    console.log('Mensaje a enviar:', message);
+
+    try {
+      // Codificar el mensaje correctamente para URL
+      // Usar encodeURIComponent para caracteres especiales y espacios
+      const encodedMessage = encodeURIComponent(message);
+      
+      // Crear URL de WhatsApp con el formato correcto
+      const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
+      
+      console.log('URL de WhatsApp generada:', whatsappUrl);
+      
+      // Abrir WhatsApp en una nueva ventana/pestaña
+      const whatsappWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+      
+      // Verificar si la ventana se abrió correctamente
+      if (!whatsappWindow) {
+        showToast('Error: No se pudo abrir WhatsApp. Verifica que no esté bloqueado por el navegador.', 'error');
+        return;
+      }
+      
+      // Registrar el envío en Firestore (opcional)
+      registerWhatsAppSend(selectedProspect, message);
+      
+      // Mostrar confirmación de éxito
+      showToast(`Material enviado a ${selectedProspect.businessName || selectedProspect.contactPerson}`, 'success');
+      
+      // Cerrar modal después de un breve delay
+      setTimeout(() => {
+        closeModal();
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Error al enviar mensaje por WhatsApp:', error);
+      showToast('Error al generar el enlace de WhatsApp', 'error');
+    }
   }
 
   // Función para registrar el envío en Firestore (opcional)
-  async function registerWhatsAppSend(prospect) {
+  async function registerWhatsAppSend(prospect, message) {
     try {
       if (db) {
+        const selectedMaterials = [];
+        materialsCheckboxContainer.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
+          const material = MATERIALS.find(m => m.url === checkbox.value);
+          if (material) {
+            selectedMaterials.push(material.name);
+          }
+        });
+
         await addDoc(collection(db, 'whatsapp_sends'), {
           prospectId: prospect.id,
           businessName: prospect.businessName,
+          contactPerson: prospect.contactPerson,
           phone: prospect.phone,
+          message: message,
+          materials: selectedMaterials,
           sentAt: serverTimestamp(),
-          materials: MATERIALS.map(m => m.name)
+          sentBy: currentUserName
         });
         console.log('Envío registrado en Firestore');
       }
     } catch (error) {
       console.error('Error registrando envío:', error);
+      // No mostrar error al usuario ya que el envío principal fue exitoso
     }
   }
 
