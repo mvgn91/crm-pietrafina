@@ -403,7 +403,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Función para enviar mensaje por WhatsApp - VERSIÓN CORREGIDA
+  // Función para enviar mensaje por WhatsApp - VERSIÓN SIMPLIFICADA
   function sendWhatsApp() {
     if (!selectedProspect) {
       showToast('Error: No hay prospecto seleccionado', 'error');
@@ -435,25 +435,29 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log('Mensaje a enviar:', message);
 
     try {
-      // MÉTODO SIMPLE Y DIRECTO - Sin codificación compleja
-      // Reemplazar saltos de línea por %0A (formato URL para nueva línea)
-      const encodedMessage = message
-        .replace(/\n/g, '%0A')
-        .replace(/\*/g, '%2A')  // Asteriscos para negrita
-        .replace(/ /g, '%20');   // Espacios
+      // MÉTODO ULTRA SIMPLE - Usar encodeURIComponent estándar
+      const encodedMessage = encodeURIComponent(message);
       
-      // Crear URL de WhatsApp con el formato más simple
+      // Crear URL de WhatsApp
       const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
       
-      console.log('URL de WhatsApp generada:', whatsappUrl);
+      console.log('URL de WhatsApp generada (primeros 200 chars):', whatsappUrl.substring(0, 200));
+      console.log('Longitud total de la URL:', whatsappUrl.length);
       
-      // Abrir WhatsApp en una nueva ventana/pestaña
-      const whatsappWindow = window.open(whatsappUrl, '_blank');
-      
-      // Verificar si la ventana se abrió correctamente
-      if (!whatsappWindow) {
-        showToast('Error: No se pudo abrir WhatsApp. Verifica que no esté bloqueado por el navegador.', 'error');
-        return;
+      // Verificar si la URL es demasiado larga (límite típico ~2000 caracteres)
+      if (whatsappUrl.length > 2000) {
+        console.warn('URL muy larga, intentando con mensaje más corto');
+        
+        // Crear un mensaje más corto
+        const shortMessage = `¡Hola ${selectedProspect.contactPerson || selectedProspect.businessName}!\n\nTe envío el material de Pietra Fina:\n\n${MATERIALS[0].url}\n\nSaludos,\n${currentUserName}`;
+        const shortEncodedMessage = encodeURIComponent(shortMessage);
+        const shortWhatsappUrl = `https://wa.me/${cleanPhone}?text=${shortEncodedMessage}`;
+        
+        console.log('URL corta generada:', shortWhatsappUrl);
+        window.open(shortWhatsappUrl, '_blank');
+      } else {
+        // Abrir WhatsApp con el mensaje completo
+        window.open(whatsappUrl, '_blank');
       }
       
       // Registrar el envío en Firestore (opcional)
