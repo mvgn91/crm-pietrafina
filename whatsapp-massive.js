@@ -1,4 +1,40 @@
 // WhatsApp Material Sender - Integración con Firestore
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getFirestore, collection, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+// Configuración de Firebase para tu aplicación web
+const firebaseConfig = {
+    apiKey: "AIzaSyB2VgG-spKXngIcC5pbP_Knpi3e06c6z4E",
+    authDomain: "crm-pietrafina.firebaseapp.com",
+    projectId: "crm-pietrafina",
+    storageBucket: "crm-pietrafina.firebasestorage.app",
+    messagingSenderId: "765972736898",
+    appId: "1:765972736898:web:3cffb3322601fa5d607d9b",
+    measurementId: "G-2BZ0J4T69V"
+};
+
+// Inicializa Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let currentUserName = "Pietra Fina"; // Default name
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // User is signed in.
+    if (user.uid === "Wv1BcMQlQreQ3doUPccObJdX6cS2") { // Nicolas's UID
+      currentUserName = "NICOLAS CAPETILLO";
+    } else if (user.uid === "n4WFgGtOtDQwYaV9QXy16bDvYE32") { // Francisco's UID
+      currentUserName = "FRANCISCO CAPETILLO";
+    }
+  } else {
+    // User is signed out.
+    currentUserName = "Pietra Fina";
+  }
+});
+
 document.addEventListener('DOMContentLoaded', function () {
   console.log('WhatsApp Massive JS cargado');
   
@@ -9,10 +45,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const modalMessage = document.getElementById('whatsapp-massive-message');
   const modalSend = document.getElementById('whatsapp-massive-send-btn');
   const modalCancel = document.getElementById('whatsapp-massive-cancel-btn');
+  const materialsCheckboxContainer = document.getElementById('materials-checkbox-container');
 
   let selectedProspect = null;
   let prospects = [];
-  let db = null;
 
   // Materiales disponibles para envío
   const MATERIALS = [
@@ -30,35 +66,18 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   ];
 
-  // Inicializar Firebase y Firestore
-  function initializeFirebase() {
-    try {
-      if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
-        db = firebase.firestore();
-        console.log('Firebase ya inicializado, usando instancia existente');
-        return true;
-      }
-      console.warn('Firebase no está disponible');
-      return false;
-    } catch (error) {
-      console.error('Error inicializando Firebase:', error);
-      return false;
-    }
-  }
-
   // Función para cargar prospectos desde Firestore
   async function loadProspectsFromFirestore() {
     try {
       showLoadingState();
-      const firebaseInitialized = initializeFirebase();
-      if (!firebaseInitialized || !db) {
+      if (!db) {
         console.warn('Firestore no disponible, usando datos de prueba');
         loadTestData();
         return;
       }
       
       console.log('Cargando prospectos desde Firestore...');
-      const snapshot = await db.collection('prospects').get();
+      const snapshot = await getDocs(collection(db, 'prospects'));
       
       if (snapshot.empty) {
         console.log('No se encontraron prospectos en Firestore');
@@ -270,8 +289,8 @@ document.addEventListener('DOMContentLoaded', function () {
   // Función para abrir el modal con los datos del prospecto
   function openModal(prospect) {
     selectedProspect = prospect;
-    const message = generateWhatsAppMessage(prospect);
-    modalMessage.value = message;
+    populateMaterialsCheckboxes();
+    updateWhatsAppMessage();
     modal.classList.remove('hidden');
     
     // Enfocar el textarea para edición inmediata
@@ -288,30 +307,57 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Función para generar el mensaje personalizado de WhatsApp
+  function populateMaterialsCheckboxes() {
+    materialsCheckboxContainer.innerHTML = '';
+    MATERIALS.forEach((material, index) => {
+      const checkboxId = `material-${index}`;
+      const checkboxHTML = `
+        <div class="flex items-center">
+          <input id="${checkboxId}" type="checkbox" value="${material.url}" class="form-checkbox h-5 w-5 text-green-600" checked>
+          <label for="${checkboxId}" class="ml-2 text-gray-700">${material.name}</label>
+        </div>
+      `;
+      materialsCheckboxContainer.insertAdjacentHTML('beforeend', checkboxHTML);
+    });
+
+    materialsCheckboxContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+      checkbox.addEventListener('change', updateWhatsAppMessage);
+    });
+  }
+
+  function updateWhatsAppMessage() {
+    if (!selectedProspect) return;
+    modalMessage.value = generateWhatsAppMessage(selectedProspect);
+  }
+
   function generateWhatsAppMessage(prospect) {
-    const contactName = prospect.contactPerson || 'Estimado/a';
+    const contactName = prospect.contactPerson || prospect.businessName || 'Estimado/a';
     const businessName = prospect.businessName || 'su empresa';
     
     let message = `¡Hola ${contactName}!\n\n`;
-    message += `Espero que se encuentre muy bien. Mi nombre es [TU NOMBRE] de Pietra Fina.\n\n`;
+    message += `Espero que se encuentre muy bien. Mi nombre es ${currentUserName} de Pietra Fina.\n\n`;
     message += `Me da mucho gusto contactarle porque hemos identificado que ${businessName} podría beneficiarse enormemente de nuestros materiales premium para proyectos de alta gama.\n\n`;
     message += `Le comparto nuestro material exclusivo:\n\n`;
     
-    MATERIALS.forEach((material, index) => {
-      message += `📋 *${material.name}*\n${material.url}\n\n`;
+    const selectedMaterials = [];
+    materialsCheckboxContainer.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
+      const material = MATERIALS.find(m => m.url === checkbox.value);
+      if (material) {
+        selectedMaterials.push(material);
+      }
     });
+
+    if (selectedMaterials.length > 0) {
+      selectedMaterials.forEach((material) => {
+        message += `📋 *${material.name}*\n${material.url}\n\n`;
+      });
+    }
     
-    message += `Estos materiales incluyen:\n`;
-    message += `✨ Nuestra línea completa de productos premium\n`;
-    message += `🏗️ Proyectos realizados y referencias de obras\n`;
-    message += `💎 Selección exclusiva de materiales de lujo\n\n`;
     message += `¿Le gustaría que agendemos una reunión para platicar sobre cómo podemos colaborar en sus próximos proyectos?\n\n`;
     message += `Quedo atento a sus comentarios.\n\n`;
     message += `Saludos cordiales,\n`;
-    message += `[TU NOMBRE]\n`;
-    message += `Pietra Fina\n`;
-    message += `📱 [TU TELÉFONO]\n`;
-    message += `📧 [TU EMAIL]`;
+    message += `${currentUserName}\n`;
+    message += `Pietra Fina`;
     
     return message;
   }
@@ -371,11 +417,11 @@ document.addEventListener('DOMContentLoaded', function () {
   async function registerWhatsAppSend(prospect) {
     try {
       if (db) {
-        await db.collection('whatsapp_sends').add({
+        await addDoc(collection(db, 'whatsapp_sends'), {
           prospectId: prospect.id,
           businessName: prospect.businessName,
           phone: prospect.phone,
-          sentAt: firebase.firestore.FieldValue.serverTimestamp(),
+          sentAt: serverTimestamp(),
           materials: MATERIALS.map(m => m.name)
         });
         console.log('Envío registrado en Firestore');

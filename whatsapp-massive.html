@@ -11,10 +11,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="./style.css">
   
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+  <!-- Firebase SDKs (Modular) -->
+  <script type="module" src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"></script>
 </head>
 <body class="antialiased font-inter text-slate-800 min-h-screen" style="background: var(--gray-50);">
   <!-- Canvas de fondo interactivo -->
@@ -222,13 +222,23 @@
           </p>
         </div>
         
+        <div class="mb-4">
+          <label class="form-label mb-2 block">
+            <i class="fas fa-check-square mr-2"></i>
+            Seleccionar materiales a enviar:
+          </label>
+          <div id="materials-checkbox-container" class="space-y-2">
+            <!-- Checkboxes will be inserted here by JS -->
+          </div>
+        </div>
+
         <label for="whatsapp-massive-message" class="form-label mb-2 block">
           <i class="fas fa-edit mr-2"></i>
           Mensaje personalizado para WhatsApp:
         </label>
-        <textarea 
-          id="whatsapp-massive-message" 
-          rows="12" 
+        <textarea
+          id="whatsapp-massive-message"
+          rows="12"
           class="form-textarea w-full resize-vertical font-mono text-sm"
           placeholder="El mensaje se generará automáticamente con los datos del prospecto..."
         ></textarea>
@@ -263,25 +273,8 @@
   <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
 
   <!-- Scripts -->
-  <script>
-    // Configuración de Firebase - DATOS REALES
-    const firebaseConfig = {
-      apiKey: "AIzaSyB2VgG-spKXngIcC5pbP_Knpi3e06c6z4E",
-      authDomain: "crm-pietrafina.firebaseapp.com",
-      projectId: "crm-pietrafina",
-      storageBucket: "crm-pietrafina.firebasestorage.app",
-      messagingSenderId: "765972736898",
-      appId: "1:765972736898:web:3cffb3322601fa5d607d9b",
-      measurementId: "G-2BZ0J4T69V"
-    };
-
-    // Inicializar Firebase
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-  </script>
   <script src="./matrix-bg.js"></script>
-  <script src="./whatsapp-massive.js"></script>
+  <script type="module" src="./whatsapp-massive.js"></script>
   
   <footer class="w-full text-center py-4 bg-white border-t border-gray-200 mt-8">
     <span class="text-xs text-gray-500 font-inter tracking-wide">POWERED BY MVGN LABS 2025</span>
