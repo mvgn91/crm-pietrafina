@@ -332,12 +332,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function generateWhatsAppMessage(prospect) {
     const contactName = prospect.contactPerson || prospect.businessName || 'Estimado/a';
-    const businessName = prospect.businessName || 'su empresa';
     
     let message = `¡Hola ${contactName}!\n\n`;
-    message += `Espero que se encuentre muy bien. Mi nombre es ${currentUserName} de Pietra Fina.\n\n`;
-    message += `Me da mucho gusto contactarle porque hemos identificado que ${businessName} podría beneficiarse enormemente de nuestros materiales premium para proyectos de alta gama.\n\n`;
-    message += `Le comparto nuestro material exclusivo:\n\n`;
+    message += `Adjunto el material previamente acordado:\n\n`;
     
     const selectedMaterials = [];
     materialsCheckboxContainer.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
@@ -349,11 +346,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (selectedMaterials.length > 0) {
       selectedMaterials.forEach((material) => {
-        message += `📋 *${material.name}*\n${material.url}\n\n`;
+        message += `*${material.name}*\n${material.url}\n\n`;
       });
     }
     
-    message += `¿Le gustaría que agendemos una reunión para platicar sobre cómo podemos colaborar en sus próximos proyectos?\n\n`;
     message += `Quedo atento a sus comentarios.\n\n`;
     message += `Saludos cordiales,\n`;
     message += `${currentUserName}\n`;
@@ -374,8 +370,9 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    const message = generateWhatsAppMessage(selectedProspect).trim();
-    if (!message) {
+    const message = generateWhatsAppMessage(selectedProspect);
+    
+    if (!message.trim()) {
       showToast('Error: El mensaje no puede estar vacío', 'error');
       return;
     }
@@ -399,13 +396,10 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Crear URL de WhatsApp
     const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
-
-    // --- DEBUGGING ---
-    console.log("Teléfono Limpio:", cleanPhone);
-    console.log("Mensaje Generado:", message);
-    console.log("URL de WhatsApp:", whatsappUrl);
-    // --- END DEBUGGING ---
     
+    // DEBUGGING: Show the final URL before opening
+    alert("Se abrirá la siguiente URL. Si el mensaje de WhatsApp está vacío, por favor, envíame esta URL.\n\n" + whatsappUrl);
+
     // Abrir WhatsApp
     window.open(whatsappUrl, '_blank');
     
