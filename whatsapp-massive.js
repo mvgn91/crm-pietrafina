@@ -399,6 +399,12 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Crear URL de WhatsApp
     const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
+
+    // --- DEBUGGING ---
+    console.log("Teléfono Limpio:", cleanPhone);
+    console.log("Mensaje Generado:", message);
+    console.log("URL de WhatsApp:", whatsappUrl);
+    // --- END DEBUGGING ---
     
     // Abrir WhatsApp
     window.open(whatsappUrl, '_blank');
