@@ -100,7 +100,8 @@ document.addEventListener('DOMContentLoaded', function () {
           classification: data.classification || data.clasificacion || '',
           status: data.status || data.estado || '',
           observations: data.observations || data.observaciones || '',
-          createdAt: data.createdAt || data.fechaCreacion || null
+          createdAt: data.createdAt || data.fechaCreacion || null,
+          lastContact: data.lastContact || null
         });
       });
       
@@ -673,7 +674,8 @@ document.addEventListener('DOMContentLoaded', function () {
           message: message,
           materials: selectedMaterials,
           sentAt: serverTimestamp(),
-          sentBy: currentUserName
+          sentBy: currentUserName,
+          lastContact: serverTimestamp() // Actualizar fecha de último contacto
         });
         console.log('📝 Envío registrado en Firestore');
       }
