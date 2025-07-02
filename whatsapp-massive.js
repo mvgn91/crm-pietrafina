@@ -54,15 +54,15 @@ document.addEventListener('DOMContentLoaded', function () {
   const MATERIALS = [
     {
       name: 'CATALOGO DE PRODUCTOS',
-      url: 'https://1drv.ms/b/c/240b98da269be9b3/EcurnK7OYqVAvOa5jVheczEB0QlU9UG6bu-b_xjHO7NMwQ?e=N81l6i'
+      url: 'http://bit.ly/3IbX56b'
     },
     {
       name: 'LOOKBOOK DE OBRAS',
-      url: 'https://1drv.ms/b/c/240b98da269be9b3/EdANAQcVZyhFvilI5fJGdnUB4DFt15vYTnbXM58jEbpsjA?e=iM5wIr'
+      url: 'https://bit.ly/4kj5TnW'
     },
     {
       name: 'SELECCION DE MATERIALES PREMIUM',
-      url: 'https://1drv.ms/b/c/240b98da269be9b3/EfoE-_7mq1dAmulQyma2Rv8B47E_6gtCrdvpmVkGgNbncg?e=UvpjHC'
+      url: 'https://bit.ly/4etgonw'
     }
   ];
 
@@ -370,9 +370,10 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    const message = generateWhatsAppMessage(selectedProspect);
+    // The message is taken directly from the textarea, allowing for edits.
+    const message = modalMessage.value.trim();
     
-    if (!message.trim()) {
+    if (!message) {
       showToast('Error: El mensaje no puede estar vacío', 'error');
       return;
     }
@@ -397,9 +398,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Crear URL de WhatsApp
     const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
     
-    // DEBUGGING: Show the final URL before opening
-    alert("Se abrirá la siguiente URL. Si el mensaje de WhatsApp está vacío, por favor, envíame esta URL.\n\n" + whatsappUrl);
-
     // Abrir WhatsApp
     window.open(whatsappUrl, '_blank');
     
