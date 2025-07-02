@@ -1,4 +1,4 @@
-// WhatsApp Material Sender - Integración con Firestore
+// WhatsApp Material Sender - Integración con Firestore (VERSIÓN CORREGIDA)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, collection, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -36,7 +36,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 document.addEventListener('DOMContentLoaded', function () {
-  console.log('WhatsApp Massive JS cargado');
+  console.log('WhatsApp Massive JS cargado (VERSIÓN CORREGIDA)');
   
   const tbody = document.getElementById('whatsapp-massive-tbody');
   const searchInput = document.getElementById('whatsapp-massive-search');
@@ -418,7 +418,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return 'unknown';
   }
 
-  // Función MEJORADA para enviar mensaje por WhatsApp
+  // FUNCIÓN CORREGIDA para enviar mensaje por WhatsApp
   function sendWhatsApp() {
     if (!selectedProspect) {
       showToast('Error: No hay prospecto seleccionado', 'error');
@@ -446,33 +446,15 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    console.log('🚀 Iniciando envío de WhatsApp...');
+    console.log('🚀 Iniciando envío de WhatsApp (VERSIÓN CORREGIDA)...');
     console.log('📱 Número final para WhatsApp:', cleanPhone);
     console.log('💬 Mensaje a enviar:', message);
     console.log('🌐 Dispositivo móvil:', isMobileDevice());
     console.log('🔍 Navegador:', getBrowserInfo());
 
     try {
-      // MÉTODO 1: Crear enlace temporal y hacer clic automático
-      const encodedMessage = encodeURIComponent(message);
-      const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
-      
-      console.log('🔗 URL generada (primeros 100 chars):', whatsappUrl.substring(0, 100) + '...');
-      console.log('📏 Longitud total de la URL:', whatsappUrl.length);
-      
-      // Verificar longitud de URL
-      if (whatsappUrl.length > 2000) {
-        console.warn('⚠️ URL muy larga, usando mensaje simplificado');
-        const shortMessage = `¡Hola ${selectedProspect.contactPerson || selectedProspect.businessName}!\n\nTe envío el material de Pietra Fina:\n\n${MATERIALS[0].url}\n\nSaludos,\n${currentUserName}`;
-        const shortEncodedMessage = encodeURIComponent(shortMessage);
-        const shortWhatsappUrl = `https://wa.me/${cleanPhone}?text=${shortEncodedMessage}`;
-        
-        console.log('🔗 URL corta generada:', shortWhatsappUrl);
-        openWhatsAppWithFallback(shortWhatsappUrl, cleanPhone, shortMessage);
-      } else {
-        // Usar URL completa
-        openWhatsAppWithFallback(whatsappUrl, cleanPhone, message);
-      }
+      // CORRECCIÓN PRINCIPAL: Usar método más robusto para abrir WhatsApp
+      openWhatsAppRobust(cleanPhone, message);
       
       // Registrar el envío en Firestore (opcional)
       registerWhatsAppSend(selectedProspect, message);
@@ -491,88 +473,121 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Función con múltiples métodos de apertura de WhatsApp
-  function openWhatsAppWithFallback(whatsappUrl, phone, message) {
-    console.log('🎯 Intentando abrir WhatsApp con múltiples métodos...');
+  // NUEVA FUNCIÓN ROBUSTA para abrir WhatsApp con múltiples estrategias
+  function openWhatsAppRobust(phone, message) {
+    console.log('🎯 Usando método robusto para abrir WhatsApp...');
     
-    // MÉTODO 1: Crear enlace temporal y hacer clic programático
-    const tempLink = document.createElement('a');
-    tempLink.href = whatsappUrl;
-    tempLink.target = '_blank';
-    tempLink.rel = 'noopener noreferrer';
-    tempLink.style.display = 'none';
+    // Estrategia 1: Mensaje corto si es muy largo
+    let finalMessage = message;
+    const maxLength = 1800; // Límite conservador para evitar problemas de URL
     
-    document.body.appendChild(tempLink);
+    if (message.length > maxLength) {
+      console.log('⚠️ Mensaje muy largo, usando versión simplificada');
+      const contactName = selectedProspect.contactPerson || selectedProspect.businessName || 'Estimado/a';
+      finalMessage = `¡Hola ${contactName}!\n\nTe envío el material de Pietra Fina:\n\n${MATERIALS[0].url}\n\nSaludos,\n${currentUserName}\nPietra Fina`;
+    }
     
-    // Simular clic en el enlace
-    console.log('🖱️ Método 1: Clic programático en enlace temporal');
-    tempLink.click();
+    // Estrategia 2: Codificación mejorada
+    const encodedMessage = encodeURIComponent(finalMessage);
+    const whatsappUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
     
-    // Limpiar el enlace temporal
-    setTimeout(() => {
-      document.body.removeChild(tempLink);
-    }, 1000);
+    console.log('🔗 URL generada (longitud):', whatsappUrl.length);
+    console.log('🔗 URL (primeros 100 chars):', whatsappUrl.substring(0, 100) + '...');
     
-    // MÉTODO 2: Fallback con window.open después de un delay
-    setTimeout(() => {
-      console.log('🪟 Método 2: Fallback con window.open');
+    // Estrategia 3: Método de apertura adaptativo
+    if (isMobileDevice()) {
+      // En móviles, usar location.href directamente
+      console.log('📱 Dispositivo móvil detectado - usando location.href');
+      window.location.href = whatsappUrl;
+    } else {
+      // En escritorio, usar múltiples métodos
+      console.log('💻 Dispositivo de escritorio - usando múltiples métodos');
+      
+      // Método 1: window.open con configuración específica
       try {
-        const newWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+        const newWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer,width=800,height=600');
         
-        // Verificar si la ventana se abrió correctamente
-        if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
-          console.warn('⚠️ Popup bloqueado, intentando método 3');
+        // Verificar si se abrió correctamente
+        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+          console.log('⚠️ window.open falló, intentando método alternativo');
           
-          // MÉTODO 3: Cambiar location directamente
+          // Método 2: Crear enlace temporal y hacer clic
+          const tempLink = document.createElement('a');
+          tempLink.href = whatsappUrl;
+          tempLink.target = '_blank';
+          tempLink.rel = 'noopener noreferrer';
+          tempLink.style.display = 'none';
+          
+          document.body.appendChild(tempLink);
+          tempLink.click();
+          
+          // Limpiar después de un momento
           setTimeout(() => {
-            console.log('🔄 Método 3: Cambio de location');
-            window.location.href = whatsappUrl;
-          }, 500);
+            if (document.body.contains(tempLink)) {
+              document.body.removeChild(tempLink);
+            }
+          }, 1000);
+          
         } else {
-          console.log('✅ Ventana de WhatsApp abierta exitosamente');
+          console.log('✅ WhatsApp abierto exitosamente con window.open');
         }
-      } catch (error) {
-        console.error('❌ Error en window.open:', error);
         
-        // MÉTODO 4: Último recurso - mostrar URL para copiar
-        showWhatsAppUrlModal(whatsappUrl, phone, message);
+      } catch (error) {
+        console.error('❌ Error con window.open:', error);
+        
+        // Método 3: Fallback con location.href
+        console.log('🔄 Usando fallback con location.href');
+        window.location.href = whatsappUrl;
       }
-    }, 500);
+    }
+    
+    // Estrategia 4: Mostrar información adicional al usuario
+    setTimeout(() => {
+      showWhatsAppInstructions(phone, finalMessage);
+    }, 2000);
   }
 
-  // Función para mostrar modal con URL de WhatsApp si todos los métodos fallan
-  function showWhatsAppUrlModal(url, phone, message) {
-    console.log('📋 Método 4: Mostrar URL para copiar manualmente');
-    
-    const modalHtml = `
-      <div id="whatsapp-fallback-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-lg p-6 max-w-md w-full">
-          <h3 class="text-lg font-bold mb-4">🔗 Enlace de WhatsApp</h3>
-          <p class="text-sm text-gray-600 mb-4">
-            No se pudo abrir WhatsApp automáticamente. Puedes copiar este enlace y pegarlo en tu navegador:
-          </p>
-          <div class="bg-gray-100 p-3 rounded border text-xs break-all mb-4">
-            ${url}
-          </div>
-          <div class="flex gap-2">
-            <button onclick="navigator.clipboard.writeText('${url}').then(() => alert('Enlace copiado!')); document.getElementById('whatsapp-fallback-modal').remove();" 
-                    class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-              📋 Copiar Enlace
-            </button>
-            <button onclick="window.open('${url}', '_blank'); document.getElementById('whatsapp-fallback-modal').remove();" 
-                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-              🔗 Abrir Enlace
-            </button>
-            <button onclick="document.getElementById('whatsapp-fallback-modal').remove();" 
-                    class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">
-              ❌ Cerrar
+  // Función para mostrar instrucciones adicionales si es necesario
+  function showWhatsAppInstructions(phone, message) {
+    const instructionsHtml = `
+      <div id="whatsapp-instructions" class="fixed bottom-4 right-4 bg-green-50 border border-green-200 rounded-lg p-4 max-w-sm shadow-lg z-50">
+        <div class="flex items-start">
+          <i class="fab fa-whatsapp text-green-600 text-xl mr-3 mt-1"></i>
+          <div>
+            <h4 class="font-semibold text-green-800 mb-2">WhatsApp abierto</h4>
+            <p class="text-sm text-green-700 mb-2">
+              Si WhatsApp no se abrió automáticamente:
+            </p>
+            <ul class="text-xs text-green-600 space-y-1">
+              <li>• Verifica que WhatsApp esté instalado</li>
+              <li>• Permite ventanas emergentes en tu navegador</li>
+              <li>• El mensaje ya está preparado para enviar</li>
+            </ul>
+            <button onclick="document.getElementById('whatsapp-instructions').remove()" 
+                    class="mt-2 text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700">
+              Entendido
             </button>
           </div>
         </div>
       </div>
     `;
     
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    // Remover instrucciones anteriores si existen
+    const existingInstructions = document.getElementById('whatsapp-instructions');
+    if (existingInstructions) {
+      existingInstructions.remove();
+    }
+    
+    // Agregar nuevas instrucciones
+    document.body.insertAdjacentHTML('beforeend', instructionsHtml);
+    
+    // Auto-remover después de 10 segundos
+    setTimeout(() => {
+      const instructions = document.getElementById('whatsapp-instructions');
+      if (instructions) {
+        instructions.remove();
+      }
+    }, 10000);
   }
 
   // Función para registrar el envío en Firestore (opcional)
@@ -724,6 +739,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // Inicializar la aplicación
-  console.log('🚀 Inicializando WhatsApp Massive...');
+  console.log('🚀 Inicializando WhatsApp Massive (VERSIÓN CORREGIDA)...');
   loadProspectsFromFirestore();
 });
+
