@@ -687,6 +687,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Función para filtrar prospectos
   function filterProspects() {
+    const statusFilter = document.getElementById('status-filter').value.toLowerCase();
     const query = searchInput.value.trim().toLowerCase();
     
     if (!query) {
