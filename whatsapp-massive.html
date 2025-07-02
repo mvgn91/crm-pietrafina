@@ -254,5 +254,51 @@
   <footer class="w-full text-center py-4 bg-white border-t border-gray-200 mt-8">
     <span class="text-xs text-gray-500 font-inter tracking-wide">POWERED BY MVGN LABS 2025</span>
   </footer>
+
+  <!-- Modal de detalles/seguimiento de prospecto (Reutilizado de script.js) -->
+  <div id="detail-modal" class="modal-overlay hidden">
+    <div class="modal-container animate-modalIn">
+        <div class="modal-header">
+            <h3>Detalles del Prospecto</h3>
+            <button id="detail-close-btn" class="modal-close-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-content">
+            <div class="details-grid">
+                <div class="detail-card">
+                    <div class="detail-label"><i class="fas fa-building"></i>Negocio</div>
+                    <div class="detail-value" id="detail-businessName">-</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-label"><i class="fas fa-user"></i>Contacto</div>
+                    <div class="detail-value" id="detail-contactPerson">-</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-label"><i class="fas fa-envelope"></i>Email</div>
+                    <div class="detail-value" id="detail-email">-</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-label"><i class="fas fa-phone"></i>Teléfono</div>
+                    <div class="detail-value" id="detail-phone">-</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-label"><i class="fas fa-tag"></i>Clasificación</div>
+                    <div class="detail-value" id="detail-classification">-</div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-label"><i class="fas fa-info-circle"></i>Estatus</div>
+                    <div class="detail-value status" id="detail-status">-</div>
+                </div>
+            </div>
+            <div class="details-grid">
+                <div class="detail-card" style="grid-column: 1 / -1;">
+                    <div class="detail-label"><i class="fas fa-comment-dots"></i>Observaciones</div>
+                    <div class="detail-value" id="detail-observations">-</div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
 </body>
 </html>

@@ -41,6 +41,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const cardsContainer = document.getElementById('prospect-cards-container');
   const searchInput = document.getElementById('whatsapp-massive-search');
   const modal = document.getElementById('whatsapp-massive-modal');
+  const detailModal = document.getElementById('detail-modal');
+  const detailCloseBtn = document.getElementById('detail-close-btn');
   const modalClose = document.getElementById('whatsapp-massive-modal-close');
   const modalMessage = document.getElementById('whatsapp-massive-message');
   const modalSend = document.getElementById('whatsapp-massive-send-btn');
@@ -203,26 +205,37 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
             <div class="flex justify-between items-center mt-4">
                 ${prospect.status ? `<span class="status-badge ${statusSlug}">${prospect.status}</span>` : '<div></div>'}
-                ${hasPhone ? `
+                <div class="flex items-center gap-2">
                   <button
-                    class="whatsapp-send-btn action-btn bg-green-600 hover:bg-green-700 text-white"
+                    class="view-details-btn action-btn bg-slate-200 hover:bg-slate-300 text-slate-700"
                     data-prospect-id="${prospect.id}"
-                    title="Enviar material por WhatsApp"
+                    title="Ver detalles del prospecto"
+                    style="width: 40px; height: 40px; padding: 0; font-size: 1rem;"
                   >
-                    <i class="fab fa-whatsapp"></i>
+                    <i class="fas fa-eye"></i>
                   </button>
-                ` : `
-                  <span class="action-btn bg-gray-200 text-gray-500 cursor-not-allowed">
-                    <i class="fas fa-ban"></i>
-                  </span>
-                `}
+                  ${hasPhone ? `
+                    <button
+                      class="whatsapp-send-btn action-btn bg-green-600 hover:bg-green-700 text-white"
+                      data-prospect-id="${prospect.id}"
+                      title="Enviar material por WhatsApp"
+                      style="width: 40px; height: 40px; padding: 0; font-size: 1.2rem;"
+                    >
+                      <i class="fab fa-whatsapp"></i>
+                    </button>
+                  ` : `
+                    <span class="action-btn bg-gray-200 text-gray-500 cursor-not-allowed" style="width: 40px; height: 40px; padding: 0; font-size: 1rem;">
+                      <i class="fas fa-ban"></i>
+                    </span>
+                  `}
+                </div>
             </div>
           </div>
         `;
       }).join('');
     }
 
-    addWhatsAppEventListeners();
+    addCardActionListeners();
   }
 
   // Función para obtener el color del status
@@ -256,10 +269,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (filteredCount) filteredCount.textContent = filteredProspects;
   }
 
-  // Función para agregar event listeners a los botones de WhatsApp
-  function addWhatsAppEventListeners() {
-    const whatsappButtons = document.querySelectorAll('.whatsapp-send-btn');
-    whatsappButtons.forEach(button => {
+  // Función para agregar event listeners a los botones de las tarjetas
+  function addCardActionListeners() {
+    document.querySelectorAll('.whatsapp-send-btn').forEach(button => {
       button.addEventListener('click', function(e) {
         e.preventDefault();
         const prospectId = this.getAttribute('data-prospect-id');
@@ -268,6 +280,17 @@ document.addEventListener('DOMContentLoaded', function () {
           openModal(prospect);
         }
       });
+    });
+
+    document.querySelectorAll('.view-details-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const prospectId = this.getAttribute('data-prospect-id');
+            const prospect = prospects.find(p => p.id === prospectId);
+            if (prospect) {
+                showProspectDetailsModal(prospect);
+            }
+        });
     });
   }
 
@@ -731,6 +754,29 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 4000);
   }
 
+  // --- Lógica del modal de detalles ---
+  function showProspectDetailsModal(prospect) {
+    if (!prospect || !detailModal) return;
+
+    // Llenar el modal con los datos del prospecto
+    detailModal.querySelector('#detail-businessName').textContent = prospect.businessName || '-';
+    detailModal.querySelector('#detail-contactPerson').textContent = prospect.contactPerson || '-';
+    detailModal.querySelector('#detail-email').textContent = prospect.email || '-';
+    detailModal.querySelector('#detail-phone').textContent = prospect.phone || '-';
+    detailModal.querySelector('#detail-classification').textContent = prospect.classification || '-';
+    detailModal.querySelector('#detail-status').textContent = prospect.status || '-';
+    detailModal.querySelector('#detail-observations').textContent = prospect.observations || 'Ninguna';
+
+    // Mostrar el modal
+    detailModal.classList.remove('hidden');
+  }
+
+  function closeDetailModal() {
+      if (detailModal) {
+          detailModal.classList.add('hidden');
+      }
+  }
+
   // Event Listeners
   if (searchInput) {
     // Búsqueda en tiempo real con debounce
@@ -753,6 +799,18 @@ document.addEventListener('DOMContentLoaded', function () {
     modalSend.addEventListener('click', sendWhatsApp);
   }
 
+  if (detailCloseBtn) {
+      detailCloseBtn.addEventListener('click', closeDetailModal);
+  }
+
+  if (detailModal) {
+      detailModal.addEventListener('click', function(e) {
+          if (e.target === detailModal) {
+              closeDetailModal();
+          }
+      });
+  }
+
   // Cerrar modal al hacer clic fuera
   if (modal) {
     modal.addEventListener('click', function(e) {
@@ -764,8 +822,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Cerrar modal con tecla Escape
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-      closeModal();
+    if (e.key === 'Escape') {
+        if (!modal.classList.contains('hidden')) {
+            closeModal();
+        }
+        if (detailModal && !detailModal.classList.contains('hidden')) {
+            closeDetailModal();
+        }
     }
   });
 
