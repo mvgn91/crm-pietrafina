@@ -38,7 +38,6 @@ onAuthStateChanged(auth, (user) => {
 document.addEventListener('DOMContentLoaded', function () {
   console.log('WhatsApp Massive JS cargado (VERSIÓN CORREGIDA PARA MÚLTIPLES DISPOSITIVOS)');
   
-  const tbody = document.getElementById('whatsapp-massive-tbody');
   const cardsContainer = document.getElementById('prospect-cards-container');
   const searchInput = document.getElementById('whatsapp-massive-search');
   const modal = document.getElementById('whatsapp-massive-modal');
@@ -124,9 +123,6 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
       </div>
     `;
-    if (tbody) {
-        tbody.innerHTML = `<tr><td colspan="4">${loadingHTML}</td></tr>`;
-    }
     if (cardsContainer) {
         cardsContainer.innerHTML = loadingHTML;
     }
@@ -168,91 +164,62 @@ document.addEventListener('DOMContentLoaded', function () {
     showToast('Usando datos de demostración (Firestore no disponible)', 'warning');
   }
 
-  // Función para renderizar la tabla y las tarjetas con prospectos
+  // Función para renderizar las tarjetas de prospectos
   function renderProspects(list) {
     updateCounters(list);
 
     const noResultsHTML = `
-        <div class="text-center p-8 text-gray-500">
-            <div class="flex flex-col items-center">
-                <i class="fas fa-inbox text-4xl mb-4 text-gray-300"></i>
-                <p class="text-lg font-medium">No se encontraron prospectos</p>
-                <p class="text-sm text-gray-400 mt-1">Intenta ajustar los filtros de búsqueda</p>
-            </div>
+      <div class="text-center p-8 text-gray-500 md:col-span-2 lg:col-span-3">
+        <div class="flex flex-col items-center">
+          <i class="fas fa-inbox text-4xl mb-4 text-gray-300"></i>
+          <p class="text-lg font-medium">No se encontraron prospectos</p>
+          <p class="text-sm text-gray-400 mt-1">Intenta ajustar los filtros de búsqueda</p>
         </div>
+      </div>
     `;
 
     if (!list.length) {
-        if (tbody) tbody.innerHTML = `<tr><td colspan="4">${noResultsHTML}</td></tr>`;
-        if (cardsContainer) cardsContainer.innerHTML = noResultsHTML;
-        return;
+      if (cardsContainer) cardsContainer.innerHTML = noResultsHTML;
+      return;
     }
 
-    // --- Renderizar Tabla (Desktop) ---
-    if (tbody) {
-        tbody.innerHTML = list.map((prospect, index) => {
-            const hasPhone = prospect.phone && prospect.phone.length >= 10;
-            const statusColor = getStatusColor(prospect.status);
-            return `
-                <tr class="${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-green-50 transition-colors duration-200">
-                    <td class="p-4 border-b border-gray-100">
-                        <div class="font-semibold text-gray-900">${prospect.businessName || 'Sin nombre'}</div>
-                        ${prospect.contactPerson ? `<div class="text-sm text-gray-600 mt-1">${prospect.contactPerson}</div>` : ''}
-                        ${prospect.classification ? `<div class="text-xs text-gray-500 mt-1 bg-gray-100 px-2 py-1 rounded-full inline-block">${prospect.classification}</div>` : ''}
-                    </td>
-                    <td class="p-4 border-b border-gray-100">
-                        <div class="flex items-center">
-                            ${hasPhone ? `<i class="fas fa-phone text-green-600 mr-2"></i><span class="font-mono text-sm">${prospect.phone}</span>` : `<i class="fas fa-phone-slash text-red-400 mr-2"></i><span class="text-gray-400 text-sm">Sin teléfono</span>`}
-                        </div>
-                    </td>
-                    <td class="p-4 border-b border-gray-100">
-                        <div class="text-sm text-gray-700">${prospect.email || 'Sin email'}</div>
-                        ${prospect.status ? `<div class="mt-1"><span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusColor}">${prospect.status}</span></div>` : ''}
-                    </td>
-                    <td class="p-4 border-b border-gray-100 text-center">
-                        ${hasPhone ? `<button class="whatsapp-send-btn action-btn bg-green-600 hover:bg-green-700 text-white" data-prospect-id="${prospect.id}" title="Enviar material por WhatsApp"><i class="fab fa-whatsapp mr-2"></i>Enviar Material</button>` : `<span class="action-btn bg-gray-200 text-gray-500 cursor-not-allowed"><i class="fas fa-ban mr-2"></i>Sin WhatsApp</span>`}
-                    </td>
-                </tr>
-            `;
-        }).join('');
-    }
-
-    // --- Renderizar Tarjetas (Móvil) ---
     if (cardsContainer) {
-        cardsContainer.innerHTML = list.map(prospect => {
-            const hasPhone = prospect.phone && prospect.phone.length >= 10;
-            const statusColor = getStatusColor(prospect.status);
-            return `
-                <div class="prospect-card bg-white rounded-xl shadow-lg border border-gray-200 p-4 space-y-3">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="font-playfair font-bold text-lg text-gray-900">${prospect.businessName || 'Sin nombre'}</h3>
-                            ${prospect.contactPerson ? `<p class="text-sm text-gray-600">${prospect.contactPerson}</p>` : ''}
-                        </div>
-                        ${prospect.status ? `<span class="text-xs font-medium rounded-full px-2 py-1 ${statusColor}">${prospect.status}</span>` : ''}
-                    </div>
-                    
-                    <div class="border-t border-gray-100 pt-3 space-y-2">
-                        ${prospect.classification ? `
-                        <div class="flex items-center text-sm text-gray-700">
-                            <i class="fas fa-tag fa-fw mr-2 text-gray-400"></i>
-                            <span>${prospect.classification}</span>
-                        </div>` : ''}
-                        <div class="flex items-center text-sm text-gray-700">
-                            <i class="fas fa-envelope fa-fw mr-2 text-gray-400"></i>
-                            <span>${prospect.email || 'Sin email'}</span>
-                        </div>
-                        <div class="flex items-center text-sm text-gray-700">
-                            ${hasPhone ? `<i class="fas fa-phone fa-fw mr-2 text-green-500"></i><span class="font-mono">${prospect.phone}</span>` : `<i class="fas fa-phone-slash fa-fw mr-2 text-red-400"></i><span class="text-gray-400">Sin teléfono</span>`}
-                        </div>
-                    </div>
+      cardsContainer.innerHTML = list.map(prospect => {
+        const hasPhone = prospect.phone && prospect.phone.length >= 10;
+        const statusColor = getStatusColor(prospect.status);
+        const statusSlug = (prospect.status || '').toLowerCase().replace(/\s+/g, '-');
 
-                    <div class="pt-3">
-                        ${hasPhone ? `<button class="whatsapp-send-btn action-btn bg-green-600 hover:bg-green-700 text-white w-full" data-prospect-id="${prospect.id}"><i class="fab fa-whatsapp mr-2"></i>Enviar Material</button>` : `<span class="action-btn bg-gray-200 text-gray-500 cursor-not-allowed w-full"><i class="fas fa-ban mr-2"></i>Sin WhatsApp</span>`}
-                    </div>
-                </div>
-            `;
-        }).join('');
+        return `
+          <div class="prospect-card status-${statusSlug} hover-lift">
+            <div class="card-content">
+              <h3 class="card-title">${prospect.businessName || 'Sin nombre'}</h3>
+              ${prospect.contactPerson ? `<p class="card-detail"><i class="fas fa-user icon"></i> ${prospect.contactPerson}</p>` : ''}
+              <p class="card-detail"><i class="fas fa-tag icon"></i> ${prospect.classification || 'Sin clasificación'}</p>
+              <p class="card-detail"><i class="fas fa-envelope icon"></i> ${prospect.email || 'Sin email'}</p>
+              <p class="card-detail">
+                ${hasPhone ? `<i class="fas fa-phone icon text-green-600"></i>` : `<i class="fas fa-phone-slash icon text-red-400"></i>`}
+                <span class="font-mono">${prospect.phone || 'Sin teléfono'}</span>
+              </p>
+            </div>
+            <div class="flex justify-between items-center mt-4">
+                ${prospect.status ? `<span class="status-badge ${statusSlug}">${prospect.status}</span>` : '<div></div>'}
+                ${hasPhone ? `
+                  <button
+                    class="whatsapp-send-btn action-btn bg-green-600 hover:bg-green-700 text-white"
+                    data-prospect-id="${prospect.id}"
+                    title="Enviar material por WhatsApp"
+                  >
+                    <i class="fab fa-whatsapp"></i>
+                  </button>
+                ` : `
+                  <span class="action-btn bg-gray-200 text-gray-500 cursor-not-allowed">
+                    <i class="fas fa-ban"></i>
+                  </span>
+                `}
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     addWhatsAppEventListeners();
