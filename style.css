@@ -64,7 +64,7 @@ body {
     background: var(--gray-50); /* Fondo blanco puro en toda la app */
     color: var(--gray-800); /* Texto principal negro/gris muy oscuro */
     line-height: 1.6;
-    font-size: 16px;
+    font-size: 1rem; /* 16px */
     min-height: 100vh;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
@@ -72,7 +72,7 @@ body {
 }
 
 .font-playfair {
-    font-family: 'Playfair Display', Georgia, serif !important;
+    font-family: 'Lora', Georgia, serif !important;
     font-weight: 700;
 }
 
@@ -151,7 +151,7 @@ body {
 }
 
 #header-title {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Lora', serif;
     font-weight: 700;
     color: var(--gray-900); /* Texto en negro puro */
     background: none;
@@ -163,21 +163,21 @@ body {
 /* Estilos para el indicador de versión */
 #app-version-indicator {
     font-family: 'monospace', 'Courier New', Courier, monospace;
-    font-size: 0.7rem; /* Tamaño de fuente para la versión */
+    font-size: 0.75rem; /* 12px */
     color: var(--gray-600); /* Gris sutil */
     margin-top: -0.2rem; /* Ajustar posición vertical */
 }
 
 /* Estilos para el indicador de estado online (Fluent UI, minimalista) */
 #online-status-indicator {
-    font-size: 0.75rem;
+    font-size: 0.75rem; /* 12px */
     color: var(--gray-600); /* Color de texto base, el icono tendrá color */
     align-items: center;
     display: flex; /* Asegurar que el icono y texto estén en línea */
 }
 
 #online-status-indicator .fa-circle { /* Ícono de círculo pequeño */
-    font-size: 0.6em; /* Tamaño relativo al font-size del span padre */
+    font-size: 0.6em; /* 7.2px */
     margin-right: 0.3em;
     line-height: 1; /* Asegurar alineación vertical */
     vertical-align: middle;
@@ -195,7 +195,7 @@ body {
     border-radius: var(--radius-md); /* Bordes redondeados suaves */
     padding: 0.8rem 1.6rem;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.9rem; /* 14.4px */
     transition: all var(--transition-normal);
     cursor: pointer;
     position: relative;
@@ -268,7 +268,7 @@ body {
     box-shadow: var(--shadow-sm);
     transition: all var(--transition-fast);
     font-weight: 600;
-    font-size: 0.875rem;
+    font-size: 0.875rem; /* 14px */
     border: none;
     cursor: pointer;
     gap: 0.5rem;
@@ -281,7 +281,7 @@ body {
 }
 
 .action-btn i {
-    font-size: 1rem;
+    font-size: 1rem; /* 16px */
 }
 
 /* ===== MODAL MEJORADO CON MATERIAL DESIGN ===== */
@@ -350,9 +350,9 @@ body {
 
 .modal-header h3 {
     color: var(--gray-900);
-    font-size: 1.5rem;
+    font-size: 1.5rem; /* 24px */
     font-weight: 700;
-    font-family: 'Playfair Display', serif;
+    font-family: 'Lora', serif;
     margin: 0;
 }
 
@@ -369,7 +369,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.25rem;
+    font-size: 1.25rem; /* 20px */
 }
 
 .modal-close-btn:hover {
@@ -456,7 +456,7 @@ body {
 .detail-label {
     font-weight: 600;
     color: var(--gray-700);
-    font-size: 0.875rem;
+    font-size: 0.875rem; /* 14px */
     margin-bottom: 0.5rem;
     display: flex;
     align-items: center;
@@ -471,7 +471,7 @@ body {
 
 .detail-value {
     color: var(--gray-900);
-    font-size: 1rem;
+    font-size: 1rem; /* 16px */
     font-weight: 500;
     word-break: break-word;
 }
@@ -492,8 +492,8 @@ body {
 }
 
 .action-section h4 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.25rem;
+    font-family: 'Lora', serif;
+    font-size: 1.25rem; /* 20px */
     font-weight: 600;
     color: var(--gray-900);
     margin-bottom: 1rem;
@@ -515,7 +515,7 @@ body {
     margin-bottom: 0.5rem;
     font-weight: 600;
     color: var(--gray-700);
-    font-size: 0.875rem;
+    font-size: 0.875rem; /* 14px */
 }
 
 .form-input, .form-select, .form-textarea {
@@ -523,7 +523,7 @@ body {
     padding: 0.875rem 1rem;
     border: 1px solid var(--gray-300);
     border-radius: var(--radius-md);
-    font-size: 0.9rem;
+    font-size: 0.9rem; /* 14.4px */
     transition: all var(--transition-fast);
     background: var(--gray-50);
     color: var(--gray-800);
@@ -564,7 +564,7 @@ body {
 }
 
 .checkbox-group label {
-    font-size: 0.9rem;
+    font-size: 0.9rem; /* 14.4px */
     color: var(--gray-700);
     cursor: pointer;
     margin: 0;
@@ -606,8 +606,8 @@ body {
 }
 
 .card-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.25rem; /* Ajustar tamaño para móvil */
+    font-family: 'Lora', serif;
+    font-size: 1.25rem; /* 20px */
     font-weight: 700;
     color: var(--gray-900); /* Negro puro para el título de la tarjeta */
     margin-bottom: 0.8rem; /* Ajustar margen */
@@ -622,7 +622,7 @@ body {
     align-items: center;
     margin-bottom: 0.4rem; /* Reducir espacio entre detalles */
     color: var(--gray-600); /* Gris oscuro para detalles */
-    font-size: 0.875rem; /* Ajustar tamaño de texto */
+    font-size: 0.875rem; /* 14px */
 }
 
 .card-detail .icon {
@@ -641,7 +641,7 @@ body {
     padding: 0.5rem 1rem;
     border-radius: var(--radius-md);
     border: none;
-    font-size: 0.75rem;
+    font-size: 0.75rem; /* 12px */
     font-weight: 600;
     cursor: pointer;
     transition: all var(--transition-fast);
@@ -655,8 +655,8 @@ body {
 .status-badge {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    font-size: 13px;
+    gap: 0.375rem; /* 6px */
+    font-size: 0.8125rem; /* 13px */
     font-weight: 600;
     border-radius: 5px;
     padding: 2px 10px;
@@ -701,7 +701,7 @@ body {
     padding: 0.75rem 1.1rem;
     border: 1px solid var(--gray-200);
     border-radius: var(--radius-md);
-    font-size: 0.95rem;
+    font-size: 0.95rem; /* 15.2px */
     transition: all var(--transition-fast);
     background: var(--gray-50); /* Fondo blanco */
     color: var(--gray-800);
@@ -720,7 +720,7 @@ body {
     margin-bottom: 0.3rem;
     font-weight: 600;
     color: var(--gray-700);
-    font-size: 0.9rem;
+    font-size: 0.9rem; /* 14.4px */
 }
 
 /* ===== SECCIONES PRINCIPALES (Fondo Blanco, Texto Negro) ===== */
@@ -814,10 +814,10 @@ h2, h3 {
 /* ===== RESPONSIVE MEJORADO (Fluent UI para móvil) ===== */
 @media (max-width: 768px) {
     .mobile-btn {
-        min-height: 48px;
+        min-height: 3rem; /* 48px */
         min-width: unset;
         padding: 0.75rem 1rem;
-        font-size: 0.85rem;
+        font-size: 0.875rem; /* 14px */
         touch-action: manipulation;
         border-radius: var(--radius-lg);
     }
@@ -855,11 +855,11 @@ h2, h3 {
     }
     
     .card-title {
-        font-size: 1.15rem;
+        font-size: 1.125rem; /* 18px */
     }
     
     .card-detail {
-        font-size: 0.8rem;
+        font-size: 0.875rem; /* 14px */
     }
 
     .card-actions {
@@ -1061,7 +1061,7 @@ h2, h3 {
     background-color: var(--success-500);
     color: white;
     border-radius: var(--radius-lg);
-    font-size: 0.875rem;
+    font-size: 0.875rem; /* 14px */
     font-weight: 600;
     text-decoration: none;
     transition: all var(--transition-fast);
@@ -1076,8 +1076,8 @@ h2, h3 {
     box-shadow: var(--shadow-md);
 }
 
-.call-btn i { 
-    font-size: 1rem; 
+.call-btn i {
+    font-size: 1rem; /* 16px */
 }
 
 /* ===== ESTILOS ESPECÍFICOS PARA ELEMENTOS ESPECIALES ===== */
