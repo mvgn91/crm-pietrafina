@@ -290,13 +290,16 @@ document.addEventListener('DOMContentLoaded', function () {
   function openModal(prospect) {
     selectedProspect = prospect;
     populateMaterialsCheckboxes();
-    updateWhatsAppMessage();
+    // Generar mensaje inicial después de crear los checkboxes
+    setTimeout(() => {
+      updateWhatsAppMessage();
+    }, 100);
     modal.classList.remove('hidden');
     
     // Enfocar el textarea para edición inmediata
     setTimeout(() => {
       modalMessage.focus();
-    }, 100);
+    }, 200);
   }
 
   // Función para cerrar el modal
@@ -306,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function () {
     modalMessage.value = '';
   }
 
-  // Función para generar el mensaje personalizado de WhatsApp
+  // Función para generar checkboxes de materiales
   function populateMaterialsCheckboxes() {
     materialsCheckboxContainer.innerHTML = '';
     MATERIALS.forEach((material, index) => {
@@ -320,30 +323,36 @@ document.addEventListener('DOMContentLoaded', function () {
       materialsCheckboxContainer.insertAdjacentHTML('beforeend', checkboxHTML);
     });
 
+    // Agregar event listeners para actualizar mensaje cuando cambien los checkboxes
     materialsCheckboxContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
       checkbox.addEventListener('change', updateWhatsAppMessage);
     });
   }
 
+  // Función para actualizar el mensaje en el textarea
   function updateWhatsAppMessage() {
     if (!selectedProspect) return;
     modalMessage.value = generateWhatsAppMessage(selectedProspect);
   }
 
+  // Función para generar el mensaje personalizado de WhatsApp
   function generateWhatsAppMessage(prospect) {
     const contactName = prospect.contactPerson || prospect.businessName || 'Estimado/a';
     
     let message = `¡Hola ${contactName}!\n\n`;
     message += `Adjunto el material previamente acordado:\n\n`;
     
+    // Obtener materiales seleccionados
     const selectedMaterials = [];
-    materialsCheckboxContainer.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
+    const checkboxes = materialsCheckboxContainer.querySelectorAll('input[type="checkbox"]:checked');
+    checkboxes.forEach(checkbox => {
       const material = MATERIALS.find(m => m.url === checkbox.value);
       if (material) {
         selectedMaterials.push(material);
       }
     });
 
+    // Agregar materiales al mensaje
     if (selectedMaterials.length > 0) {
       selectedMaterials.forEach((material) => {
         message += `*${material.name}*\n${material.url}\n\n`;
@@ -394,7 +403,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Función para enviar mensaje por WhatsApp - CORREGIDA
+  // Función para enviar mensaje por WhatsApp - VERSIÓN CORREGIDA
   function sendWhatsApp() {
     if (!selectedProspect) {
       showToast('Error: No hay prospecto seleccionado', 'error');
@@ -426,17 +435,20 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log('Mensaje a enviar:', message);
 
     try {
-      // Codificar el mensaje correctamente para URL
-      // Usar encodeURIComponent para caracteres especiales y espacios
-      const encodedMessage = encodeURIComponent(message);
+      // MÉTODO SIMPLE Y DIRECTO - Sin codificación compleja
+      // Reemplazar saltos de línea por %0A (formato URL para nueva línea)
+      const encodedMessage = message
+        .replace(/\n/g, '%0A')
+        .replace(/\*/g, '%2A')  // Asteriscos para negrita
+        .replace(/ /g, '%20');   // Espacios
       
-      // Crear URL de WhatsApp con el formato correcto
+      // Crear URL de WhatsApp con el formato más simple
       const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
       
       console.log('URL de WhatsApp generada:', whatsappUrl);
       
       // Abrir WhatsApp en una nueva ventana/pestaña
-      const whatsappWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+      const whatsappWindow = window.open(whatsappUrl, '_blank');
       
       // Verificar si la ventana se abrió correctamente
       if (!whatsappWindow) {
