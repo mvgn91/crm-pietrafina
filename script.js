@@ -292,8 +292,6 @@ const elements = {
     prospectorActionArea: document.getElementById('prospector-action-area'),
     followUpNotesInput: document.getElementById('followUpNotes'),
     contactResultSelect: document.getElementById('contactResult'),
-    materialSentCheckbox: document.getElementById('materialSent'),
-    whatsappSendBtn: document.getElementById('whatsappSendBtn'),
     whatsappMessageArea: document.getElementById('whatsappMessageArea'),
 whatsappMessage: document.getElementById('whatsappMessage'),
 whatsappConfirmSendBtn: document.getElementById('whatsappConfirmSendBtn'),
@@ -653,7 +651,6 @@ elements.addProspectForm.addEventListener('submit', async (e) => {
             lastUpdated: new Date().toISOString().split('T')[0],
             internalNotes: '',
             followUpNotes: [],
-            materialSent: false,
             contactResult: null,
             assignedTo: null,
             assignedByName: null,
@@ -1083,7 +1080,6 @@ const reactivateProspect = async (prospectId) => {
             sentEmailDate: today.toISOString().split('T')[0],
             prospectingDueDate: dueDate,
             contactResult: null,
-            materialSent: false,
             assignedTo: null,
             assignedByName: null,
             adminFinalReviewNeeded: false,
@@ -1464,9 +1460,6 @@ const showProspectDetailsModal = (prospectId) => {
         elements.prospectorActionArea.classList.remove('hidden');
         elements.followUpNotesInput.value = '';
         elements.contactResultSelect.value = '';
-        if (elements.materialSentCheckbox) {
-            elements.materialSentCheckbox.checked = prospect.materialSent || false;
-        }
 
         if (prospect.followUpNotes && prospect.followUpNotes.length > 0) {
             elements.followUpNotesInput.value = prospect.followUpNotes[prospect.followUpNotes.length - 1].notes;
@@ -1562,7 +1555,6 @@ const saveFollowUpBtnClickHandler = async (event) => {
     const prospectId = currentProspectIdForModal;
     const newFollowUpNote = elements.followUpNotesInput.value.trim();
     let newContactResult = elements.contactResultSelect.value;
-    const materialSent = elements.materialSentCheckbox.checked;
 
     if (!prospectId) {
         showToast('No se ha seleccionado ningún prospecto', 'error');
@@ -1615,7 +1607,6 @@ const saveFollowUpBtnClickHandler = async (event) => {
             contactResult: newContactResult,
             status: finalStatus,
             followUpNotes: updatedFollowUpNotes,
-            materialSent: materialSent,
             contactedBy: { uid: currentUserId, name: currentUserName },
             pendingValidationResult: null,
             lastUpdated: new Date().toISOString().split('T')[0],

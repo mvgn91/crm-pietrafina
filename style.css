@@ -72,8 +72,8 @@ body {
 }
 
 .font-playfair {
-    font-family: 'Lora', Georgia, serif !important;
-    font-weight: 700;
+    font-family: 'DM Serif Display', Georgia, serif !important;
+    font-weight: 400; /* DM Serif Display is heavier, so normal weight works well */
 }
 
 .font-inter {
@@ -151,8 +151,8 @@ body {
 }
 
 #header-title {
-    font-family: 'Lora', serif;
-    font-weight: 700;
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
     color: var(--gray-900); /* Texto en negro puro */
     background: none;
     -webkit-background-clip: unset;
@@ -352,7 +352,7 @@ body {
     color: var(--gray-900);
     font-size: 1.5rem; /* 24px */
     font-weight: 700;
-    font-family: 'Lora', serif;
+    font-family: 'DM Serif Display', serif;
     margin: 0;
 }
 
@@ -492,7 +492,7 @@ body {
 }
 
 .action-section h4 {
-    font-family: 'Lora', serif;
+    font-family: 'DM Serif Display', serif;
     font-size: 1.25rem; /* 20px */
     font-weight: 600;
     color: var(--gray-900);
@@ -606,7 +606,7 @@ body {
 }
 
 .card-title {
-    font-family: 'Lora', serif;
+    font-family: 'DM Serif Display', serif;
     font-size: 1.25rem; /* 20px */
     font-weight: 700;
     color: var(--gray-900); /* Negro puro para el título de la tarjeta */
