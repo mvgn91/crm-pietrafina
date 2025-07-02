@@ -1126,3 +1126,36 @@ h2, h3 {
         transform: translateY(0);
     }
 }
+/* ===== Prospect Cards for WhatsApp Section (Material Design) ===== */
+.prospect-card {
+    background: var(--gray-50);
+    border-radius: var(--radius-xl);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--gray-200);
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.prospect-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--gray-300);
+}
+
+.prospect-card .font-playfair {
+    font-family: 'Playfair Display', serif;
+}
+
+.prospect-card .action-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+}
+
+.prospect-card .fa-fw {
+    width: 1.25em; /* Ensure consistent icon width */
+}

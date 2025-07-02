@@ -110,8 +110,8 @@
         </div>
       </div>
 
-      <!-- Tabla de prospectos -->
-      <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-md">
+      <!-- Tabla de prospectos (Visible en Desktop) -->
+      <div class="hidden lg:block overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-md">
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700">
@@ -134,17 +134,21 @@
             </tr>
           </thead>
           <tbody id="whatsapp-massive-tbody">
-            <tr>
-              <td colspan="4" class="text-center p-8 text-gray-500">
-                <div class="flex flex-col items-center">
-                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mb-4"></div>
-                  <p>Conectando con Firestore...</p>
-                  <p class="text-sm text-gray-400 mt-1">Cargando prospectos en tiempo real</p>
-                </div>
-              </td>
-            </tr>
+            <!-- Las filas de la tabla se insertarán aquí vía JS -->
           </tbody>
         </table>
+      </div>
+
+      <!-- Contenedor de tarjetas de prospectos (Visible en Móvil) -->
+      <div id="prospect-cards-container" class="block lg:hidden space-y-4 mt-4">
+        <!-- Las tarjetas se insertarán aquí vía JS -->
+        <div class="text-center p-8 text-gray-500">
+            <div class="flex flex-col items-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mb-4"></div>
+                <p>Conectando con Firestore...</p>
+                <p class="text-sm text-gray-400 mt-1">Cargando prospectos en tiempo real</p>
+            </div>
+        </div>
       </div>
 
       <!-- Información adicional -->
