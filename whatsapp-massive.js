@@ -207,19 +207,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 ${prospect.status ? `<span class="status-badge ${statusSlug}">${prospect.status}</span>` : '<div></div>'}
                 <div class="flex items-center gap-2">
                   <button
-                    class="view-details-btn action-btn bg-slate-200 hover:bg-slate-300 text-slate-700"
+                    class="view-details-btn action-btn bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg"
                     data-prospect-id="${prospect.id}"
                     title="Ver detalles del prospecto"
-                    style="width: 40px; height: 40px; padding: 0; font-size: 1rem;"
+                    style="width: 36px; height: 36px; padding: 0; font-size: 0.9rem;"
                   >
                     <i class="fas fa-eye"></i>
                   </button>
                   ${hasPhone ? `
                     <button
-                      class="whatsapp-send-btn action-btn bg-green-600 hover:bg-green-700 text-white"
+                      class="whatsapp-send-btn action-btn bg-green-600 hover:bg-green-700 text-white rounded-lg"
                       data-prospect-id="${prospect.id}"
                       title="Enviar material por WhatsApp"
-                      style="width: 40px; height: 40px; padding: 0; font-size: 1.2rem;"
+                      style="width: 36px; height: 36px; padding: 0; font-size: 1rem;"
                     >
                       <i class="fab fa-whatsapp"></i>
                     </button>
