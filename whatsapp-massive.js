@@ -205,31 +205,29 @@ document.addEventListener('DOMContentLoaded', function () {
               </p>
             </div>
             <div class="flex justify-between items-center mt-4">
-                ${prospect.status ? `<span class="status-badge ${statusSlug}">${prospect.status}</span>` : '<div></div>'}
-                <div class="flex items-center gap-2">
+              ${prospect.status ? `<span class="status-badge ${statusSlug}">${prospect.status}</span>` : '<div></div>'}
+              <div class="flex items-center gap-2">
+                <button
+                  class="view-details-btn w-9 h-9 flex items-center justify-center bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition-all duration-200 hover:scale-105"
+                  data-prospect-id="${prospect.id}"
+                  title="Ver detalles del prospecto"
+                >
+                  <i class="fas fa-eye text-sm"></i>
+                </button>
+                ${hasPhone ? `
                   <button
-                    class="view-details-btn action-btn bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg"
+                    class="whatsapp-send-btn w-9 h-9 flex items-center justify-center bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-200 hover:scale-105"
                     data-prospect-id="${prospect.id}"
-                    title="Ver detalles del prospecto"
-                    style="width: 36px; height: 36px; padding: 0; font-size: 0.9rem;"
+                    title="Enviar material por WhatsApp"
                   >
-                    <i class="fas fa-eye"></i>
+                    <i class="fab fa-whatsapp text-sm"></i>
                   </button>
-                  ${hasPhone ? `
-                    <button
-                      class="whatsapp-send-btn action-btn bg-green-600 hover:bg-green-700 text-white rounded-lg"
-                      data-prospect-id="${prospect.id}"
-                      title="Enviar material por WhatsApp"
-                      style="width: 36px; height: 36px; padding: 0; font-size: 1rem;"
-                    >
-                      <i class="fab fa-whatsapp"></i>
-                    </button>
-                  ` : `
-                    <span class="action-btn bg-gray-200 text-gray-500 cursor-not-allowed" style="width: 40px; height: 40px; padding: 0; font-size: 1rem;">
-                      <i class="fas fa-ban"></i>
-                    </span>
-                  `}
-                </div>
+                ` : `
+                  <button class="w-9 h-9 flex items-center justify-center bg-gray-200 text-gray-500 cursor-not-allowed rounded-lg" disabled>
+                    <i class="fas fa-ban text-sm"></i>
+                  </button>
+                `}
+              </div>
             </div>
           </div>
         `;
@@ -873,8 +871,3 @@ document.addEventListener('DOMContentLoaded', function () {
   console.log('🚀 Inicializando WhatsApp Massive (VERSIÓN CORREGIDA PARA MÚLTIPLES DISPOSITIVOS)...');
   loadProspectsFromFirestore();
 });
-
-
-
-
-
