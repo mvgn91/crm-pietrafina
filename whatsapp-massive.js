@@ -192,6 +192,20 @@ document.addEventListener('DOMContentLoaded', function () {
         const statusColor = getStatusColor(prospect.status);
         const statusSlug = (prospect.status || '').toLowerCase().replace(/\s+/g, '-');
 
+        // Tarjeta roja si no tiene WhatsApp
+        if (!hasPhone) {
+          return `
+            <div class="prospect-card archive-tag archive-tag-red">
+              <div class="card-header">
+                <div class="card-title">${prospect.businessName || 'Sin nombre'}</div>
+              </div>
+              <div class="card-contact">Sin WhatsApp registrado</div>
+              <div class="card-contact">${prospect.phone || 'Sin teléfono'}</div>
+              <div class="card-date"><span class="label">Clasificación:</span> ${prospect.classification || 'Sin clasificación'}</div>
+            </div>
+          `;
+        }
+
         return `
           <div class="prospect-card">
             <div class="card-header">
@@ -200,7 +214,7 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
             ${prospect.contactPerson ? `<div class="card-encargado">${prospect.contactPerson}</div>` : ''}
             <div class="card-contact">
-              ${hasPhone ? `<i data-lucide="phone" class="w-4 h-4 text-green-600 mr-1"></i>` : `<i data-lucide="phone-off" class="w-4 h-4 text-red-400 mr-1"></i>`}
+              <i data-lucide="phone" class="w-4 h-4 text-green-600 mr-1"></i>
               ${prospect.phone || 'Sin teléfono'}
             </div>
             <div class="card-date">
@@ -210,15 +224,9 @@ document.addEventListener('DOMContentLoaded', function () {
               <button data-prospect-id="${prospect.id}" class="btn btn-detail view-details-btn">
                 <i data-lucide="eye" class="w-4 h-4 mr-2"></i> Ver Detalle
               </button>
-              ${hasPhone ? `
-                <button data-prospect-id="${prospect.id}" class="btn btn-whatsapp whatsapp-send-btn">
-                  <i data-lucide="message-circle" class="w-4 h-4 mr-2"></i> WhatsApp
-                </button>
-              ` : `
-                <button class="btn btn-disabled" disabled>
-                  <i data-lucide="ban" class="w-4 h-4 mr-2"></i> Sin Teléfono
-                </button>
-              `}
+              <button data-prospect-id="${prospect.id}" class="btn btn-whatsapp whatsapp-send-btn">
+                <i data-lucide="message-circle" class="w-4 h-4 mr-2"></i> WhatsApp
+              </button>
             </div>
           </div>
         `;

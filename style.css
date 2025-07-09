@@ -1485,9 +1485,9 @@ h2, h3 {
   border: 1px solid #fdba74;
 }
 .archive-tag-red {
-  background: #fee2e2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
+  background: #dc2626;
+  color: #fff;
+  border: 1px solid #b91c1c;
 }
 
 @media (max-width: 480px) {
