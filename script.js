@@ -8,14 +8,14 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // --- Fondo Matrix: inicialización global ---
-  const matrixCanvas = document.getElementById('interactive-bg');
-  if (matrixCanvas) {
-    if (typeof window.startMatrix === 'function') {
-      window.startMatrix();
-    } else if (typeof startMatrix === 'function') {
-      startMatrix();
-    }
-  }
+  // const matrixCanvas = document.getElementById('interactive-bg');
+  // if (matrixCanvas) {
+  //     if (typeof window.startMatrix === 'function') {
+  //         window.startMatrix();
+  //     } else if (typeof startMatrix === 'function') {
+  //         startMatrix();
+  //     }
+  // }
 
   // --- Inicializar Lucide Icons ---
   if (typeof lucide !== 'undefined') {
@@ -775,17 +775,17 @@ const createProspectCardHTML = (prospect, isAdminView = false, isArchiveView = f
     const effectiveDueDate = prospect.reagendadoPara || prospect.prospectingDueDate;
     
     // --- Campana de alerta mejorada con icono outline ---
-    let bellHTML = '';
-    if (prospect.reagendadoPara) {
-        const today = new Date();
-        today.setHours(0,0,0,0);
-        const reagDate = new Date(prospect.reagendadoPara);
-        reagDate.setHours(0,0,0,0);
-        const diffDays = Math.floor((today - reagDate) / (1000*60*60*24));
-        if (diffDays === 0 || diffDays === 1) {
-            bellHTML = `<i data-lucide="bell" class="w-4 h-4 text-red-600 mr-2" title="Reagendado para hoy o ayer"></i>`;
-        }
-    }
+    // let bellHTML = '';
+    // if (prospect.reagendadoPara) {
+    //     const today = new Date();
+    //     today.setHours(0,0,0,0);
+    //     const reagDate = new Date(prospect.reagendadoPara);
+    //     reagDate.setHours(0,0,0,0);
+    //     const diffDays = Math.floor((today - reagDate) / (1000*60*60*24));
+    //     if (diffDays === 0 || diffDays === 1) {
+    //         bellHTML = `<i data-lucide="bell" class="w-4 h-4 text-red-600 mr-2" title="Reagendado para hoy o ayer"></i>`;
+    //     }
+    // }
 
     // --- Información de reagendamiento ---
     let reagendadoInfo = '';
@@ -797,7 +797,6 @@ const createProspectCardHTML = (prospect, isAdminView = false, isArchiveView = f
             </div>
         `;
     }
-
 
     // Estética mejorada para "YA ES NUESTRO CLIENTE"
     let clientBadge = '';
@@ -822,13 +821,44 @@ const createProspectCardHTML = (prospect, isAdminView = false, isArchiveView = f
         `;
     }
 
+    // Campana de alerta si reagendado para hoy o un día antes
+    let bellHTML = '';
+    if (prospect.reagendadoPara) {
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const reagDate = new Date(prospect.reagendadoPara);
+        reagDate.setHours(0,0,0,0);
+        const diffDays = Math.floor((reagDate - today) / (1000*60*60*24));
+        if (diffDays === 0 || diffDays === -1) {
+            bellHTML = `<i data-lucide="bell" class="w-4 h-4 text-yellow-500 mr-1" title="Reagendación próxima"></i>`;
+        }
+    }
+
+    // Etiquetas de estatus para archivo
+    let statusTag = '';
+    if (isArchiveView) {
+      const status = (prospect.status || '').toLowerCase();
+      if (prospect.isClient || status === 'ya es nuestro cliente') {
+        statusTag = `<span class="archive-tag archive-tag-green">YA ES NUESTRO CLIENTE</span>`;
+      } else if (status === 'convertido a cliente') {
+        statusTag = `<span class="archive-tag archive-tag-green">CONVERTIDO A CLIENTE</span>`;
+      } else if (status === 'interesado') {
+        statusTag = `<span class="archive-tag archive-tag-yellow">INTERESADO</span>`;
+      } else if (status === 'no contesta') {
+        statusTag = `<span class="archive-tag archive-tag-orange">NO CONTESTA</span>`;
+      } else if (status === 'rechazado') {
+        statusTag = `<span class="archive-tag archive-tag-red">RECHAZADO</span>`;
+      }
+    }
+
     // Tarjeta rectangular, limpia y mobile first
     let fecha = prospect.reagendadoPara ? formatDate(prospect.reagendadoPara) : formatDate(prospect.sentEmailDate);
     let fechaLabel = prospect.reagendadoPara ? 'Reagendación:' : 'Enviado:';
     let compactHTML = `
       <div class="prospect-card">
         <div class="card-header">
-          <div class="card-title">${prospect.businessName}</div>
+          <div class="card-title">${bellHTML}${prospect.businessName}</div>
+          ${statusTag}
         </div>
         ${prospect.contactPerson ? `<div class="card-encargado">${prospect.contactPerson}</div>` : ''}
         <div class="card-contact">${prospect.phone}</div>
@@ -2131,65 +2161,6 @@ const updateDashboard = () => {
     });
 };
 
-// --- Fondo interactivo ---
-const initInteractiveBackground = () => {
-    const canvas = document.getElementById('interactive-bg');
-    const ctx = canvas.getContext('2d');
-    let animationId;
-    let particles = [];
-
-    const resizeCanvas = () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        particles = createParticles();
-    };
-
-    const createParticles = () => {
-        const newParticles = [];
-        const particleCount = Math.floor((canvas.width * canvas.height) / 15000);
-
-        for (let i = 0; i < particleCount; i++) {
-            newParticles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                vx: (Math.random() - 0.5) * 0.5,
-                vy: (Math.random() - 0.5) * 0.5,
-                size: Math.random() * 2 + 1
-            });
-        }
-        return newParticles;
-    };
-
-    const animate = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        particles.forEach(particle => {
-            particle.x += particle.vx;
-            particle.y += particle.vy;
-
-            if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
-            if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
-
-            ctx.beginPath();
-            ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(220, 38, 38, 0.1)';
-            ctx.fill();
-        });
-
-        animationId = requestAnimationFrame(animate);
-    };
-
-    resizeCanvas();
-    animate();
-
-    window.addEventListener('resize', resizeCanvas);
-
-    return () => {
-        cancelAnimationFrame(animationId);
-        window.removeEventListener('resize', resizeCanvas);
-    };
-};
-
 // ===== MEJORAS VISUALES ADICIONALES =====
 
 const addHoverEffects = () => {
@@ -2361,7 +2332,7 @@ const enhanceAccessibility = () => {
 // Inicializar la aplicación cuando el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Contenido del DOM cargado. Inicializando aplicación.");
-    initInteractiveBackground();
+    // initInteractiveBackground(); // Eliminado - ahora usamos fondo estático tipo manus.im
 
     let toastContainer = document.getElementById('toast-container');
     if (!toastContainer) {

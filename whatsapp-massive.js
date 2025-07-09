@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const noResultsHTML = `
       <div class="text-center p-8 text-gray-500 md:col-span-2 lg:col-span-3">
         <div class="flex flex-col items-center">
-          <i class="fas fa-inbox text-4xl mb-4 text-gray-300"></i>
+          <i data-lucide="inbox" class="w-12 h-12 mb-4 text-gray-300"></i>
           <p class="text-lg font-medium">No se encontraron prospectos</p>
           <p class="text-sm text-gray-400 mt-1">Intenta ajustar los filtros de búsqueda</p>
         </div>
@@ -193,41 +193,32 @@ document.addEventListener('DOMContentLoaded', function () {
         const statusSlug = (prospect.status || '').toLowerCase().replace(/\s+/g, '-');
 
         return `
-          <div class="prospect-card status-${statusSlug} hover-lift">
-            <div class="card-content">
-              <h3 class="card-title">${prospect.businessName || 'Sin nombre'}</h3>
-              ${prospect.contactPerson ? `<p class="card-detail"><i class="fas fa-user icon"></i> ${prospect.contactPerson}</p>` : ''}
-              <p class="card-detail"><i class="fas fa-tag icon"></i> ${prospect.classification || 'Sin clasificación'}</p>
-              <p class="card-detail"><i class="fas fa-envelope icon"></i> ${prospect.email || 'Sin email'}</p>
-              <p class="card-detail">
-                ${hasPhone ? `<i class="fas fa-phone icon text-green-600"></i>` : `<i class="fas fa-phone-slash icon text-red-400"></i>`}
-                <span class="font-mono">${prospect.phone || 'Sin teléfono'}</span>
-              </p>
+          <div class="prospect-card">
+            <div class="card-header">
+              <div class="card-title">${prospect.businessName || 'Sin nombre'}</div>
+              ${prospect.status ? `<span class="status-badge ${statusSlug}">${prospect.status}</span>` : ''}
             </div>
-            <div class="flex justify-between items-center mt-4">
-              ${prospect.status ? `<span class="status-badge ${statusSlug}">${prospect.status}</span>` : '<div></div>'}
-              <div class="flex items-center gap-2">
-                <button
-                  class="view-details-btn w-9 h-9 flex items-center justify-center bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition-all duration-200 hover:scale-105"
-                  data-prospect-id="${prospect.id}"
-                  title="Ver detalles del prospecto"
-                >
-                  <i class="fas fa-eye text-sm"></i>
+            ${prospect.contactPerson ? `<div class="card-encargado">${prospect.contactPerson}</div>` : ''}
+            <div class="card-contact">
+              ${hasPhone ? `<i data-lucide="phone" class="w-4 h-4 text-green-600 mr-1"></i>` : `<i data-lucide="phone-off" class="w-4 h-4 text-red-400 mr-1"></i>`}
+              ${prospect.phone || 'Sin teléfono'}
+            </div>
+            <div class="card-date">
+              <span class="label">Clasificación:</span> ${prospect.classification || 'Sin clasificación'}
+            </div>
+            <div class="card-actions">
+              <button data-prospect-id="${prospect.id}" class="btn btn-detail view-details-btn">
+                <i data-lucide="eye" class="w-4 h-4 mr-2"></i> Ver Detalle
+              </button>
+              ${hasPhone ? `
+                <button data-prospect-id="${prospect.id}" class="btn btn-whatsapp whatsapp-send-btn">
+                  <i data-lucide="message-circle" class="w-4 h-4 mr-2"></i> WhatsApp
                 </button>
-                ${hasPhone ? `
-                  <button
-                    class="whatsapp-send-btn w-9 h-9 flex items-center justify-center bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-200 hover:scale-105"
-                    data-prospect-id="${prospect.id}"
-                    title="Enviar material por WhatsApp"
-                  >
-                    <i class="fab fa-whatsapp text-sm"></i>
-                  </button>
-                ` : `
-                  <button class="w-9 h-9 flex items-center justify-center bg-gray-200 text-gray-500 cursor-not-allowed rounded-lg" disabled>
-                    <i class="fas fa-ban text-sm"></i>
-                  </button>
-                `}
-              </div>
+              ` : `
+                <button class="btn btn-disabled" disabled>
+                  <i data-lucide="ban" class="w-4 h-4 mr-2"></i> Sin Teléfono
+                </button>
+              `}
             </div>
           </div>
         `;
@@ -235,6 +226,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     addCardActionListeners();
+    
+    // Reinicializar Lucide Icons para el contenido dinámico
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
   }
 
   // Función para obtener el color del status

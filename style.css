@@ -1458,6 +1458,38 @@ h2, h3 {
   border-color: #b91c1c;
 }
 
+.archive-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  padding: 0.2em 0.8em;
+  margin-left: 0.5em;
+  margin-bottom: 0.2em;
+  vertical-align: middle;
+  letter-spacing: 0.02em;
+}
+.archive-tag-green {
+  background: #e6f9ed;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+.archive-tag-yellow {
+  background: #fef9c3;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+.archive-tag-orange {
+  background: #fff7ed;
+  color: #ea580c;
+  border: 1px solid #fdba74;
+}
+.archive-tag-red {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
 @media (max-width: 480px) {
   .prospect-card {
     max-width: 100%;
