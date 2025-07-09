@@ -60,7 +60,7 @@
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: var(--gray-50); /* Fondo blanco puro en toda la app */
     color: var(--gray-800); /* Texto principal negro/gris muy oscuro */
     line-height: 1.6;
@@ -71,13 +71,13 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-.font-playfair {
-    font-family: 'DM Serif Display', Georgia, serif !important;
-    font-weight: 400; /* DM Serif Display is heavier, so normal weight works well */
+.font-fraunces {
+    font-family: 'Fraunces', Georgia, serif !important;
+    font-weight: 400; /* Fraunces is heavier, so normal weight works well */
 }
 
-.font-inter {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+.font-poppins {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif !important;
 }
 
 /* ===== ANIMACIONES MODERNAS (Se mantienen y se afinan para Fluent UI) ===== */
@@ -1612,4 +1612,199 @@ h2, h3 {
   background: #000;
   color: #fff;
   border-color: #000;
+}
+
+/* Flatpickr personalizado para Pietra Fina con animaciones dinámicas */
+.flatpickr-calendar {
+  font-family: 'Poppins', sans-serif;
+  background: #fff;
+  border: 2px solid var(--primary-600);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  color: var(--gray-800);
+  z-index: 3000 !important;
+  animation: datepickerSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: top center;
+}
+
+@keyframes datepickerSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.flatpickr-months .flatpickr-month {
+  background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
+  color: #fff;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  transition: background 0.3s ease;
+}
+
+.flatpickr-months .flatpickr-month:hover {
+  background: linear-gradient(135deg, var(--primary-700) 0%, var(--primary-800) 100%);
+}
+
+.flatpickr-current-month input.cur-year {
+  color: #fff;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.flatpickr-weekdays {
+  background: var(--primary-100);
+  color: var(--primary-700);
+  font-weight: 600;
+}
+
+.flatpickr-day {
+  border-radius: var(--radius-md);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.flatpickr-day::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: var(--primary-600);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: -1;
+}
+
+.flatpickr-day:hover::before {
+  width: 100%;
+  height: 100%;
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+  background: var(--primary-600);
+  color: #fff;
+  border: 1px solid var(--primary-700);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.flatpickr-day:hover {
+  background: var(--primary-600);
+  color: #fff;
+  border: 1px solid var(--primary-700);
+  transform: scale(1.02);
+}
+
+.flatpickr-day.today {
+  border: 2px solid var(--primary-600);
+  font-weight: 600;
+  animation: todayPulse 2s infinite;
+}
+
+@keyframes todayPulse {
+  0%, 100% { 
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  50% { 
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+  }
+}
+
+.flatpickr-day.disabled, .flatpickr-day.prevMonthDay, .flatpickr-day.nextMonthDay {
+  color: var(--gray-400);
+  background: #f7f7f7;
+  opacity: 0.6;
+}
+
+.flatpickr-time input, .flatpickr-time .flatpickr-am-pm {
+  font-family: 'Poppins', sans-serif;
+  color: var(--primary-700);
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.flatpickr-time input:focus {
+  border-color: var(--primary-600);
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.flatpickr-input[readonly] {
+  background: #fff;
+  border: 2px solid var(--primary-600);
+  color: var(--gray-800);
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Poppins', sans-serif;
+}
+
+.flatpickr-input[readonly]:hover {
+  border-color: var(--primary-700);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.flatpickr-input[readonly]:focus {
+  border-color: var(--primary-700);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.flatpickr-calendar .flatpickr-next-month, .flatpickr-calendar .flatpickr-prev-month {
+  color: #fff;
+  background: var(--primary-600);
+  border-radius: 50%;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flatpickr-calendar .flatpickr-next-month:hover, .flatpickr-calendar .flatpickr-prev-month:hover {
+  background: var(--primary-700);
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Animación de entrada para el modal de reagendar */
+#reschedule-modal {
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(4px);
+  }
+}
+
+#reschedule-modal .bg-white {
+  animation: modalSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
