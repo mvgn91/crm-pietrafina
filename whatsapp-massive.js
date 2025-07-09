@@ -189,22 +189,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cardsContainer) {
       cardsContainer.innerHTML = list.map(prospect => {
         const hasPhone = prospect.phone && prospect.phone.length >= 10;
-        const statusColor = getStatusColor(prospect.status);
         const statusSlug = (prospect.status || '').toLowerCase().replace(/\s+/g, '-');
-
-        // Tarjeta roja si no tiene WhatsApp
-        if (!hasPhone) {
-          return `
-            <div class="prospect-card archive-tag archive-tag-red">
-              <div class="card-header">
-                <div class="card-title">${prospect.businessName || 'Sin nombre'}</div>
-              </div>
-              <div class="card-contact">Sin WhatsApp registrado</div>
-              <div class="card-contact">${prospect.phone || 'Sin teléfono'}</div>
-              <div class="card-date"><span class="label">Clasificación:</span> ${prospect.classification || 'Sin clasificación'}</div>
-            </div>
-          `;
-        }
 
         return `
           <div class="prospect-card">
@@ -214,7 +199,6 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
             ${prospect.contactPerson ? `<div class="card-encargado">${prospect.contactPerson}</div>` : ''}
             <div class="card-contact">
-              <i data-lucide="phone" class="w-4 h-4 text-green-600 mr-1"></i>
               ${prospect.phone || 'Sin teléfono'}
             </div>
             <div class="card-date">
@@ -224,9 +208,15 @@ document.addEventListener('DOMContentLoaded', function () {
               <button data-prospect-id="${prospect.id}" class="btn btn-detail view-details-btn">
                 <i data-lucide="eye" class="w-4 h-4 mr-2"></i> Ver Detalle
               </button>
-              <button data-prospect-id="${prospect.id}" class="btn btn-whatsapp whatsapp-send-btn">
-                <i data-lucide="message-circle" class="w-4 h-4 mr-2"></i> WhatsApp
-              </button>
+              ${hasPhone ? `
+                <button data-prospect-id="${prospect.id}" class="btn btn-whatsapp whatsapp-send-btn">
+                  <i data-lucide="message-circle" class="w-4 h-4 mr-2"></i> WhatsApp
+                </button>
+              ` : `
+                <button class="btn btn-disabled bg-red-600 text-white border border-red-600 cursor-not-allowed" disabled>
+                  WhatsApp no disponible
+                </button>
+              `}
             </div>
           </div>
         `;
@@ -687,62 +677,31 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Función para filtrar prospectos
+  // --- FILTRADO MEJORADO ---
+  // const statusFilter = document.getElementById('status-filter'); // Eliminado duplicado
+  // const searchInput = document.getElementById('whatsapp-massive-search'); // Eliminado duplicado
+
   function filterProspects() {
-    const statusFilter = document.getElementById('status-filter').value.toLowerCase();
-    const query = searchInput.value.trim().toLowerCase();
-    
-    if (!query) {
-      renderProspects(prospects);
-      return;
+    const statusValue = document.getElementById('status-filter').value; // Usar el ID correcto
+    const searchValue = searchInput.value.trim().toLowerCase();
+    let filtered = prospects;
+    if (statusValue) {
+      filtered = filtered.filter(p => (p.status || '').toLowerCase() === statusValue.toLowerCase());
     }
-
-    const filtered = prospects.filter(prospect => {
-      const businessName = (prospect.businessName || '').toLowerCase();
-      const contactPerson = (prospect.contactPerson || '').toLowerCase();
-      const phone = (prospect.phone || '').toLowerCase();
-      const email = (prospect.email || '').toLowerCase();
-      const classification = (prospect.classification || '').toLowerCase();
-      const status = (prospect.status || '').toLowerCase();
-      
-      // Filtrado por estado
-      if (statusFilter && status !== statusFilter) {
-        return false;
-      }
-      
-      // Filtrado por texto
-      if (query) {
-        return businessName.includes(query) ||
-               contactPerson.includes(query) ||
-               phone.includes(query) ||
-               email.includes(query) ||
-               classification.includes(query);
-      }
-      
-      return true;
-    });
-
-    const sorted = filtered.sort((a, b) => {
-      const dateA = a.lastContact ? new Date(a.lastContact) : new Date(0);
-      const dateB = b.lastContact ? new Date(b.lastContact) : new Date(0);
-      return dateB - dateA;
-    });
-    
-    renderProspects(sorted);
-    
-    // Mostrar feedback al usuario
-    if (sorted.length === 0) {
-      const activeFilters = [];
-      if (statusFilter) activeFilters.push(`estado: ${statusFilter}`);
-      if (query) activeFilters.push(`búsqueda: "${query}"`);
-      
-      const filterMessage = activeFilters.length > 0 ?
-        `No se encontraron prospectos con ${activeFilters.join(' y ')}` :
-        'No se encontraron prospectos';
-        
-      showToast(filterMessage, 'info');
+    if (searchValue) {
+      filtered = filtered.filter(p =>
+        (p.businessName && p.businessName.toLowerCase().includes(searchValue)) ||
+        (p.contactPerson && p.contactPerson.toLowerCase().includes(searchValue)) ||
+        (p.phone && p.phone.includes(searchValue)) ||
+        (p.email && p.email.toLowerCase().includes(searchValue)) ||
+        (p.classification && p.classification.toLowerCase().includes(searchValue))
+      );
     }
+    renderProspects(filtered);
   }
+
+  document.getElementById('status-filter').addEventListener('change', filterProspects); // Usar el ID correcto
+  searchInput.addEventListener('input', filterProspects);
 
   // Función para mostrar notificaciones toast
   function showToast(message, type = 'info') {
