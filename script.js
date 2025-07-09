@@ -977,9 +977,21 @@ const attachAdminCardEventListeners = () => {
     });
 };
 
-/**
- * Muestra un modal para enviar material por WhatsApp a un prospecto específico.
- */
+const MATERIALS = [
+  {
+    name: 'CATÁLOGO DE PRODUCTOS',
+    url: 'http://bit.ly/3IbX56b'
+  },
+  {
+    name: 'LOOKBOOK DE OBRAS',
+    url: 'https://bit.ly/4kj5TnW'
+  },
+  {
+    name: 'SELECCIÓN DE MATERIALES PREMIUM',
+    url: 'https://bit.ly/4etgonw'
+  }
+];
+
 const showWhatsAppModal = (prospectId) => {
     const prospect = allProspects.find(p => p.id === prospectId);
     if (!prospect) {
@@ -987,25 +999,7 @@ const showWhatsAppModal = (prospectId) => {
         return;
     }
 
-    // Generar mensaje personalizado
-    const materials = [
-        '📋 Catálogo de Productos',
-        '🏗️ Lookbook de Obras',
-        '⭐ Selección Premium'
-    ];
-
-    const message = `Hola ${prospect.contactPerson || prospect.businessName},
-
-Te comparto el material promocional de Pietra Fina:
-
-${materials.join('\n')}
-
-¿Te gustaría que agendemos una cita para revisar los materiales en detalle?
-
-Saludos,
-Equipo Pietra Fina`;
-
-    // Crear modal
+    // Modal HTML con selector de materiales
     let modalHTML = `
         <div id="whatsapp-modal-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
@@ -1018,17 +1012,25 @@ Equipo Pietra Fina`;
                         <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
-                
                 <div class="mb-4">
                     <p class="text-sm text-gray-600 mb-2">Prospecto: <strong>${prospect.businessName}</strong></p>
                     <p class="text-sm text-gray-600 mb-4">Teléfono: <strong>${prospect.phone}</strong></p>
                 </div>
-
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Seleccionar materiales a enviar:</label>
+                    <div id="materials-checkbox-container-modal" class="space-y-2">
+                        ${MATERIALS.map((mat, i) => `
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="material-checkbox-modal" value="${i}" checked>
+                                <span>${mat.name}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Mensaje personalizado:</label>
-                    <textarea id="whatsapp-message" rows="8" class="w-full border border-gray-300 rounded-lg p-3 text-sm font-mono resize-none">${message}</textarea>
+                    <textarea id="whatsapp-message" rows="8" class="w-full border border-gray-300 rounded-lg p-3 text-sm font-mono resize-none"></textarea>
                 </div>
-
                 <div class="flex justify-end space-x-3">
                     <button id="cancel-whatsapp" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 font-inter">
                         Cancelar
@@ -1050,22 +1052,38 @@ Equipo Pietra Fina`;
         lucide.createIcons();
     }
 
+    // Generar mensaje inicial
+    function getSelectedMaterials() {
+        const checks = document.querySelectorAll('.material-checkbox-modal:checked');
+        return Array.from(checks).map(c => MATERIALS[parseInt(c.value)]);
+    }
+    function generateMessage() {
+        const mats = getSelectedMaterials();
+        return `Hola ${prospect.contactPerson || prospect.businessName},\n\nTe comparto el material promocional de Pietra Fina:\n\n${mats.map(m => `• ${m.name}: ${m.url}`).join('\n')}\n\n¿Te gustaría que agendemos una cita para revisar los materiales en detalle?\n\nSaludos,\nEquipo Pietra Fina`;
+    }
+    const textarea = document.getElementById('whatsapp-message');
+    textarea.value = generateMessage();
+    document.querySelectorAll('.material-checkbox-modal').forEach(cb => {
+        cb.onchange = () => {
+            textarea.value = generateMessage();
+        };
+    });
+
     // Event listeners
     document.getElementById('close-whatsapp-modal').onclick = () => {
         whatsappModal.remove();
     };
-
     document.getElementById('cancel-whatsapp').onclick = () => {
         whatsappModal.remove();
     };
-
     document.getElementById('send-whatsapp').onclick = () => {
-        const message = document.getElementById('whatsapp-message').value;
+        const message = textarea.value;
         const phoneNumber = prospect.phone.replace(/\D/g, '');
-        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+        // Forzar WhatsApp Web
+        const whatsappUrl = `https://web.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, '_blank');
         whatsappModal.remove();
-        showToast('Abriendo WhatsApp...', 'success');
+        showToast('Abriendo WhatsApp Web...', 'success');
     };
 };
 
