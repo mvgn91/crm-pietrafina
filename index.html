@@ -8,8 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
-    <!-- Font Awesome para íconos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Lucide Icons - Librería moderna y consistente -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <!-- Chart.js para el dashboard -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Flatpickr para el selector de fechas -->
@@ -52,9 +52,9 @@
         <main class="flex-grow flex items-center justify-center p-4">
             <!-- Pantalla de inicio de sesión / Selección de rol -->
             <section id="login-screen" class="w-full max-w-md bg-white rounded-xl shadow-xl p-8 text-center animate-fadeIn">
-                <h2 class="text-4xl font-playfair font-bold text-slate-800 mb-6 flex items-center justify-center">
-                    <i class="fas fa-key mr-3"></i> Acceso
-                </h2>
+                                        <h2 class="text-4xl font-playfair font-bold text-slate-800 mb-6 flex items-center justify-center">
+                            <i data-lucide="key" class="w-8 h-8 mr-3"></i> Acceso
+                        </h2>
                 <p class="font-inter text-slate-600 font-semibold mb-8">Inicia sesión o selecciona tu rol:</p>
 
                 <!-- Formulario de inicio de sesión -->
@@ -70,7 +70,7 @@
                             <input type="password" id="login-password" placeholder="Contraseña" required class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:border-red-600 focus:ring-red-600 p-2 font-inter mobile-btn">
                         </div>
                         <button type="submit" id="login-button" class="w-full bg-red-700 hover:bg-red-800 text-white font-inter py-3 px-6 btn-primary mobile-btn">
-                            <i class="fas fa-sign-in-alt mr-2"></i> Iniciar Sesión
+                            <i data-lucide="log-in" class="w-4 h-4 mr-2"></i> Iniciar Sesión
                         </button>
                     </form>
                     <p id="login-error-message" class="text-red-500 text-sm mt-4 hidden font-inter">Mensaje de error.</p>
@@ -82,19 +82,19 @@
                   <div id="matrix-bg" style="position:absolute; inset:0; z-index:0; pointer-events:none;"></div>
                   <div id="role-selection-buttons" class="flex flex-col gap-4 justify-center hidden" style="position:relative; z-index:1;">
                     <button id="admin-button" class="bg-red-700 hover:bg-red-800 text-white font-inter py-4 px-8 btn-primary rounded-md mobile-btn">
-                        <i class="fas fa-tools mr-3"></i> Gestión de Base de Datos
+                        <i data-lucide="database" class="w-5 h-5 mr-3"></i> Gestión de Base de Datos
                     </button>
                     <button id="prospector-button" class="bg-slate-800 hover:bg-slate-900 text-white font-inter py-4 px-8 btn-primary rounded-md mobile-btn">
-                        <i class="fas fa-headset mr-3"></i> Prospección de Clientes
+                        <i data-lucide="headphones" class="w-5 h-5 mr-3"></i> Prospección de Clientes
                     </button>
                     <button id="archive-button" class="bg-emerald-700 hover:bg-emerald-800 text-white font-inter py-4 px-8 btn-primary rounded-md mobile-btn">
-                        <i class="fas fa-archive mr-3"></i> Archivo de Prospección
+                        <i data-lucide="archive" class="w-5 h-5 mr-3"></i> Archivo de Prospección
                     </button>
                     <button id="whatsapp-massive-button" class="bg-green-600 hover:bg-green-700 text-white font-inter py-4 px-8 btn-primary rounded-md mobile-btn">
-                        <i class="fab fa-whatsapp mr-3"></i> Enviar Material por WhatsApp
+                        <i data-lucide="message-circle" class="w-5 h-5 mr-3"></i> Enviar Material por WhatsApp
                     </button>
                     <button id="logout-button" class="bg-slate-200 text-slate-700 font-inter py-3 px-6 rounded-md hover:bg-slate-300 transition duration-200 mobile-btn">
-                        <i class="fas fa-sign-out-alt mr-2"></i> Cerrar Sesión
+                        <i data-lucide="log-out" class="w-4 h-4 mr-2"></i> Cerrar Sesión
                     </button>
                 </div>
             </section>
@@ -106,13 +106,13 @@
                     <!-- Navegación del administrador -->
                     <div class="flex flex-wrap justify-center sm:justify-end gap-2 mobile-nav">
                         <button id="nav-to-prospector-from-admin" class="py-2 px-4 bg-red-700 text-white font-inter rounded-md hover:bg-red-800 transition duration-200 mobile-btn">
-                            <i class="fas fa-headset mr-2"></i> Ir a Prospección
+                            <i data-lucide="headphones" class="w-4 h-4 mr-2"></i> Ir a Prospección
                         </button>
                          <button id="nav-to-archive-from-admin" class="py-2 px-4 bg-emerald-700 text-white font-inter rounded-md hover:bg-emerald-800 transition duration-200 mobile-btn">
-                            <i class="fas fa-archive mr-2"></i> Ir a Archivo
+                            <i data-lucide="archive" class="w-4 h-4 mr-2"></i> Ir a Archivo
                         </button>
                         <button id="back-to-role-selection-admin" class="py-2 px-4 bg-gray-700 text-gray-200 font-inter rounded-md hover:bg-gray-600 transition duration-200 mobile-btn">
-                            <i class="fas fa-arrow-left mr-2"></i> Volver a Selección de Rol
+                            <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i> Volver a Selección de Rol
                         </button>
                     </div>
                 </div>
@@ -166,7 +166,7 @@
                         </div>
                         <div class="md:col-span-2">
                             <button type="submit" class="w-full bg-red-700 hover:bg-red-800 text-white font-inter py-3 px-6 btn-primary mobile-btn">
-                                <i class="fas fa-plus-circle mr-2"></i> Añadir Prospecto
+                                <i data-lucide="plus-circle" class="w-4 h-4 mr-2"></i> Añadir Prospecto
                             </button>
                         </div>
                     </form>

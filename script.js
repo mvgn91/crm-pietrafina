@@ -17,6 +17,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  // --- Inicializar Lucide Icons ---
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
+
   // --- Reparación: Eliminar llamada temprana a loadProspects() ---
   // La carga de prospectos solo debe ocurrir tras la autenticación (onAuthStateChanged)
 });
@@ -768,10 +773,8 @@ const getStatusBadgeClass = (status) => {
 
 const createProspectCardHTML = (prospect, isAdminView = false, isArchiveView = false) => {
     const effectiveDueDate = prospect.reagendadoPara || prospect.prospectingDueDate;
-    // Solo mostrar "Seguimiento reagendado" como etiqueta, sin (Reagendado)
-    const statusIndicator = '';
-
-    // --- Campana de alerta roja si reagendado para hoy o ayer ---
+    
+    // --- Campana de alerta mejorada con icono outline ---
     let bellHTML = '';
     if (prospect.reagendadoPara) {
         const today = new Date();
@@ -780,8 +783,19 @@ const createProspectCardHTML = (prospect, isAdminView = false, isArchiveView = f
         reagDate.setHours(0,0,0,0);
         const diffDays = Math.floor((today - reagDate) / (1000*60*60*24));
         if (diffDays === 0 || diffDays === 1) {
-            bellHTML = `<span title="Reagendado para hoy o ayer" style="color: #d32f2f; font-size: 1.3em; margin-right: 0.3em; vertical-align: middle;">🔔</span>`;
+            bellHTML = `<i data-lucide="bell" class="w-4 h-4 text-red-600 mr-2" title="Reagendado para hoy o ayer"></i>`;
         }
+    }
+
+    // --- Información de reagendamiento ---
+    let reagendadoInfo = '';
+    if (prospect.reagendadoPara && prospect.status === 'Seguimiento reagendado') {
+        reagendadoInfo = `
+            <div class="flex items-center text-sm text-gray-600 mt-1">
+                <i data-lucide="calendar" class="w-4 h-4 mr-1"></i>
+                <span>Reagendado para: ${formatDate(prospect.reagendadoPara)}</span>
+            </div>
+        `;
     }
 
 
@@ -789,42 +803,41 @@ const createProspectCardHTML = (prospect, isAdminView = false, isArchiveView = f
     let clientBadge = '';
     if (isArchiveView && prospect.isClient && prospect.contactResult === 'Ya es nuestro cliente') {
         clientBadge = `
-          <span style="
-            display: inline-flex;
-            align-items: center;
-            background: #f6fff9;
-            color: #178a4c;
-            border: 1px solid #b6e7c9;
-            font-size: 0.85em;
-            border-radius: 4px;
-            padding: 0.05em 0.35em 0.05em 0.3em;
-            margin-left: 0.4em;
-            font-weight: 500;
-            letter-spacing: 0.1px;
-            box-shadow: none;
-            gap: 0.25em;
-            min-width: 0;
-            text-transform: capitalize;
-            ">
-            <i class='fas fa-user-check' style='font-size:0.8em; margin-right:0.18em;'></i>
+          <span class="inline-flex items-center bg-green-50 text-green-700 border border-green-200 text-xs rounded-md px-2 py-1 ml-2 font-medium">
+            <i data-lucide="user-check" class="w-3 h-3 mr-1"></i>
             Ya es nuestro cliente
           </span>`;
     } else if (isArchiveView && prospect.contactResult === 'Convertido a cliente') {
-        clientBadge = `<span style="background: #22c55e; color: #fff; font-size: 0.85rem; border-radius: 8px; padding: 0.2rem 0.7rem; margin-left: 0.5em; min-width: 110px; text-align: center; font-weight: 600;">CLIENTE CONVERTIDO</span>`;
+        clientBadge = `<span class="bg-green-600 text-white text-xs rounded-lg px-3 py-1 ml-2 font-semibold">CLIENTE CONVERTIDO</span>`;
     }
 
-    // Compacta: solo info clave
+    // Tarjeta mejorada con mejor diseño
     let compactHTML = `
-      <div class="prospect-card minimal-card" style="background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; box-shadow: 0 2px 8px #0001; margin-bottom: 1rem; padding: 1.2rem 1.5rem;">
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-          <div>
-            <h4 style="color: #111; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.2rem;">${bellHTML}${prospect.businessName} ${clientBadge}</h4>
-            <div style="color: #444; font-size: 0.98rem; margin-bottom: 0.1rem;"><i class="fas fa-phone icon"></i> ${prospect.phone}</div>
-            <div style="color: #444; font-size: 0.98rem; margin-bottom: 0.1rem;"><i class="fas fa-calendar-alt icon"></i> ${formatDate(prospect.sentEmailDate)}</div>
+      <div class="prospect-card bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 mb-4 p-4 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-2">
+              ${bellHTML}
+              <h4 class="text-lg font-bold text-gray-900 truncate">${prospect.businessName}</h4>
+              ${clientBadge}
+            </div>
+            <div class="space-y-1 text-sm text-gray-600">
+              <div class="flex items-center">
+                <i data-lucide="phone" class="w-4 h-4 mr-2 text-gray-400"></i>
+                <span>${prospect.phone}</span>
+              </div>
+              <div class="flex items-center">
+                <i data-lucide="calendar" class="w-4 h-4 mr-2 text-gray-400"></i>
+                <span>${formatDate(prospect.sentEmailDate)}</span>
+              </div>
+              ${reagendadoInfo}
+            </div>
           </div>
-          <div style="display: flex; flex-direction: column; align-items: flex-end;">
+          <div class="flex flex-col items-end gap-2">
             <span class="status-badge ${getStatusBadgeClass(prospect.status)}">${prospect.status}</span>
-            <button data-id="${prospect.id}" class="view-details-btn" style="background: #fff; color: #d32f2f; border: 1px solid #d32f2f; border-radius: 6px; padding: 0.2rem 0.8rem; font-size: 0.95rem; font-weight: 600; margin-top: 0.3rem; cursor: pointer;">Ver Detalle</button>
+            <button data-id="${prospect.id}" class="view-details-btn bg-white text-red-600 border border-red-600 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-red-50 transition-colors duration-200">
+              Ver Detalle
+            </button>
           </div>
         </div>
       </div>
@@ -867,6 +880,12 @@ const renderAdminCards = () => {
         // Re-adjuntar event listeners para los botones recién creados en las tarjetas
         attachAdminCardEventListeners();
     }
+    
+    // Reinicializar Lucide Icons para el contenido dinámico
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+    
     addEntryAnimations();
     addHoverEffects();
 };
@@ -1197,6 +1216,12 @@ const renderProspectorCards = () => {
         // Adjuntar event listeners para prospector
         attachProspectorCardEventListeners();
     }
+    
+    // Reinicializar Lucide Icons para el contenido dinámico
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+    
     addEntryAnimations();
     addHoverEffects();
 };
@@ -1273,6 +1298,12 @@ const renderArchiveCards = () => {
             };
         });
     }
+    
+    // Reinicializar Lucide Icons para el contenido dinámico
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+    
     addEntryAnimations();
     addHoverEffects();
 };
