@@ -822,45 +822,26 @@ const createProspectCardHTML = (prospect, isAdminView = false, isArchiveView = f
         `;
     }
 
+    // Tarjeta mobile first y responsiva
     let compactHTML = `
-      <div class="prospect-card bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 mb-4 p-4 sm:p-6 relative overflow-hidden">
-        <!-- Indicador de estado en el borde izquierdo -->
-        <div class="absolute left-0 top-0 bottom-0 w-1 ${getStatusBadgeClass(prospect.status).replace('status-badge', '')}"></div>
-        
-        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 mb-3">
-              ${bellHTML}
-              <h4 class="text-lg font-bold text-gray-900 truncate">${prospect.businessName}</h4>
-              ${clientBadge}
-            </div>
-            <div class="space-y-2 text-sm text-gray-600">
-              <div class="flex items-center">
-                <i data-lucide="phone" class="w-4 h-4 mr-2 text-gray-400"></i>
-                <span class="font-medium">${prospect.phone}</span>
-              </div>
-              <div class="flex items-center">
-                <i data-lucide="calendar" class="w-4 h-4 mr-2 text-gray-400"></i>
-                <span>Enviado: ${formatDate(prospect.sentEmailDate)}</span>
-              </div>
-              ${reagendadoInfo}
-              ${prospect.contactPerson ? `
-                <div class="flex items-center">
-                  <i data-lucide="user" class="w-4 h-4 mr-2 text-gray-400"></i>
-                  <span>Contacto: ${prospect.contactPerson}</span>
-                </div>
-              ` : ''}
-            </div>
+      <div class="prospect-card">
+        <div class="card-accent" style="background:${getStatusBadgeColor(prospect.status)}"></div>
+        <div class="flex-1 min-w-0">
+          <div class="card-header">
+            <div class="card-title">${prospect.businessName}</div>
+            <div class="card-badge">${prospect.status}</div>
           </div>
-          <div class="flex flex-col items-end gap-3">
-            <span class="status-badge ${getStatusBadgeClass(prospect.status)} text-xs px-3 py-1">${prospect.status}</span>
-            <div class="flex flex-col sm:flex-row gap-2">
-              ${whatsappButton}
-              <button data-id="${prospect.id}" class="view-details-btn bg-white text-red-600 border border-red-600 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-red-50 transition-colors duration-200">
-                Ver Detalle
-              </button>
-            </div>
+          <div class="card-info">
+            <span>${prospect.phone}</span>
+            <span class="label">Enviado:</span> <span>${formatDate(prospect.sentEmailDate)}</span>
           </div>
+          <div class="card-contact">
+            <span class="label">Contacto:</span> ${prospect.contactPerson || '-'}
+          </div>
+        </div>
+        <div class="card-actions">
+          <button data-id="${prospect.id}" class="btn btn-whatsapp whatsapp-btn"><i data-lucide="message-circle" class="w-4 h-4 mr-2"></i> WhatsApp</button>
+          <button data-id="${prospect.id}" class="btn btn-detail view-details-btn">Ver Detalle</button>
         </div>
       </div>
     `;
@@ -2389,3 +2370,19 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('🎨 Mejoras visuales aplicadas correctamente');
     }, 500);
 });
+
+// Helper para color de borde
+function getStatusBadgeColor(status) {
+  switch (status) {
+    case 'Pendiente de Correo': return '#f59e0b';
+    case 'En Prospección': return '#3b82f6';
+    case 'Pendiente de Validación': return '#f59e0b';
+    case 'Interesado': return '#10b981';
+    case 'No contesta': return '#666666';
+    case 'Rechazado': return '#dc2626';
+    case 'Seguimiento agendado': return '#000000';
+    case 'Reactivar Contacto': return '#ef4444';
+    case 'Completado': return '#10b981';
+    default: return '#ef4444';
+  }
+}
