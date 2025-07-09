@@ -1543,18 +1543,15 @@ const showProspectDetailsModal = (prospectId) => {
 
     console.log('Mostrando detalles para:', prospect);
 
-    // Populate modal data
+    // Populate modal data - CAMPOS OPTIMIZADOS
     elements.detailBusinessName.textContent = prospect.businessName;
     elements.detailContactPerson.textContent = prospect.contactPerson || 'N/A';
     elements.detailEmail.textContent = prospect.email;
     elements.detailPhone.textContent = prospect.phone;
     elements.detailClassification.textContent = prospect.classification;
-    elements.detailStatus.textContent = prospect.status;
-    elements.detailInternalNotes.textContent = prospect.internalNotes || 'Ninguna';
-    elements.detailObservations.textContent = prospect.observations || 'Ninguna';
     elements.detailSentEmailDate.textContent = formatDate(prospect.sentEmailDate);
     elements.detailProspectingDueDate.textContent = formatDate(prospect.prospectingDueDate);
-    elements.detailRemainingDays.textContent = getRemainingBusinessDays(prospect.prospectingDueDate, prospect.reagendadoPara);
+    elements.detailObservations.textContent = prospect.observations || 'Ninguna';
 
     if (prospect.reagendadoPara) {
         elements.detailReagendadoPara.textContent = formatDate(prospect.reagendadoPara);
@@ -1563,19 +1560,6 @@ const showProspectDetailsModal = (prospectId) => {
         elements.detailReagendadoPara.textContent = '';
         elements.detailReagendadoParaContainer.classList.add('hidden');
     }
-
-    let contactedByName = 'N/A';
-    if (prospect.contactedBy && prospect.contactedBy.name) {
-        contactedByName = prospect.contactedBy.name;
-    } else if (prospect.assignedByName) {
-        contactedByName = prospect.assignedByName;
-    } else if (prospect.adminUserId) {
-        const adminInfo = getUserRoleAndName(prospect.adminUserId);
-        if (adminInfo && adminInfo.name) {
-            contactedByName = adminInfo.name;
-        }
-    }
-    elements.detailContactedBy.textContent = contactedByName;
 
     initializeCallButton(prospect.phone);
 
@@ -1606,7 +1590,7 @@ const showProspectDetailsModal = (prospectId) => {
             btn.type = 'button';
             btn.className = 'action-btn bg-green-600 hover:bg-green-700 text-white flex items-center gap-2 mt-2';
             btn.style.width = '100%';
-            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Campaña de contacto enviada';
+            btn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> Campaña de contacto enviada';
             btn.onclick = async (event) => {
                 const originalText = btn.innerHTML;
                 showLoading(btn, 'Actualizando...');
@@ -1664,6 +1648,11 @@ const showProspectDetailsModal = (prospectId) => {
     // Force reflow and focus
     elements.detailModal.offsetHeight;
     elements.detailModal.focus();
+    
+    // Reinicializar Lucide Icons para el contenido dinámico
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
     
     console.log('Modal de detalles mostrado');
 };

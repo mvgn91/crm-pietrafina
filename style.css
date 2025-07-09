@@ -1512,3 +1512,91 @@ h2, h3 {
     padding: 0.7em 0.5em;
   }
 }
+
+/* Estilos para botones de acción del modal - ESTILO OPTIMIZADO */
+.modal-actions .action-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.2s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.modal-actions .action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo específico para botones negro/blanco */
+.modal-actions .action-btn.bg-black {
+  background-color: #000000;
+  color: #ffffff;
+  border-color: #000000;
+}
+
+.modal-actions .action-btn.bg-black:hover {
+  background-color: #ffffff;
+  color: #000000;
+  border-color: #000000;
+}
+
+/* Mejoras al modal de detalles */
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.detail-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.detail-card:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.detail-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #475569;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.detail-value {
+  color: #1e293b;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+  .details-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .detail-card {
+    padding: 0.75rem;
+  }
+  
+  .modal-actions .action-btn {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.8125rem;
+  }
+}
