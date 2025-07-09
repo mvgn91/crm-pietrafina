@@ -811,33 +811,55 @@ const createProspectCardHTML = (prospect, isAdminView = false, isArchiveView = f
         clientBadge = `<span class="bg-green-600 text-white text-xs rounded-lg px-3 py-1 ml-2 font-semibold">CLIENTE CONVERTIDO</span>`;
     }
 
-    // Tarjeta mejorada con mejor diseño
+    // Tarjeta mejorada con mejor diseño y botón de WhatsApp
+    let whatsappButton = '';
+    if (prospect.phone) {
+        whatsappButton = `
+            <button data-id="${prospect.id}" class="whatsapp-btn bg-green-600 text-white border border-green-600 rounded-lg px-3 py-2 text-sm font-semibold hover:bg-green-700 transition-colors duration-200 flex items-center">
+                <i data-lucide="message-circle" class="w-4 h-4 mr-1"></i>
+                WhatsApp
+            </button>
+        `;
+    }
+
     let compactHTML = `
-      <div class="prospect-card bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 mb-4 p-4 sm:p-6">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div class="prospect-card bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 mb-4 p-4 sm:p-6 relative overflow-hidden">
+        <!-- Indicador de estado en el borde izquierdo -->
+        <div class="absolute left-0 top-0 bottom-0 w-1 ${getStatusBadgeClass(prospect.status).replace('status-badge', '')}"></div>
+        
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 mb-2">
+            <div class="flex items-center gap-2 mb-3">
               ${bellHTML}
               <h4 class="text-lg font-bold text-gray-900 truncate">${prospect.businessName}</h4>
               ${clientBadge}
             </div>
-            <div class="space-y-1 text-sm text-gray-600">
+            <div class="space-y-2 text-sm text-gray-600">
               <div class="flex items-center">
                 <i data-lucide="phone" class="w-4 h-4 mr-2 text-gray-400"></i>
-                <span>${prospect.phone}</span>
+                <span class="font-medium">${prospect.phone}</span>
               </div>
               <div class="flex items-center">
                 <i data-lucide="calendar" class="w-4 h-4 mr-2 text-gray-400"></i>
-                <span>${formatDate(prospect.sentEmailDate)}</span>
+                <span>Enviado: ${formatDate(prospect.sentEmailDate)}</span>
               </div>
               ${reagendadoInfo}
+              ${prospect.contactPerson ? `
+                <div class="flex items-center">
+                  <i data-lucide="user" class="w-4 h-4 mr-2 text-gray-400"></i>
+                  <span>Contacto: ${prospect.contactPerson}</span>
+                </div>
+              ` : ''}
             </div>
           </div>
-          <div class="flex flex-col items-end gap-2">
-            <span class="status-badge ${getStatusBadgeClass(prospect.status)}">${prospect.status}</span>
-            <button data-id="${prospect.id}" class="view-details-btn bg-white text-red-600 border border-red-600 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-red-50 transition-colors duration-200">
-              Ver Detalle
-            </button>
+          <div class="flex flex-col items-end gap-3">
+            <span class="status-badge ${getStatusBadgeClass(prospect.status)} text-xs px-3 py-1">${prospect.status}</span>
+            <div class="flex flex-col sm:flex-row gap-2">
+              ${whatsappButton}
+              <button data-id="${prospect.id}" class="view-details-btn bg-white text-red-600 border border-red-600 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-red-50 transition-colors duration-200">
+                Ver Detalle
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -917,6 +939,15 @@ const attachAdminCardEventListeners = () => {
         };
     });
     
+    // Event listeners para botones de WhatsApp
+    document.querySelectorAll('.whatsapp-btn').forEach(button => {
+        button.onclick = (event) => {
+            const prospectId = event.currentTarget.dataset.id;
+            console.log('WhatsApp clicked para prospect:', prospectId);
+            showWhatsAppModal(prospectId);
+        };
+    });
+    
     document.querySelectorAll('.edit-prospect-admin-btn').forEach(button => {
         button.onclick = (event) => {
             const prospectId = event.currentTarget.dataset.id;
@@ -963,6 +994,98 @@ const attachAdminCardEventListeners = () => {
             });
         };
     });
+};
+
+/**
+ * Muestra un modal para enviar material por WhatsApp a un prospecto específico.
+ */
+const showWhatsAppModal = (prospectId) => {
+    const prospect = allProspects.find(p => p.id === prospectId);
+    if (!prospect) {
+        showToast('Prospecto no encontrado', 'error');
+        return;
+    }
+
+    // Generar mensaje personalizado
+    const materials = [
+        '📋 Catálogo de Productos',
+        '🏗️ Lookbook de Obras',
+        '⭐ Selección Premium'
+    ];
+
+    const message = `Hola ${prospect.contactPerson || prospect.businessName},
+
+Te comparto el material promocional de Pietra Fina:
+
+${materials.join('\n')}
+
+¿Te gustaría que agendemos una cita para revisar los materiales en detalle?
+
+Saludos,
+Equipo Pietra Fina`;
+
+    // Crear modal
+    let modalHTML = `
+        <div id="whatsapp-modal-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-playfair font-bold text-gray-900">
+                        <i data-lucide="message-circle" class="w-5 h-5 mr-2 text-green-600"></i>
+                        Enviar por WhatsApp
+                    </h3>
+                    <button id="close-whatsapp-modal" class="text-gray-400 hover:text-gray-600">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm text-gray-600 mb-2">Prospecto: <strong>${prospect.businessName}</strong></p>
+                    <p class="text-sm text-gray-600 mb-4">Teléfono: <strong>${prospect.phone}</strong></p>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Mensaje personalizado:</label>
+                    <textarea id="whatsapp-message" rows="8" class="w-full border border-gray-300 rounded-lg p-3 text-sm font-mono resize-none">${message}</textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3">
+                    <button id="cancel-whatsapp" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 font-inter">
+                        Cancelar
+                    </button>
+                    <button id="send-whatsapp" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-inter flex items-center">
+                        <i data-lucide="message-circle" class="w-4 h-4 mr-2"></i>
+                        Enviar WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    const whatsappModal = document.getElementById('whatsapp-modal-overlay');
+
+    // Reinicializar iconos
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+
+    // Event listeners
+    document.getElementById('close-whatsapp-modal').onclick = () => {
+        whatsappModal.remove();
+    };
+
+    document.getElementById('cancel-whatsapp').onclick = () => {
+        whatsappModal.remove();
+    };
+
+    document.getElementById('send-whatsapp').onclick = () => {
+        const message = document.getElementById('whatsapp-message').value;
+        const phoneNumber = prospect.phone.replace(/\D/g, '');
+        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
+        whatsappModal.remove();
+        showToast('Abriendo WhatsApp...', 'success');
+    };
 };
 
 /**
@@ -1248,6 +1371,15 @@ const attachProspectorCardEventListeners = () => {
             const prospectId = event.currentTarget.dataset.id;
             console.log('Ver detalles clicked para prospect:', prospectId);
             showProspectDetailsModal(prospectId);
+        };
+    });
+    
+    // Event listeners para botones de WhatsApp
+    document.querySelectorAll('.whatsapp-btn').forEach(button => {
+        button.onclick = (event) => {
+            const prospectId = event.currentTarget.dataset.id;
+            console.log('WhatsApp clicked para prospect:', prospectId);
+            showWhatsAppModal(prospectId);
         };
     });
 };

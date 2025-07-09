@@ -682,6 +682,18 @@ body {
 .status-badge.admin-review-pending { background-color: var(--info-500); }
 .status-badge.completed { background-color: var(--success-500); }
 
+/* Indicadores de estado en el borde izquierdo de las tarjetas */
+.prospect-card .pending-email { background-color: var(--warning-500); }
+.prospect-card .in-prospecting { background-color: var(--info-500); }
+.prospect-card .pending-validation { background-color: var(--warning-500); }
+.prospect-card .interesado { background-color: var(--success-500); }
+.prospect-card .no-answer { background-color: var(--gray-700); }
+.prospect-card .rejected { background-color: var(--primary-700); }
+.prospect-card .rescheduled { background-color: var(--gray-900); }
+.prospect-card .reactivate { background-color: var(--primary-500); }
+.prospect-card .admin-review-pending { background-color: var(--info-500); }
+.prospect-card .completed { background-color: var(--success-500); }
+
 /* ===== ESTILOS PARA CARD BORDER BASADOS EN STATUS (priorizando colores de marca) ===== */
 .prospect-card.status-pending-email::before { background: var(--warning-500); }
 .prospect-card.status-in-prospecting::before { background: var(--info-500); }

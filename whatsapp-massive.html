@@ -53,7 +53,7 @@
           <p class="text-gray-600 font-inter">
             Selecciona un prospecto para enviar material promocional
             <span class="inline-flex items-center ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-              <i class="fas fa-database mr-1"></i>
+              <i data-lucide="database" class="w-3 h-3 mr-1"></i>
               Datos en tiempo real
             </span>
           </p>
@@ -63,7 +63,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label for="status-filter" class="form-label block mb-2">
-                <i class="fas fa-filter mr-2"></i>
+                <i data-lucide="filter" class="w-4 h-4 mr-2"></i>
                 Filtrar por estado:
               </label>
               <select id="status-filter" class="form-input w-full">
@@ -81,7 +81,7 @@
             </div>
             <div>
               <label for="whatsapp-massive-search" class="form-label block mb-2">
-                <i class="fas fa-search mr-2"></i>
+                <i data-lucide="search" class="w-4 h-4 mr-2"></i>
                 Buscar prospecto:
               </label>
               <input
@@ -92,7 +92,7 @@
                 title="Presiona Ctrl+F para enfocar rápidamente"
               >
               <div class="text-xs text-gray-500 mt-1">
-                <i class="fas fa-lightbulb mr-1"></i>
+                <i data-lucide="lightbulb" class="w-3 h-3 mr-1"></i>
                 Tip: Usa Ctrl+F para búsqueda rápida
               </div>
             </div>
@@ -104,7 +104,7 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div class="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
           <div class="flex items-center">
-            <i class="fas fa-users text-green-600 text-2xl mr-3"></i>
+            <i data-lucide="users" class="w-6 h-6 text-green-600 mr-3"></i>
             <div>
               <p class="text-sm text-green-700 font-medium">Total Prospectos</p>
               <p id="total-prospects-count" class="text-2xl font-bold text-green-800">-</p>
@@ -114,7 +114,7 @@
         
         <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
           <div class="flex items-center">
-            <i class="fab fa-whatsapp text-blue-600 text-2xl mr-3"></i>
+            <i data-lucide="message-circle" class="w-6 h-6 text-blue-600 mr-3"></i>
             <div>
               <p class="text-sm text-blue-700 font-medium">Con WhatsApp</p>
               <p id="whatsapp-prospects-count" class="text-2xl font-bold text-blue-800">-</p>
@@ -124,7 +124,7 @@
         
         <div class="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
           <div class="flex items-center">
-            <i class="fas fa-filter text-purple-600 text-2xl mr-3"></i>
+            <i data-lucide="filter" class="w-6 h-6 text-purple-600 mr-3"></i>
             <div>
               <p class="text-sm text-purple-700 font-medium">Filtrados</p>
               <p id="filtered-prospects-count" class="text-2xl font-bold text-purple-800">-</p>
@@ -150,20 +150,20 @@
         <!-- Materiales incluidos -->
         <div class="p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl border border-green-200">
           <h3 class="text-lg font-playfair font-bold text-gray-800 mb-3">
-            <i class="fas fa-file-alt mr-2 text-green-600"></i>
+            <i data-lucide="file-text" class="w-5 h-5 mr-2 text-green-600"></i>
             Materiales incluidos en el envío:
           </h3>
           <ul class="space-y-2 text-gray-700">
             <li class="flex items-center">
-              <i class="fas fa-file-pdf mr-3 text-red-500"></i>
+              <i data-lucide="file-text" class="w-4 h-4 mr-3 text-red-500"></i>
               <strong>Catálogo de Productos</strong> - Nuestra línea completa de materiales
             </li>
             <li class="flex items-center">
-              <i class="fas fa-images mr-3 text-blue-500"></i>
+              <i data-lucide="image" class="w-4 h-4 mr-3 text-blue-500"></i>
               <strong>Lookbook de Obras</strong> - Proyectos realizados y referencias
             </li>
             <li class="flex items-center">
-              <i class="fas fa-star mr-3 text-yellow-500"></i>
+              <i data-lucide="star" class="w-4 h-4 mr-3 text-yellow-500"></i>
               <strong>Selección Premium</strong> - Materiales exclusivos y de alta gama
             </li>
           </ul>
@@ -172,24 +172,24 @@
         <!-- Instrucciones de uso -->
         <div class="p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200">
           <h3 class="text-lg font-playfair font-bold text-gray-800 mb-3">
-            <i class="fas fa-info-circle mr-2 text-blue-600"></i>
+            <i data-lucide="info" class="w-5 h-5 mr-2 text-blue-600"></i>
             Cómo usar esta herramienta:
           </h3>
           <ul class="space-y-2 text-gray-700 text-sm">
             <li class="flex items-start">
-              <i class="fas fa-search mr-3 text-blue-500 mt-0.5"></i>
+              <i data-lucide="search" class="w-4 h-4 mr-3 text-blue-500 mt-0.5"></i>
               <span><strong>Busca</strong> por nombre, teléfono, email o clasificación</span>
             </li>
             <li class="flex items-start">
-              <i class="fas fa-edit mr-3 text-green-500 mt-0.5"></i>
+              <i data-lucide="edit" class="w-4 h-4 mr-3 text-green-500 mt-0.5"></i>
               <span><strong>Personaliza</strong> el mensaje antes de enviar</span>
             </li>
             <li class="flex items-start">
-              <i class="fab fa-whatsapp mr-3 text-green-600 mt-0.5"></i>
+              <i data-lucide="message-circle" class="w-4 h-4 mr-3 text-green-600 mt-0.5"></i>
               <span><strong>Envía</strong> directamente desde WhatsApp Web/App</span>
             </li>
             <li class="flex items-start">
-              <i class="fas fa-chart-line mr-3 text-purple-500 mt-0.5"></i>
+              <i data-lucide="trending-up" class="w-4 h-4 mr-3 text-purple-500 mt-0.5"></i>
               <span><strong>Rastrea</strong> automáticamente los envíos realizados</span>
             </li>
           </ul>
