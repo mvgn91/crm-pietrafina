@@ -160,17 +160,17 @@ const isValidPhone = (phone) => {
  * Formatea una cadena de fecha a 'DD/MM/YYYY'.
  */
 const formatDate = (dateString) => {
-    if (!dateString) return '';
+    if (!dateString) return 'Sin fecha';
     try {
         const d = new Date(dateString);
-        if (isNaN(d.getTime())) return '';
+        if (isNaN(d.getTime())) return 'Sin fecha';
         const day = String(d.getDate()).padStart(2, '0');
         const month = String(d.getMonth() + 1).padStart(2, '0');
         const year = d.getFullYear();
         return `${day}/${month}/${year}`;
     } catch (e) {
         console.error("Error al parsear la cadena de fecha:", dateString, e);
-        return '';
+        return 'Sin fecha';
     }
 };
 
