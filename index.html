@@ -27,19 +27,19 @@
         <!-- Encabezado -->
         <header id="app-header" class="bg-white/90 backdrop-blur-sm sticky top-0 z-20 border-b border-slate-200 shadow-sm transition-colors duration-300 mobile-header">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <img id="header-logo" src="https://static.wixstatic.com/media/769a0c_8d5b9317c0a84f4f856798df627db1e2~mv2.jpg/v1/fill/w_104,h_96,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/LOGO%20NEGRO%20DEF_edited.jpg" alt="Logo de Pietra Fina" class="h-12 rounded-xl">
-                    <div>
-                        <h1 id="header-title" class="text-xl sm:text-2xl font-playfair font-bold flex items-center">
-                            CRM Pietra Fina 
-                            <span id="online-status-indicator" class="ml-2 text-green-500 text-sm flex items-center">
-                                <i class="fas fa-wifi mr-1"></i> <span class="text-xs">Conexión</span>
+                <div class="flex items-center gap-2 sm:gap-4">
+                    <img id="header-logo" src="https://static.wixstatic.com/media/769a0c_8d5b9317c0a84f4f856798df627db1e2~mv2.jpg/v1/fill/w_104,h_96,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/LOGO%20NEGRO%20DEF_edited.jpg" alt="Logo de Pietra Fina" class="h-8 sm:h-12 rounded-xl">
+                    <div class="min-w-0 flex-1">
+                        <h1 id="header-title" class="text-lg sm:text-xl lg:text-2xl font-playfair font-bold flex items-center truncate">
+                            <span class="truncate">CRM Pietra Fina</span>
+                            <span id="online-status-indicator" class="ml-1 sm:ml-2 text-green-500 text-xs sm:text-sm flex items-center flex-shrink-0">
+                                <i class="fas fa-wifi mr-1"></i> <span class="hidden sm:inline text-xs">Conexión</span>
                             </span>
                         </h1>
                         <p id="app-version-indicator" class="font-mono text-xs text-slate-500">2.8 ver.</p>
                     </div>
                 </div>
-                <div id="auth-status" class="text-xs sm:text-sm font-inter text-slate-600">
+                <div id="auth-status" class="text-xs sm:text-sm font-inter text-slate-600 flex-shrink-0">
                     <!-- El estado de autenticación del usuario se mostrará aquí -->
                 </div>
             </div>
@@ -118,9 +118,9 @@
                 </div>
 
                 <!-- Formulario para añadir nuevo prospecto -->
-                <div class="mb-8 p-6 bg-slate-50 rounded-xl border border-slate-200 shadow-sm">
-                    <h3 class="text-2xl font-playfair text-slate-700 mb-4">Agregar Nuevo Cliente/Prospecto</h3>
-                    <form id="add-prospect-form" class="grid grid-cols-1 md:grid-cols-2 gap-6 mobile-form">
+                <div class="mb-8 p-4 sm:p-6 bg-slate-50 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 class="text-xl sm:text-2xl font-playfair text-slate-700 mb-4">Agregar Nuevo Cliente/Prospecto</h3>
+                    <form id="add-prospect-form" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mobile-form">
                         <div>
                             <label for="businessName" class="block text-sm font-inter font-medium text-slate-700 mb-1">Nombre del Negocio o Empresa <span class="text-red-500">*</span></label>
                             <input type="text" id="businessName" name="businessName" required class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:border-red-600 focus:ring-red-600 p-2 font-inter mobile-btn">
@@ -173,9 +173,9 @@
                 </div>
 
                 <!-- Sección del Dashboard -->
-                <div class="mb-8 p-6 bg-slate-50 rounded-xl border border-slate-200 shadow-sm">
-                    <h3 class="text-2xl font-playfair text-slate-700 mb-4">Dashboard de Estadísticas</h3>
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="mb-8 p-4 sm:p-6 bg-slate-50 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 class="text-xl sm:text-2xl font-playfair text-slate-700 mb-4">Dashboard de Estadísticas</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                         <div class="chart-container">
                             <canvas id="statusChart"></canvas>
                         </div>
@@ -183,7 +183,7 @@
                             <canvas id="conversionChart"></canvas>
                         </div>
                     </div>
-                    <div id="prospecting-results-summary" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-inter mt-6">
+                    <div id="prospecting-results-summary" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 font-inter mt-4 sm:mt-6">
                         <div class="bg-slate-50 p-4 rounded-md shadow-sm border border-slate-200">
                             <p class="text-sm text-slate-700">Total Prospectos</p>
                             <p id="totalProspectsCount" class="text-2xl font-bold text-slate-800">0</p>

@@ -913,6 +913,173 @@ h2, h3 {
     }
 }
 
+/* ===== NUEVAS MEJORAS DE RESPONSIVIDAD ===== */
+
+/* Tablets (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .prospect-card {
+        margin: 0.5rem;
+        padding: 1.5rem;
+    }
+    
+    .mobile-nav {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .mobile-nav button {
+        flex: 1;
+        min-width: 200px;
+    }
+    
+    .chart-container {
+        height: 300px;
+    }
+}
+
+/* Pantallas muy pequeñas (menos de 480px) */
+@media (max-width: 480px) {
+    .mobile-btn {
+        min-height: 3.5rem; /* 56px para mejor touch */
+        font-size: 1rem; /* 16px para mejor legibilidad */
+        padding: 1rem 1.25rem;
+    }
+    
+    .mobile-header {
+        padding: 0.5rem;
+    }
+    
+    #header-title {
+        font-size: 1.125rem; /* 18px */
+    }
+    
+    .prospect-card {
+        margin: 0.5rem 0;
+        padding: 1rem;
+    }
+    
+    .card-title {
+        font-size: 1rem; /* 16px */
+    }
+    
+    .card-detail {
+        font-size: 0.8125rem; /* 13px */
+    }
+    
+    .modal-container {
+        max-width: 98vw;
+        max-height: 95vh;
+        margin: 0.5rem;
+    }
+    
+    .modal-header,
+    .modal-content,
+    .modal-actions {
+        padding: 1rem 0.75rem;
+    }
+    
+    /* Mejorar navegación en móvil */
+    .mobile-nav {
+        gap: 0.5rem;
+    }
+    
+    .mobile-nav button {
+        font-size: 0.875rem; /* 14px */
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* Pantallas extra pequeñas (menos de 360px) */
+@media (max-width: 360px) {
+    .mobile-btn {
+        min-height: 4rem; /* 64px para mejor touch */
+        font-size: 1.125rem; /* 18px */
+    }
+    
+    #header-title {
+        font-size: 1rem; /* 16px */
+    }
+    
+    .prospect-card {
+        padding: 0.75rem;
+    }
+    
+    .card-title {
+        font-size: 0.9375rem; /* 15px */
+    }
+    
+    .card-detail {
+        font-size: 0.75rem; /* 12px */
+    }
+}
+
+/* Orientación landscape en móviles */
+@media (max-width: 768px) and (orientation: landscape) {
+    .mobile-header {
+        padding: 0.5rem 1rem;
+    }
+    
+    #header-title {
+        font-size: 1.25rem; /* 20px */
+    }
+    
+    .mobile-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .mobile-nav button {
+        flex: 1;
+        min-width: 150px;
+    }
+}
+
+/* Mejoras para pantallas de alta densidad (2x, 3x) */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .mobile-btn {
+        border-width: 0.5px;
+    }
+    
+    .prospect-card {
+        border-width: 0.5px;
+    }
+}
+
+/* Mejoras de accesibilidad para touch */
+@media (hover: none) and (pointer: coarse) {
+    .mobile-btn {
+        min-height: 3.5rem; /* 56px mínimo para touch */
+        padding: 1rem 1.25rem;
+    }
+    
+    .action-btn {
+        min-height: 3rem; /* 48px */
+        padding: 0.75rem 1rem;
+    }
+    
+    .form-input,
+    .form-select,
+    .form-textarea {
+        min-height: 3rem; /* 48px para mejor touch */
+        font-size: 1rem; /* 16px para evitar zoom en iOS */
+    }
+}
+
+/* Optimizaciones para dispositivos con notch */
+@supports (padding: max(0px)) {
+    .mobile-header {
+        padding-left: max(1rem, env(safe-area-inset-left));
+        padding-right: max(1rem, env(safe-area-inset-right));
+    }
+    
+    .modal-overlay {
+        padding-left: max(1rem, env(safe-area-inset-left));
+        padding-right: max(1rem, env(safe-area-inset-right));
+        padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    }
+}
+
 /* ===== EFECTOS ESPECIALES (Mantener la estética) ===== */
 .cyberpunk-glow {
     box-shadow: 0 0 25px rgba(239, 68, 68, 0.35);
