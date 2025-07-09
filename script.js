@@ -822,23 +822,17 @@ const createProspectCardHTML = (prospect, isAdminView = false, isArchiveView = f
         `;
     }
 
-    // Tarjeta mobile first y responsiva
+    // Tarjeta rectangular, limpia y mobile first
+    let fecha = prospect.reagendadoPara ? formatDate(prospect.reagendadoPara) : formatDate(prospect.sentEmailDate);
+    let fechaLabel = prospect.reagendadoPara ? 'Reagendación:' : 'Enviado:';
     let compactHTML = `
       <div class="prospect-card">
-        <div class="card-accent" style="background:${getStatusBadgeColor(prospect.status)}"></div>
-        <div class="flex-1 min-w-0">
-          <div class="card-header">
-            <div class="card-title">${prospect.businessName}</div>
-            <div class="card-badge">${prospect.status}</div>
-          </div>
-          <div class="card-info">
-            <span>${prospect.phone}</span>
-            <span class="label">Enviado:</span> <span>${formatDate(prospect.sentEmailDate)}</span>
-          </div>
-          <div class="card-contact">
-            <span class="label">Contacto:</span> ${prospect.contactPerson || '-'}
-          </div>
+        <div class="card-header">
+          <div class="card-title">${prospect.businessName}</div>
         </div>
+        ${prospect.contactPerson ? `<div class="card-encargado">${prospect.contactPerson}</div>` : ''}
+        <div class="card-contact">${prospect.phone}</div>
+        <div class="card-date"><span class="label">${fechaLabel}</span> ${fecha}</div>
         <div class="card-actions">
           <button data-id="${prospect.id}" class="btn btn-whatsapp whatsapp-btn"><i data-lucide="message-circle" class="w-4 h-4 mr-2"></i> WhatsApp</button>
           <button data-id="${prospect.id}" class="btn btn-detail view-details-btn">Ver Detalle</button>
