@@ -485,7 +485,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // NUEVA FUNCIÓN ROBUSTA para abrir WhatsApp con múltiples estrategias
+  // FUNCIÓN CORREGIDA para abrir WhatsApp con detección inteligente de dispositivo
   async function openWhatsAppRobust(phone, message) {
     console.log('🎯 Usando método robusto para abrir WhatsApp...');
     
@@ -501,86 +501,103 @@ document.addEventListener('DOMContentLoaded', function () {
     
     const encodedMessage = encodeURIComponent(finalMessage);
     
-    let whatsappUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
+    // Detectar si es dispositivo móvil
+    const isMobile = isMobileDevice();
+    console.log('📱 Es dispositivo móvil:', isMobile);
+    console.log('💻 Es Windows:', isWindows());
+    console.log('🔍 Navegador:', getBrowserInfo());
 
-    if (isWindows()) {
-      console.log('💻 Windows detectado - priorizando WhatsApp Web.');
-      // Para Windows, intentar abrir WhatsApp Web directamente
-      const webWhatsappUrl = `https://web.whatsapp.com/send?phone=${phone}&text=${encodedMessage}`;
-      window.open(webWhatsappUrl, '_blank');
-      // Copiar al portapapeles como fallback principal para la app de escritorio
-      await copyToClipboard(finalMessage);
-      showToast('Mensaje copiado al portapapeles. Pégalo en WhatsApp Web o en la aplicación de escritorio.', 'info');
-
-    } else if (isMobileDevice()) {
-      console.log('📱 Dispositivo móvil detectado.');
+    if (isMobile) {
+      // ESTRATEGIA PARA MÓVIL: Abrir app nativa de WhatsApp
+      console.log('📱 Dispositivo móvil detectado - abriendo app nativa de WhatsApp');
+      
       let mobileUrl = '';
       if (isIOS()) {
         // Para iOS, usar whatsapp://send
         mobileUrl = `whatsapp://send?phone=${phone}&text=${encodedMessage}`;
-        console.log('🍎 iOS detectado - intentando con whatsapp://send');
+        console.log('🍎 iOS detectado - usando whatsapp://send');
       } else {
-        // Para Android, wa.me suele funcionar bien
-        mobileUrl = whatsappUrl;
+        // Para Android, usar wa.me que abre la app nativa
+        mobileUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
         console.log('🤖 Android detectado - usando wa.me');
       }
 
       try {
+        // Intentar abrir la app nativa
         window.location.href = mobileUrl;
+        
         // Esperar un poco para ver si la app se abre
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        // Si no se abrió, intentar con el fallback de copiar al portapapeles
-        if (document.hidden) { // Si la página está oculta, la app probablemente se abrió
-          console.log('✅ App de WhatsApp abierta (página oculta).');
-        } else {
-          console.warn('⚠️ App de WhatsApp no se abrió, intentando copiar al portapapeles.');
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Si la página sigue visible, la app no se abrió
+        if (!document.hidden) {
+          console.warn('⚠️ App de WhatsApp no se abrió, intentando fallback');
           await copyToClipboard(finalMessage);
           showToast('Mensaje copiado al portapapeles. Pégalo en WhatsApp.', 'info');
+        } else {
+          console.log('✅ App de WhatsApp abierta exitosamente');
         }
       } catch (error) {
         console.error('❌ Error al abrir WhatsApp en móvil:', error);
         await copyToClipboard(finalMessage);
-        showToast('Error al abrir WhatsApp. Mensaje copiado al portapapeles. Pégalo en WhatsApp.', 'error');
+        showToast('Error al abrir WhatsApp. Mensaje copiado al portapapeles.', 'error');
       }
-    } else {
-      // En escritorio (no Windows), usar múltiples métodos
-      console.log('💻 Dispositivo de escritorio (no Windows) - usando múltiples métodos');
       
-      // Método 1: window.open con configuración específica
-      try {
-        const newWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer,width=800,height=600');
+    } else {
+      // ESTRATEGIA PARA ESCRITORIO: Abrir WhatsApp Web
+      console.log('💻 Dispositivo de escritorio detectado - abriendo WhatsApp Web');
+      
+      if (isWindows()) {
+        // Para Windows, usar WhatsApp Web directamente
+        const webWhatsappUrl = `https://web.whatsapp.com/send?phone=${phone}&text=${encodedMessage}`;
+        console.log('💻 Windows detectado - usando WhatsApp Web');
         
-        // Verificar si se abrió correctamente
-        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-          console.log('⚠️ window.open falló, intentando método alternativo');
-          
-          // Método 2: Crear enlace temporal y hacer clic
-          const tempLink = document.createElement('a');
-          tempLink.href = whatsappUrl;
-          tempLink.target = '_blank';
-          tempLink.rel = 'noopener noreferrer';
-          tempLink.style.display = 'none';
-          
-          document.body.appendChild(tempLink);
-          tempLink.click();
-          
-          // Limpiar después de un momento
-          setTimeout(() => {
-            if (document.body.contains(tempLink)) {
-              document.body.removeChild(tempLink);
-            }
-          }, 1000);
-          
-        } else {
-          console.log('✅ WhatsApp abierto exitosamente con window.open');
+        try {
+          window.open(webWhatsappUrl, '_blank');
+          await copyToClipboard(finalMessage);
+          showToast('Abriendo WhatsApp Web. Mensaje copiado al portapapeles como respaldo.', 'info');
+        } catch (error) {
+          console.error('❌ Error al abrir WhatsApp Web:', error);
+          await copyToClipboard(finalMessage);
+          showToast('Error al abrir WhatsApp Web. Mensaje copiado al portapapeles.', 'error');
         }
         
-      } catch (error) {
-        console.error('❌ Error con window.open:', error);
+      } else {
+        // Para otros sistemas de escritorio (Mac, Linux)
+        console.log('💻 Otro sistema de escritorio - usando wa.me');
         
-        // Método 3: Fallback con location.href
-        console.log('🔄 Usando fallback con location.href');
-        window.location.href = whatsappUrl;
+        try {
+          const whatsappUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
+          const newWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+          
+          if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+            console.log('⚠️ window.open falló, intentando método alternativo');
+            
+            // Método alternativo: Crear enlace temporal
+            const tempLink = document.createElement('a');
+            tempLink.href = whatsappUrl;
+            tempLink.target = '_blank';
+            tempLink.rel = 'noopener noreferrer';
+            tempLink.style.display = 'none';
+            
+            document.body.appendChild(tempLink);
+            tempLink.click();
+            
+            setTimeout(() => {
+              if (document.body.contains(tempLink)) {
+                document.body.removeChild(tempLink);
+              }
+            }, 1000);
+          }
+          
+          await copyToClipboard(finalMessage);
+          showToast('Abriendo WhatsApp. Mensaje copiado al portapapeles como respaldo.', 'info');
+          
+        } catch (error) {
+          console.error('❌ Error al abrir WhatsApp:', error);
+          await copyToClipboard(finalMessage);
+          showToast('Error al abrir WhatsApp. Mensaje copiado al portapapeles.', 'error');
+        }
       }
     }
     
