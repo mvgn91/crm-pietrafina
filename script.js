@@ -77,16 +77,14 @@ const FRANCISCO_UID = 'n4WFgGtOtDQwYaV9QXy16bDvYE32';
  * Obtiene el rol y nombre de un usuario basado en su UID.
  */
 const getUserRoleAndName = (uid) => {
-    if (ADMIN_UIDS.includes(uid)) {
-        return { role: 'admin', name: 'Boss' };
-    } else if (uid === NICOLAS_UID) {
-        return { role: 'prospector', name: 'Nicolás Capetillo' };
-    } else if (uid === FRANCISCO_UID) {
-        return { role: 'prospector', name: 'Francisco Capetillo' };
-    } else if (uid === 'demo-prospector-uid') {
-        return { role: 'prospector', name: 'Demo Prospector' };
+    // Buscar el nombre real del usuario si está en DEMO_USERS
+    for (const email in DEMO_USERS) {
+        if (DEMO_USERS[email].uid === uid) {
+            return { role: 'admin', name: DEMO_USERS[email].name };
+        }
     }
-    return { role: 'unassigned', name: 'Usuario sin Rol' };
+    // Si no está en DEMO_USERS, devolver 'admin' y UID como nombre
+    return { role: 'admin', name: uid };
 };
 
 /**
@@ -1103,11 +1101,16 @@ const showWhatsAppModal = (prospectId) => {
     document.getElementById('send-whatsapp').onclick = () => {
         const message = textarea.value;
         const phoneNumber = prospect.phone.replace(/\D/g, '');
-        // Forzar WhatsApp Web
-        const whatsappUrl = `https://web.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+        // Priorizar la app de WhatsApp en móviles
+        let whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+        // Detectar si es escritorio para usar WhatsApp Web como fallback
+        const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+        if (!isMobile) {
+            whatsappUrl = `https://web.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+        }
         window.open(whatsappUrl, '_blank');
         whatsappModal.remove();
-        showToast('Abriendo WhatsApp Web...', 'success');
+        showToast(isMobile ? 'Abriendo WhatsApp...' : 'Abriendo WhatsApp Web...', 'success');
     };
 };
 
