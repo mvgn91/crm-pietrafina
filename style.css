@@ -1808,3 +1808,59 @@ h2, h3 {
     transform: translateY(0) scale(1);
   }
 }
+
+/* --- Calendario semanal de reagendados --- */
+.calendar-day {
+  background: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 4px 0 rgba(0,0,0,0.03);
+  padding: 1rem 0.5rem;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  border: 1px solid #e5e7eb;
+  transition: box-shadow 0.2s;
+}
+.calendar-day.calendar-today {
+  border: 2px solid #dc2626;
+  background: #fef2f2;
+  box-shadow: 0 2px 8px 0 rgba(220,38,38,0.08);
+}
+.calendar-day-header {
+  font-family: 'Fraunces', serif;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.calendar-prospect-btn {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: #1e293b;
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+  transition: background 0.2s, border 0.2s;
+}
+.calendar-prospect-btn:hover {
+  background: #fee2e2;
+  border-color: #dc2626;
+}
+@media (max-width: 640px) {
+  #prospecting-calendar-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .calendar-day {
+    min-height: 100px;
+    padding: 0.7rem 0.3rem;
+  }
+}
+@media (max-width: 400px) {
+  #prospecting-calendar-grid {
+    grid-template-columns: 1fr;
+  }
+}

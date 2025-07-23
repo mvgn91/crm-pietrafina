@@ -1370,6 +1370,9 @@ const renderProspectorCards = () => {
     
     addEntryAnimations();
     addHoverEffects();
+
+    // --- Renderizar calendario semanal de reagendados ---
+    renderProspectingCalendar();
 };
 
 /**
@@ -2358,3 +2361,86 @@ function getStatusBadgeColor(status) {
     default: return '#ef4444';
   }
 }
+
+// --- Renderizar calendario semanal de reagendados ---
+function renderProspectingCalendar() {
+    const calendarGrid = document.getElementById('prospecting-calendar-grid');
+    if (!calendarGrid) return;
+    
+    // Limpiar el grid
+    calendarGrid.innerHTML = '';
+
+    // Obtener inicio y fin de la semana actual
+    const today = new Date();
+    const startOfWeek = getStartOfWeek(today);
+    const daysOfWeek = [];
+    for (let i = 0; i < 7; i++) {
+        const day = new Date(startOfWeek);
+        day.setDate(day.getDate() + i);
+        daysOfWeek.push(day);
+    }
+
+    // Filtrar prospectos reagendados para esta semana
+    const weekProspects = allProspects.filter(p =>
+        p.status === 'Seguimiento agendado' && isWithinCurrentWeek(p.reagendadoPara)
+    );
+
+    // Agrupar prospectos por día
+    const prospectsByDay = {};
+    daysOfWeek.forEach(day => {
+        const key = day.toISOString().split('T')[0];
+        prospectsByDay[key] = [];
+    });
+    weekProspects.forEach(p => {
+        const key = p.reagendadoPara;
+        if (prospectsByDay[key]) {
+            prospectsByDay[key].push(p);
+        }
+    });
+
+    // Renderizar cada día
+    daysOfWeek.forEach(day => {
+        const key = day.toISOString().split('T')[0];
+        const isToday = (new Date().toDateString() === day.toDateString());
+        const dayName = day.toLocaleDateString('es-MX', { weekday: 'short' });
+        const dayNum = day.getDate();
+        const prospects = prospectsByDay[key] || [];
+        let html = `<div class="calendar-day${isToday ? ' calendar-today' : ''}">
+            <div class="calendar-day-header font-bold mb-2 flex items-center gap-2">
+                <span>${dayName.charAt(0).toUpperCase() + dayName.slice(1)}</span>
+                <span class="text-xs text-slate-500">${dayNum}</span>
+                ${isToday ? '<span class="ml-2 px-2 py-1 bg-red-600 text-white text-xs rounded">Hoy</span>' : ''}
+            </div>`;
+        if (prospects.length === 0) {
+            html += `<div class="text-slate-400 text-sm">Sin prospectos</div>`;
+        } else {
+            html += '<ul class="space-y-2">';
+            prospects.forEach(p => {
+                html += `<li>
+                    <button class="calendar-prospect-btn w-full text-left bg-white border border-slate-200 rounded px-2 py-1 hover:bg-red-50 transition" data-id="${p.id}">
+                        <span class="font-semibold">${p.businessName}</span><br>
+                        <span class="text-xs text-slate-500">${p.contactPerson || ''}</span>
+                    </button>
+                </li>`;
+            });
+            html += '</ul>';
+        }
+        html += '</div>';
+        calendarGrid.insertAdjacentHTML('beforeend', html);
+    });
+
+    // Listeners para abrir modal de detalles
+    calendarGrid.querySelectorAll('.calendar-prospect-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+            const prospectId = btn.getAttribute('data-id');
+            showProspectDetailsModal(prospectId);
+        });
+    });
+}
+
+// Llamar al renderizado del calendario después de renderProspectorCards
+const originalRenderProspectorCards = renderProspectorCards;
+renderProspectorCards = function() {
+    originalRenderProspectorCards.apply(this, arguments);
+    renderProspectingCalendar();
+};
