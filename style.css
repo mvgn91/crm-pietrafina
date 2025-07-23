@@ -1864,3 +1864,16 @@ h2, h3 {
     grid-template-columns: 1fr;
   }
 }
+
+/* Tarjeta de prospecto reagendado (naranja) */
+.prospect-card.reagendado {
+  border-left: 6px solid #f59e0b;
+  background: #fff7ed;
+}
+.prospect-card .reagendado-label {
+  color: #f59e0b;
+  font-weight: bold;
+  font-size: 0.95rem;
+  margin-bottom: 0.2rem;
+  display: inline-block;
+}

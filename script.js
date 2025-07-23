@@ -2447,3 +2447,117 @@ renderProspectorCards = function() {
     originalRenderProspectorCards.apply(this, arguments);
     renderProspectingCalendar();
 };
+
+// --- Filtros y renderizado mejorado para la sección de prospección ---
+function isBusinessDay(date) {
+    const day = date.getDay();
+    return day !== 0 && day !== 6;
+}
+function getLastNBusinessDays(n) {
+    const days = [];
+    let date = new Date();
+    while (days.length < n) {
+        if (isBusinessDay(date)) {
+            days.push(date.toISOString().split('T')[0]);
+        }
+        date.setDate(date.getDate() - 1);
+    }
+    return days;
+}
+function isContactedThisMonth(prospect) {
+    if (!prospect.followUpNotes || prospect.followUpNotes.length === 0) return false;
+    const now = new Date();
+    const month = now.getMonth();
+    const year = now.getFullYear();
+    return prospect.followUpNotes.some(note => {
+        const noteDate = new Date(note.timestamp);
+        return noteDate.getMonth() === month && noteDate.getFullYear() === year;
+    }) || (prospect.contactResult && new Date(prospect.lastUpdated).getMonth() === month && new Date(prospect.lastUpdated).getFullYear() === year);
+}
+function isRecent(prospect, recentDays) {
+    if (!prospect.createdAt) return false;
+    const lastBusinessDays = getLastNBusinessDays(recentDays);
+    const created = prospect.createdAt.split('T')[0];
+    return lastBusinessDays.includes(created);
+}
+function isReagendado(prospect) {
+    return prospect.status === 'Seguimiento agendado' || !!prospect.reagendadoPara;
+}
+function renderProspectorCards() {
+    // Obtener filtro seleccionado
+    const statusFilter = document.getElementById('prospectorStatusFilter')?.value || 'all';
+    const recentDays = parseInt(document.getElementById('prospectorRecentDays')?.value || '7', 10);
+    let filteredProspects = allProspects.slice();
+    // Filtrar según selección
+    if (statusFilter === 'contactedThisMonth') {
+        filteredProspects = filteredProspects.filter(isContactedThisMonth);
+    } else if (statusFilter === 'recent') {
+        filteredProspects = filteredProspects.filter(p => isRecent(p, recentDays));
+    } else if (statusFilter === 'reagendados') {
+        filteredProspects = filteredProspects.filter(isReagendado);
+    }
+    // Separar reagendados y normales
+    const reagendados = filteredProspects.filter(isReagendado);
+    const normales = filteredProspects.filter(p => !isReagendado(p));
+    // Ordenar por fecha de creación descendente
+    reagendados.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    normales.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    // Renderizar
+    const container = elements.prospectorProspectsCardsContainer;
+    container.innerHTML = '';
+    if (reagendados.length > 0) {
+        container.insertAdjacentHTML('beforeend', '<h4 class="mb-2 mt-2 text-orange-600 font-bold">Reagendados</h4>');
+        reagendados.forEach(prospect => {
+            container.insertAdjacentHTML('beforeend', createProspectCardHTML(prospect, false, false, true));
+        });
+    }
+    if (normales.length > 0) {
+        container.insertAdjacentHTML('beforeend', '<h4 class="mb-2 mt-4 text-slate-700 font-bold">Prospectos</h4>');
+        normales.forEach(prospect => {
+            container.insertAdjacentHTML('beforeend', createProspectCardHTML(prospect, false, false, false));
+        });
+    }
+    if (reagendados.length === 0 && normales.length === 0) {
+        elements.prospectorNoProspectsDiv.classList.remove('hidden');
+    } else {
+        elements.prospectorNoProspectsDiv.classList.add('hidden');
+    }
+    attachProspectorCardEventListeners();
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+    addEntryAnimations();
+    addHoverEffects();
+    renderProspectingCalendar();
+}
+// Modificar createProspectCardHTML para aceptar un cuarto parámetro (isReagendado) y aplicar la clase y etiqueta visual
+const originalCreateProspectCardHTML = createProspectCardHTML;
+createProspectCardHTML = function(prospect, isAdminView = false, isArchiveView = false, isReagendado = false) {
+    let card = originalCreateProspectCardHTML(prospect, isAdminView, isArchiveView);
+    if (isReagendado) {
+        card = card.replace('prospect-card', 'prospect-card reagendado');
+        card = card.replace('<div class="card-header">', '<div class="card-header"><span class="reagendado-label">REAGENDADO</span>');
+    }
+    return card;
+};
+// Mostrar/ocultar input de días recientes según filtro
+const statusFilterEl = document.getElementById('prospectorStatusFilter');
+const recentDaysContainer = document.getElementById('prospectorRecentDateContainer');
+if (statusFilterEl && recentDaysContainer) {
+    statusFilterEl.addEventListener('change', () => {
+        if (statusFilterEl.value === 'recent') {
+            recentDaysContainer.style.display = '';
+        } else {
+            recentDaysContainer.style.display = 'none';
+        }
+        renderProspectorCards();
+    });
+}
+const recentDaysInput = document.getElementById('prospectorRecentDays');
+if (recentDaysInput) {
+    recentDaysInput.addEventListener('input', () => {
+        renderProspectorCards();
+    });
+}
+// Llamar renderProspectorCards al cargar
+renderProspectorCards();
