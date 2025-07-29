@@ -2444,14 +2444,8 @@ function renderProspectingCalendar() {
             showProspectDetailsModal(prospectId);
         });
     });
-}
 
-// Llamar al renderizado del calendario después de renderProspectorCards
-const originalRenderProspectorCards = renderProspectorCards;
-renderProspectorCards = function() {
-    originalRenderProspectorCards.apply(this, arguments);
-    renderProspectingCalendar();
-};
+
 
 // --- Filtros y renderizado mejorado para la sección de prospección ---
 function isBusinessDay(date) {
@@ -2494,7 +2488,6 @@ function isNoContactado(prospect) {
 }
 
 // Rediseño: renderProspectorCards separa reagendados de esta semana y no contactados
-// Rediseño: renderProspectorCards separa reagendados de esta semana y no contactados
 renderProspectorCards = function() {
     // Filtrar datos
     const filteredProspects = allProspects.filter(p => p.assignedTo === currentUserId || p.prospectorId === currentUserId);
@@ -2534,7 +2527,7 @@ renderProspectorCards = function() {
     addEntryAnimations();
     addHoverEffects();
     renderProspectingCalendar();
-// End of renderProspectorCards override
+}
 // Modificar createProspectCardHTML para aceptar un cuarto parámetro (isReagendado) y aplicar la clase y etiqueta visual
 const originalCreateProspectCardHTML = createProspectCardHTML;
 createProspectCardHTML = function(prospect, isAdminView = false, isArchiveView = false, isReagendado = false) {
