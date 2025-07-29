@@ -1456,12 +1456,14 @@ const sendWhatsAppMessage = (prospect) => {
     console.log('📱 Número final para WhatsApp:', cleanPhone);
     console.log('💬 Mensaje a enviar:', message);
 
-    // Detectar si es dispositivo móvil
+    // Usar la misma lógica robusta de detección que whatsapp-massive.js
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isWindows = navigator.platform.indexOf('Win') > -1;
     
     console.log('📱 Es dispositivo móvil:', isMobile);
     console.log('🍎 Es iOS:', isIOS);
+    console.log('💻 Es Windows:', isWindows);
 
     try {
         if (isMobile) {
@@ -1502,22 +1504,69 @@ const sendWhatsAppMessage = (prospect) => {
             // ESTRATEGIA PARA ESCRITORIO: Abrir WhatsApp Web
             console.log('💻 Dispositivo de escritorio detectado - abriendo WhatsApp Web');
             
-            const webWhatsappUrl = `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
-            
-            try {
-                window.open(webWhatsappUrl, '_blank');
-                navigator.clipboard.writeText(message).then(() => {
-                    showToast('Abriendo WhatsApp Web. Mensaje copiado al portapapeles como respaldo.', 'info');
-                }).catch(err => {
-                    console.error('Error al copiar al portapapeles:', err);
-                });
-            } catch (error) {
-                console.error('❌ Error al abrir WhatsApp Web:', error);
-                navigator.clipboard.writeText(message).then(() => {
-                    showToast('Error al abrir WhatsApp Web. Mensaje copiado al portapapeles.', 'error');
-                }).catch(err => {
-                    console.error('Error al copiar al portapapeles:', err);
-                });
+            if (isWindows) {
+                // Para Windows, usar WhatsApp Web directamente
+                const webWhatsappUrl = `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
+                console.log('💻 Windows detectado - usando WhatsApp Web');
+                
+                try {
+                    window.open(webWhatsappUrl, '_blank');
+                    navigator.clipboard.writeText(message).then(() => {
+                        showToast('Abriendo WhatsApp Web. Mensaje copiado al portapapeles como respaldo.', 'info');
+                    }).catch(err => {
+                        console.error('Error al copiar al portapapeles:', err);
+                    });
+                } catch (error) {
+                    console.error('❌ Error al abrir WhatsApp Web:', error);
+                    navigator.clipboard.writeText(message).then(() => {
+                        showToast('Error al abrir WhatsApp Web. Mensaje copiado al portapapeles.', 'error');
+                    }).catch(err => {
+                        console.error('Error al copiar al portapapeles:', err);
+                    });
+                }
+                
+            } else {
+                // Para otros sistemas de escritorio (Mac, Linux)
+                console.log('💻 Otro sistema de escritorio - usando WhatsApp Web');
+                
+                try {
+                    const whatsappUrl = `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
+                    const newWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+                    
+                    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+                        console.log('⚠️ window.open falló, intentando método alternativo');
+                        
+                        // Método alternativo: Crear enlace temporal
+                        const tempLink = document.createElement('a');
+                        tempLink.href = whatsappUrl;
+                        tempLink.target = '_blank';
+                        tempLink.rel = 'noopener noreferrer';
+                        tempLink.style.display = 'none';
+                        
+                        document.body.appendChild(tempLink);
+                        tempLink.click();
+                        
+                        setTimeout(() => {
+                            if (document.body.contains(tempLink)) {
+                                document.body.removeChild(tempLink);
+                            }
+                        }, 1000);
+                    }
+                    
+                    navigator.clipboard.writeText(message).then(() => {
+                        showToast('Abriendo WhatsApp. Mensaje copiado al portapapeles como respaldo.', 'info');
+                    }).catch(err => {
+                        console.error('Error al copiar al portapapeles:', err);
+                    });
+                    
+                } catch (error) {
+                    console.error('❌ Error al abrir WhatsApp:', error);
+                    navigator.clipboard.writeText(message).then(() => {
+                        showToast('Error al abrir WhatsApp. Mensaje copiado al portapapeles.', 'error');
+                    }).catch(err => {
+                        console.error('Error al copiar al portapapeles:', err);
+                    });
+                }
             }
         }
         
