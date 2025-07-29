@@ -2033,7 +2033,7 @@ const showToast = (message, type = 'info', duration = 3000) => {
 
 // --- Gráficos del Dashboard ---
 const updateDashboard = () => {
-    if (currentUserRole !== 'admin') return;
+    // Mostrar dashboard para todos los roles (admin y prospector)
     console.log("Actualizando gráficos del dashboard.");
 
     const statusCounts = {
@@ -2053,6 +2053,11 @@ const updateDashboard = () => {
     if (statusChart) {
         statusChart.destroy();
     }
+    // Fallback colors if CSS variables are missing
+    const getColor = (cssVar, fallback) => {
+        const val = getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim();
+        return val || fallback;
+    };
     statusChart = new Chart(statusCtx, {
         type: 'doughnut',
         data: {
@@ -2060,14 +2065,14 @@ const updateDashboard = () => {
             datasets: [{
                 data: Object.values(statusCounts),
                 backgroundColor: [
-                    getComputedStyle(document.documentElement).getPropertyValue('--gray-900'),
-                    getComputedStyle(document.documentElement).getPropertyValue('--primary-500'),
-                    getComputedStyle(document.documentElement).getPropertyValue('--gray-600'),
-                    getComputedStyle(document.documentElement).getPropertyValue('--success-500'),
-                    getComputedStyle(document.documentElement).getPropertyValue('--warning-500'),
-                    getComputedStyle(document.documentElement).getPropertyValue('--info-500'),
-                    getComputedStyle(document.documentElement).getPropertyValue('--primary-700'),
-                    getComputedStyle(document.documentElement).getPropertyValue('--gray-800'),
+                    getColor('--gray-900', '#1e293b'),
+                    getColor('--primary-500', '#ef4444'),
+                    getColor('--gray-600', '#64748b'),
+                    getColor('--success-500', '#22c55e'),
+                    getColor('--warning-500', '#f59e42'),
+                    getColor('--info-500', '#3b82f6'),
+                    getColor('--primary-700', '#b91c1c'),
+                    getColor('--gray-800', '#334155'),
                 ]
             }]
         },
@@ -2078,11 +2083,11 @@ const updateDashboard = () => {
                 title: {
                     display: true,
                     text: 'Distribución por Estatus',
-                    color: getComputedStyle(document.documentElement).getPropertyValue('--gray-900')
+                    color: getColor('--gray-900', '#1e293b')
                 },
                 legend: {
                     labels: {
-                        color: getComputedStyle(document.documentElement).getPropertyValue('--gray-800')
+                        color: getColor('--gray-800', '#334155')
                     }
                 }
             }
@@ -2113,8 +2118,8 @@ const updateDashboard = () => {
                 backgroundColor: [
                     '#22c55e', // verde para convertido
                     '#16a34a', // verde más oscuro para ya es nuestro cliente
-                    getComputedStyle(document.documentElement).getPropertyValue('--primary-500'),
-                    getComputedStyle(document.documentElement).getPropertyValue('--gray-600')
+                    getColor('--primary-500', '#ef4444'),
+                    getColor('--gray-600', '#64748b')
                 ]
             }]
         },
@@ -2125,11 +2130,11 @@ const updateDashboard = () => {
                 title: {
                     display: true,
                     text: 'Resultados de Prospección',
-                    color: getComputedStyle(document.documentElement).getPropertyValue('--gray-900')
+                    color: getColor('--gray-900', '#1e293b')
                 },
                 legend: {
                     labels: {
-                        color: getComputedStyle(document.documentElement).getPropertyValue('--gray-800')
+                        color: getColor('--gray-800', '#334155')
                     }
                 }
             },
@@ -2137,18 +2142,18 @@ const updateDashboard = () => {
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        color: getComputedStyle(document.documentElement).getPropertyValue('--gray-800')
+                        color: getColor('--gray-800', '#334155')
                     },
                     grid: {
-                        color: getComputedStyle(document.documentElement).getPropertyValue('--gray-200')
+                        color: getColor('--gray-200', '#e5e7eb')
                     }
                 },
                 x: {
                     ticks: {
-                        color: getComputedStyle(document.documentElement).getPropertyValue('--gray-800')
+                        color: getColor('--gray-800', '#334155')
                     },
                     grid: {
-                        color: getComputedStyle(document.documentElement).getPropertyValue('--gray-200')
+                        color: getColor('--gray-200', '#e5e7eb')
                     }
                 }
             }
