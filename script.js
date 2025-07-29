@@ -2368,7 +2368,7 @@ function getStatusBadgeColor(status) {
     case 'Completado': return '#10b981';
     default: return '#ef4444';
   }
-// ...existing code...
+
 
 // --- Renderizar calendario semanal de reagendados ---
 function renderProspectingCalendar() {
@@ -2485,34 +2485,48 @@ function isRecent(prospect, recentDays) {
     const created = prospect.createdAt.split('T')[0];
     return lastBusinessDays.includes(created);
 }
-function isReagendado(prospect) {
-    return prospect.status === 'Seguimiento agendado' || !!prospect.reagendadoPara;
+function isReagendadoEstaSemana(prospect) {
+    return prospect.status === 'Seguimiento agendado' && isWithinCurrentWeek(prospect.reagendadoPara);
 }
-// ...existing code...
-    const normales = filteredProspects.filter(p => !isReagendado(p));
-    // Ordenar por fecha de creación descendente
-    reagendados.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    normales.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    // Renderizar
-    const container = elements.prospectorProspectsCardsContainer;
-    container.innerHTML = '';
-    if (reagendados.length > 0) {
-        container.insertAdjacentHTML('beforeend', '<h4 class="mb-2 mt-2 text-orange-600 font-bold">Reagendados</h4>');
-        reagendados.forEach(prospect => {
-            container.insertAdjacentHTML('beforeend', createProspectCardHTML(prospect, false, false, true));
+function isNoContactado(prospect) {
+    // Considera no contactado si no tiene followUpNotes ni contactResult
+    return (!prospect.followUpNotes || prospect.followUpNotes.length === 0) && !prospect.contactResult;
+}
+
+// Rediseño: renderProspectorCards separa reagendados de esta semana y no contactados
+// Rediseño: renderProspectorCards separa reagendados de esta semana y no contactados
+renderProspectorCards = function() {
+    // Filtrar datos
+    const filteredProspects = allProspects.filter(p => p.assignedTo === currentUserId || p.prospectorId === currentUserId);
+    const reagendadosSemana = filteredProspects.filter(isReagendadoEstaSemana);
+    const noContactados = filteredProspects.filter(isNoContactado);
+
+    // Renderizar reagendados
+    const reagendadosContainer = document.getElementById('prospector-reagendados-cards-container');
+    const noReagendadosDiv = document.getElementById('prospector-no-reagendados');
+    reagendadosContainer.innerHTML = '';
+    if (reagendadosSemana.length > 0) {
+        reagendadosSemana.forEach(prospect => {
+            reagendadosContainer.insertAdjacentHTML('beforeend', createProspectCardHTML(prospect, false, false, true));
         });
-    }
-    if (normales.length > 0) {
-        container.insertAdjacentHTML('beforeend', '<h4 class="mb-2 mt-4 text-slate-700 font-bold">Prospectos</h4>');
-        normales.forEach(prospect => {
-            container.insertAdjacentHTML('beforeend', createProspectCardHTML(prospect, false, false, false));
-        });
-    }
-    if (reagendados.length === 0 && normales.length === 0) {
-        elements.prospectorNoProspectsDiv.classList.remove('hidden');
+        noReagendadosDiv.classList.add('hidden');
     } else {
-        elements.prospectorNoProspectsDiv.classList.add('hidden');
+        noReagendadosDiv.classList.remove('hidden');
     }
+
+    // Renderizar no contactados
+    const nocontactContainer = document.getElementById('prospector-nocontact-cards-container');
+    const noNocontactDiv = document.getElementById('prospector-no-nocontact');
+    nocontactContainer.innerHTML = '';
+    if (noContactados.length > 0) {
+        noContactados.forEach(prospect => {
+            nocontactContainer.insertAdjacentHTML('beforeend', createProspectCardHTML(prospect, false, false, false));
+        });
+        noNocontactDiv.classList.add('hidden');
+    } else {
+        noNocontactDiv.classList.remove('hidden');
+    }
+
     attachProspectorCardEventListeners();
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
@@ -2551,4 +2565,4 @@ if (recentDaysInput) {
     });
 }
 // Llamar renderProspectorCards al cargar
-renderProspectorCards();
+// ...existing code...

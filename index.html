@@ -294,13 +294,22 @@
                             <input type="number" id="prospectorRecentDays" min="1" max="30" value="7" class="mt-1 block w-full border-slate-300 rounded-lg shadow-sm focus:border-slate-800 focus:ring-slate-800 p-2 mobile-btn">
                         </div>
                     </div>
-                    <!-- Cards Container for Prospector -->
-                    <div id="prospector-prospects-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Las tarjetas de prospectos se llenarán con JavaScript -->
+                    <!-- NUEVO: Sección de Reagendados y Prospectos no contactados -->
+                    <div id="prospector-reagendados-section" class="mb-8">
+                        <h4 class="mb-2 mt-2 text-orange-600 font-bold text-lg">Reagendados (Esta Semana)</h4>
+                        <div id="prospector-reagendados-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                        <div id="prospector-no-reagendados" class="text-center py-8 text-slate-400 font-poppins hidden">
+                            <i class="fas fa-calendar-times text-4xl mb-4"></i>
+                            <p>No hay prospectos reagendados para esta semana.</p>
+                        </div>
                     </div>
-                    <div id="prospector-no-prospects" class="text-center py-8 text-slate-400 font-poppins hidden">
-                        <i class="fas fa-inbox text-4xl mb-4"></i>
-                        <p>No hay prospectos disponibles para prospección en este momento.</p>
+                    <div id="prospector-nocontact-section">
+                        <h4 class="mb-2 mt-4 text-slate-700 font-bold text-lg">Prospectos no contactados</h4>
+                        <div id="prospector-nocontact-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                        <div id="prospector-no-nocontact" class="text-center py-8 text-slate-400 font-poppins hidden">
+                            <i class="fas fa-inbox text-4xl mb-4"></i>
+                            <p>No hay prospectos sin contactar en este momento.</p>
+                        </div>
                     </div>
                 </div>
             </section>
