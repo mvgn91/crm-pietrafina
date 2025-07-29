@@ -289,8 +289,9 @@ const elements = {
     followUpNotesInput: document.getElementById('followUpNotes'),
     contactResultSelect: document.getElementById('contactResult'),
     whatsappMessageArea: document.getElementById('whatsappMessageArea'),
-whatsappMessage: document.getElementById('whatsappMessage'),
-whatsappConfirmSendBtn: document.getElementById('whatsappConfirmSendBtn'),
+    whatsappMessage: document.getElementById('whatsappMessage'),
+    whatsappConfirmSendBtn: document.getElementById('whatsappConfirmSendBtn'),
+    whatsappCancelBtn: document.getElementById('whatsappCancelBtn'),
 saveFollowUpBtn: document.getElementById('saveFollowUpBtn'),
     deleteProspectBtn: document.getElementById('deleteProspectBtn'),
     rescheduleActionArea: document.getElementById('reschedule-action-area'),
@@ -1298,6 +1299,15 @@ Me comunico porque creemos que ${businessName} podría beneficiarse enormemente 
             sendWhatsAppMessage(prospect);
         };
     }
+    
+    // Configurar el botón de cancelar
+    if (elements.whatsappCancelBtn) {
+        elements.whatsappCancelBtn.onclick = () => {
+            if (elements.whatsappMessageArea) {
+                elements.whatsappMessageArea.classList.add('hidden');
+            }
+        };
+    }
 };
 
 /**
@@ -1336,44 +1346,73 @@ const sendWhatsAppMessage = (prospect) => {
         cleanPhone = phoneNumber;
     }
 
+    console.log('🚀 Iniciando envío de WhatsApp...');
+    console.log('📱 Número final para WhatsApp:', cleanPhone);
+    console.log('💬 Mensaje a enviar:', message);
+
     // Detectar si es dispositivo móvil
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     
-    let whatsappUrl;
-    
-    if (isMobile) {
-        // Para dispositivos móviles, usar la app nativa de WhatsApp
-        if (isIOS) {
-            // Para iOS, usar whatsapp://send
-            whatsappUrl = `whatsapp://send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
-        } else {
-            // Para Android, usar intent://
-            whatsappUrl = `intent://send/${cleanPhone}#Intent;scheme=smsto;package=com.whatsapp;S.sms_body=${encodeURIComponent(message)};end`;
-        }
-    } else {
-        // Para escritorio, usar WhatsApp Web como fallback
-        whatsappUrl = `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
-    }
-    
-    // Abrir WhatsApp
+    console.log('📱 Es dispositivo móvil:', isMobile);
+    console.log('🍎 Es iOS:', isIOS);
+
     try {
         if (isMobile) {
-            // En móvil, intentar abrir la app nativa
-            window.location.href = whatsappUrl;
+            // ESTRATEGIA PARA MÓVIL: Abrir app nativa de WhatsApp
+            console.log('📱 Dispositivo móvil detectado - abriendo app nativa de WhatsApp');
             
-            // Si después de 2 segundos la página sigue visible, la app no se abrió
+            let mobileUrl = '';
+            if (isIOS) {
+                // Para iOS, usar whatsapp://send
+                mobileUrl = `whatsapp://send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
+                console.log('🍎 iOS detectado - usando whatsapp://send');
+            } else {
+                // Para Android, usar intent:// para abrir la app nativa
+                mobileUrl = `intent://send/${cleanPhone}#Intent;scheme=smsto;package=com.whatsapp;S.sms_body=${encodeURIComponent(message)};end`;
+                console.log('🤖 Android detectado - usando intent:// para app nativa');
+            }
+
+            // Intentar abrir la app nativa
+            window.location.href = mobileUrl;
+            
+            // Esperar un poco para ver si la app se abre
             setTimeout(() => {
+                // Si la página sigue visible, la app no se abrió
                 if (!document.hidden) {
-                    // Fallback: copiar mensaje al portapapeles
+                    console.warn('⚠️ App de WhatsApp no se abrió, intentando fallback');
                     navigator.clipboard.writeText(message).then(() => {
                         showToast('Mensaje copiado al portapapeles. Pégalo en WhatsApp.', 'info');
+                    }).catch(err => {
+                        console.error('Error al copiar al portapapeles:', err);
+                        showToast('Error al copiar mensaje al portapapeles', 'error');
                     });
+                } else {
+                    console.log('✅ App de WhatsApp abierta exitosamente');
                 }
-            }, 2000);
+            }, 1500);
+            
         } else {
-            // En escritorio, abrir WhatsApp Web
-            window.open(whatsappUrl, '_blank');
+            // ESTRATEGIA PARA ESCRITORIO: Abrir WhatsApp Web
+            console.log('💻 Dispositivo de escritorio detectado - abriendo WhatsApp Web');
+            
+            const webWhatsappUrl = `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
+            
+            try {
+                window.open(webWhatsappUrl, '_blank');
+                navigator.clipboard.writeText(message).then(() => {
+                    showToast('Abriendo WhatsApp Web. Mensaje copiado al portapapeles como respaldo.', 'info');
+                }).catch(err => {
+                    console.error('Error al copiar al portapapeles:', err);
+                });
+            } catch (error) {
+                console.error('❌ Error al abrir WhatsApp Web:', error);
+                navigator.clipboard.writeText(message).then(() => {
+                    showToast('Error al abrir WhatsApp Web. Mensaje copiado al portapapeles.', 'error');
+                }).catch(err => {
+                    console.error('Error al copiar al portapapeles:', err);
+                });
+            }
         }
         
         // Ocultar el área de mensaje de WhatsApp
@@ -1382,9 +1421,10 @@ const sendWhatsAppMessage = (prospect) => {
         }
         
         showToast('Abriendo WhatsApp...', 'success');
+        
     } catch (error) {
-        console.error('Error al abrir WhatsApp:', error);
-        showToast('Error al abrir WhatsApp', 'error');
+        console.error('❌ Error al enviar mensaje por WhatsApp:', error);
+        showToast('Error al generar el enlace de WhatsApp', 'error');
     }
 };
 

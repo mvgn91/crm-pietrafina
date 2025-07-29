@@ -519,12 +519,47 @@
                                 <option value="Convertido a cliente">Convertido a cliente</option>
                             </select>
                         </div>
-                        <div id="whatsappMessageArea" style="display: none; margin-top: 10px;">
-                            <label for="whatsappMessage" style="font-weight: 500; color: #166534;">Mensaje para WhatsApp:</label>
-                            <textarea id="whatsappMessage" rows="3" class="form-textarea" style="width: 100%; margin-top: 4px;"></textarea>
-                            <button id="whatsappConfirmSendBtn" type="button" class="action-btn bg-green-600 hover:bg-green-700 text-white" style="margin-top: 6px; float: right;">
-                                <i data-lucide="message-circle" class="w-4 h-4"></i> Enviar mensaje
-                            </button>
+                        <div id="whatsappMessageArea" class="hidden mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                            <div class="mb-4">
+                                <p class="text-sm text-green-800 mb-3">
+                                    <i class="fas fa-lightbulb mr-2"></i>
+                                    <strong>Tip:</strong> El mensaje está personalizado con el nombre del prospecto. 
+                                    Puedes editarlo antes de enviar.
+                                </p>
+                            </div>
+                            
+                            <label for="whatsappMessage" class="form-label mb-2 block">
+                                <i class="fas fa-edit mr-2"></i>
+                                Mensaje personalizado para WhatsApp:
+                            </label>
+                            <textarea 
+                                id="whatsappMessage" 
+                                rows="8" 
+                                class="form-textarea w-full resize-vertical font-mono text-sm"
+                                placeholder="El mensaje se generará automáticamente con los datos del prospecto..."
+                            ></textarea>
+                            
+                            <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                <div class="text-xs text-blue-700">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    <strong>Información:</strong>
+                                </div>
+                                <ul class="text-xs text-blue-600 mt-1 space-y-1">
+                                    <li>• El mensaje se abrirá en la aplicación móvil de WhatsApp</li>
+                                    <li>• El envío se registrará en el sistema para seguimiento</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="mt-4 flex justify-end gap-3">
+                                <button id="whatsappConfirmSendBtn" type="button" class="action-btn bg-green-600 hover:bg-green-700 text-white">
+                                    <i class="fab fa-whatsapp mr-2"></i>
+                                    Enviar por WhatsApp
+                                </button>
+                                <button id="whatsappCancelBtn" type="button" class="action-btn bg-slate-200 hover:bg-slate-300 text-slate-700">
+                                    <i class="fas fa-times mr-2"></i>
+                                    Cancelar
+                                </button>
+                            </div>
                         </div>
                         <button id="saveFollowUpBtn" class="action-btn bg-slate-800 hover:bg-slate-900 text-white w-full">
                             <i data-lucide="save" class="w-4 h-4"></i> Guardar Seguimiento
