@@ -268,9 +268,69 @@
                     </div>
                 </div>
 
+                <!-- Calendario Semanal de Prospección -->
+                <div class="mb-8 p-6 bg-slate-50 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 class="text-2xl font-fraunces text-slate-700 mb-4">Calendario Semanal de Seguimientos</h3>
+                    <div class="mb-4 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <button id="prev-week-btn" class="p-2 bg-slate-200 hover:bg-slate-300 rounded-lg transition-colors">
+                                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                            </button>
+                            <h4 id="current-week-display" class="text-lg font-poppins font-semibold text-slate-700"></h4>
+                            <button id="next-week-btn" class="p-2 bg-slate-200 hover:bg-slate-300 rounded-lg transition-colors">
+                                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                        <button id="today-btn" class="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-900 transition-colors font-poppins text-sm">
+                            Hoy
+                        </button>
+                    </div>
+                    
+                    <!-- Calendario semanal -->
+                    <div id="weekly-calendar" class="grid grid-cols-7 gap-2 mb-6">
+                        <!-- Los días se generarán dinámicamente -->
+                    </div>
+                    
+                    <!-- Resumen de la semana -->
+                    <div id="week-summary" class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm font-poppins">
+                        <div class="bg-white p-3 rounded-lg border border-slate-200">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="calendar" class="w-4 h-4 text-blue-600"></i>
+                                <span class="font-medium">Total Seguimientos</span>
+                            </div>
+                            <div id="total-followups" class="text-2xl font-bold text-slate-800 mt-1">0</div>
+                        </div>
+                        <div class="bg-white p-3 rounded-lg border border-slate-200">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="clock" class="w-4 h-4 text-orange-600"></i>
+                                <span class="font-medium">Pendientes Hoy</span>
+                            </div>
+                            <div id="pending-today" class="text-2xl font-bold text-orange-600 mt-1">0</div>
+                        </div>
+                        <div class="bg-white p-3 rounded-lg border border-slate-200">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
+                                <span class="font-medium">Completados</span>
+                            </div>
+                            <div id="completed-week" class="text-2xl font-bold text-green-600 mt-1">0</div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Prospectos disponibles para prospección (Ahora en tarjetas) -->
                 <div class="mb-8 p-6 bg-slate-50 rounded-xl border border-slate-200 shadow-sm">
-                    <h3 class="text-2xl font-fraunces text-slate-700 mb-4">Mis Prospectos Asignados</h3>
+                    <div class="flex flex-col sm:flex-row justify-between items-center mb-4">
+                        <h3 class="text-2xl font-fraunces text-slate-700">Mis Prospectos Asignados</h3>
+                        <div class="flex items-center gap-2 mt-2 sm:mt-0">
+                            <span id="filter-indicator" class="text-sm text-slate-600 font-poppins hidden">
+                                <i data-lucide="filter" class="w-4 h-4 inline mr-1"></i>
+                                Filtrado por fecha seleccionada
+                            </span>
+                            <button id="clear-filter-btn" class="px-3 py-1 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors text-sm font-poppins hidden">
+                                Limpiar filtro
+                            </button>
+                        </div>
+                    </div>
                     <!-- Cards Container for Prospector -->
                     <div id="prospector-prospects-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <!-- Las tarjetas de prospectos se llenarán con JavaScript -->

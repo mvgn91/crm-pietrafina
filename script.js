@@ -44,6 +44,11 @@ let allProspects = []; // Almacena todos los prospectos traídos de Firestore
 let statusChart = null; // Instancia del gráfico de estatus
 let conversionChart = null; // Instancia del gráfico de conversión
 
+// Variables para el calendario semanal
+let currentWeekStart = null;
+let selectedCalendarDate = null;
+let filteredProspects = [];
+
 // Usuarios de demostración para pruebas (estructura simplificada)
 const DEMO_USERS = {
     'admin@demo.com': { role: 'admin', name: 'MVGN Admin', uid: 'demo-admin-uid' },
@@ -315,6 +320,18 @@ saveFollowUpBtn: document.getElementById('saveFollowUpBtn'),
     interesadoCount: document.getElementById('interesadoCount'),
     conversionRate: document.getElementById('conversionRate'),
     dailyNotificationContainer: document.getElementById('daily-notification-container'),
+    
+    // Elementos del calendario semanal
+    weeklyCalendar: document.getElementById('weekly-calendar'),
+    currentWeekDisplay: document.getElementById('current-week-display'),
+    prevWeekBtn: document.getElementById('prev-week-btn'),
+    nextWeekBtn: document.getElementById('next-week-btn'),
+    todayBtn: document.getElementById('today-btn'),
+    totalFollowups: document.getElementById('total-followups'),
+    pendingToday: document.getElementById('pending-today'),
+    completedWeek: document.getElementById('completed-week'),
+    filterIndicator: document.getElementById('filter-indicator'),
+    clearFilterBtn: document.getElementById('clear-filter-btn'),
 };
 
 // --- Funciones de control de carga (para botones) ---
@@ -665,6 +682,11 @@ const loadProspects = () => {
             renderArchiveCards();
             updateProspectingResultsSummary();
             updateDashboard();
+            
+            // Actualizar calendario si está en la pantalla de prospección
+            if (currentUserRole === 'prospector' || currentUserRole === 'admin') {
+                renderProspectingCalendar();
+            }
         }, (error) => {
             console.error("Error al escuchar prospectos:", error);
             showToast('Error al cargar prospectos', 'error');
@@ -686,11 +708,14 @@ const renderProspectorCards = () => {
     if (currentUserRole !== 'prospector' && currentUserRole !== 'admin') return;
     console.log("Renderizando Tarjetas de Prospector.");
 
+    // Si hay prospectos filtrados por fecha del calendario, usar esos
+    let prospectsToRender = filteredProspects.length > 0 ? filteredProspects : allProspects;
+
     const today = new Date();
     const startOfWeek = getStartOfWeek(today).toISOString().split('T')[0];
     const endOfWeek = getEndOfWeek(today).toISOString().split('T')[0];
 
-    const assignedProspects = allProspects.filter(p => {
+    const assignedProspects = prospectsToRender.filter(p => {
         const isAssignedToCurrentUser = p.assignedTo === currentUserId;
         const isNicolasOrFrancisco = currentUserId === NICOLAS_UID || currentUserId === FRANCISCO_UID;
         
@@ -1062,6 +1087,11 @@ const updateProspectStatus = async (prospectId, newStatus) => {
 
         await updateDoc(prospectRef, updateData);
         showToast(`Estado del prospecto actualizado a "${newStatus}"`, 'success');
+        
+        // Actualizar calendario si está en la pantalla de prospección
+        if (currentUserRole === 'prospector' || currentUserRole === 'admin') {
+            renderProspectingCalendar();
+        }
     }
     catch (e) {
         console.error("Error al actualizar documento:", e);
@@ -1361,9 +1391,225 @@ const addEntryAnimations = () => {
     });
 };
 
+// --- Funciones del Calendario Semanal ---
+
+/**
+ * Inicializa el calendario semanal
+ */
+const initWeeklyCalendar = () => {
+    if (!elements.weeklyCalendar) return;
+    
+    // Inicializar con la semana actual
+    currentWeekStart = getStartOfWeek(new Date());
+    selectedCalendarDate = new Date().toISOString().split('T')[0];
+    
+    // Renderizar calendario
+    renderWeeklyCalendar();
+    
+    // Agregar event listeners
+    if (elements.prevWeekBtn) {
+        elements.prevWeekBtn.addEventListener('click', () => {
+            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+            renderWeeklyCalendar();
+        });
+    }
+    
+    if (elements.nextWeekBtn) {
+        elements.nextWeekBtn.addEventListener('click', () => {
+            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+            renderWeeklyCalendar();
+        });
+    }
+    
+    if (elements.todayBtn) {
+        elements.todayBtn.addEventListener('click', () => {
+            currentWeekStart = getStartOfWeek(new Date());
+            selectedCalendarDate = new Date().toISOString().split('T')[0];
+            renderWeeklyCalendar();
+            clearDateFilter();
+        });
+    }
+    
+    if (elements.clearFilterBtn) {
+        elements.clearFilterBtn.addEventListener('click', clearDateFilter);
+    }
+};
+
+/**
+ * Renderiza el calendario semanal
+ */
+const renderWeeklyCalendar = () => {
+    if (!elements.weeklyCalendar) return;
+    
+    const weekDays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Actualizar display de la semana
+    if (elements.currentWeekDisplay) {
+        const endOfWeek = new Date(currentWeekStart);
+        endOfWeek.setDate(currentWeekStart.getDate() + 6);
+        elements.currentWeekDisplay.textContent = `${formatDate(currentWeekStart.toISOString().split('T')[0])} - ${formatDate(endOfWeek.toISOString().split('T')[0])}`;
+    }
+    
+    // Limpiar calendario
+    elements.weeklyCalendar.innerHTML = '';
+    
+    // Generar días de la semana
+    for (let i = 0; i < 7; i++) {
+        const currentDate = new Date(currentWeekStart);
+        currentDate.setDate(currentWeekStart.getDate() + i);
+        const dateString = currentDate.toISOString().split('T')[0];
+        const dayOfWeek = currentDate.getDay();
+        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+        const isToday = dateString === today;
+        const isSelected = dateString === selectedCalendarDate;
+        
+        // Contar prospectos para este día
+        const dayProspects = getProspectsForDate(dateString);
+        const hasFollowups = dayProspects.length > 0;
+        
+        const dayElement = document.createElement('div');
+        dayElement.className = `weekly-calendar-day ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''} ${hasFollowups ? 'has-followups' : ''} ${isWeekend ? 'weekend' : ''}`;
+        dayElement.dataset.date = dateString;
+        
+        dayElement.innerHTML = `
+            <div class="day-name">${weekDays[i]}</div>
+            <div class="day-number">${currentDate.getDate()}</div>
+            <div class="day-date">${formatDate(dateString)}</div>
+            ${hasFollowups ? `<div class="followup-count">${dayProspects.length}</div>` : ''}
+            ${hasFollowups ? '<div class="followup-indicator"></div>' : ''}
+        `;
+        
+        // Event listener para seleccionar día
+        dayElement.addEventListener('click', () => {
+            selectCalendarDate(dateString);
+        });
+        
+        elements.weeklyCalendar.appendChild(dayElement);
+    }
+    
+    // Actualizar resumen de la semana
+    updateWeekSummary();
+};
+
+/**
+ * Obtiene los prospectos para una fecha específica
+ */
+const getProspectsForDate = (dateString) => {
+    return allProspects.filter(prospect => {
+        const effectiveDate = prospect.reagendadoPara || prospect.prospectingDueDate;
+        return effectiveDate === dateString && prospect.status === 'Seguimiento agendado';
+    });
+};
+
+/**
+ * Selecciona una fecha en el calendario y filtra los prospectos
+ */
+const selectCalendarDate = (dateString) => {
+    selectedCalendarDate = dateString;
+    
+    // Actualizar visual del calendario
+    const dayElements = elements.weeklyCalendar.querySelectorAll('.weekly-calendar-day');
+    dayElements.forEach(el => {
+        el.classList.remove('selected');
+        if (el.dataset.date === dateString) {
+            el.classList.add('selected');
+        }
+    });
+    
+    // Filtrar prospectos
+    filterProspectsByDate(dateString);
+    
+    // Mostrar indicador de filtro
+    if (elements.filterIndicator) {
+        elements.filterIndicator.classList.remove('hidden');
+    }
+    if (elements.clearFilterBtn) {
+        elements.clearFilterBtn.classList.remove('hidden');
+    }
+};
+
+/**
+ * Filtra los prospectos por fecha seleccionada
+ */
+const filterProspectsByDate = (dateString) => {
+    filteredProspects = allProspects.filter(prospect => {
+        const effectiveDate = prospect.reagendadoPara || prospect.prospectingDueDate;
+        return effectiveDate === dateString && prospect.status === 'Seguimiento agendado';
+    });
+    
+    // Renderizar prospectos filtrados
+    renderProspectorCards();
+};
+
+/**
+ * Limpia el filtro de fecha
+ */
+const clearDateFilter = () => {
+    selectedCalendarDate = null;
+    filteredProspects = [];
+    
+    // Actualizar visual del calendario
+    const dayElements = elements.weeklyCalendar.querySelectorAll('.weekly-calendar-day');
+    dayElements.forEach(el => el.classList.remove('selected'));
+    
+    // Ocultar indicadores de filtro
+    if (elements.filterIndicator) {
+        elements.filterIndicator.classList.add('hidden');
+    }
+    if (elements.clearFilterBtn) {
+        elements.clearFilterBtn.classList.add('hidden');
+    }
+    
+    // Renderizar todos los prospectos
+    renderProspectorCards();
+};
+
+/**
+ * Actualiza el resumen de la semana
+ */
+const updateWeekSummary = () => {
+    const today = new Date().toISOString().split('T')[0];
+    const weekEnd = new Date(currentWeekStart);
+    weekEnd.setDate(currentWeekStart.getDate() + 6);
+    const weekEndString = weekEnd.toISOString().split('T')[0];
+    
+    // Total de seguimientos en la semana
+    const totalFollowups = allProspects.filter(prospect => {
+        const effectiveDate = prospect.reagendadoPara || prospect.prospectingDueDate;
+        return effectiveDate >= currentWeekStart.toISOString().split('T')[0] && 
+               effectiveDate <= weekEndString && 
+               prospect.status === 'Seguimiento agendado';
+    }).length;
+    
+    // Pendientes hoy
+    const pendingToday = getProspectsForDate(today).length;
+    
+    // Completados en la semana (prospectos que cambiaron de estado)
+    const completedWeek = allProspects.filter(prospect => {
+        const effectiveDate = prospect.reagendadoPara || prospect.prospectingDueDate;
+        return effectiveDate >= currentWeekStart.toISOString().split('T')[0] && 
+               effectiveDate <= weekEndString && 
+               prospect.status !== 'Seguimiento agendado' &&
+               (prospect.status === 'Interesado' || prospect.status === 'Completado' || 
+                prospect.status === 'Ya es nuestro cliente' || prospect.status === 'Convertido a cliente');
+    }).length;
+    
+    // Actualizar elementos
+    if (elements.totalFollowups) {
+        elements.totalFollowups.textContent = totalFollowups;
+    }
+    if (elements.pendingToday) {
+        elements.pendingToday.textContent = pendingToday;
+    }
+    if (elements.completedWeek) {
+        elements.completedWeek.textContent = completedWeek;
+    }
+};
+
 const renderProspectingCalendar = () => {
     console.log("Renderizando calendario de prospección");
-    // Placeholder para calendario semanal
+    initWeeklyCalendar();
 };
 
 // --- Funciones del Formulario de Agregar Prospectos ---
@@ -1581,6 +1827,159 @@ document.addEventListener('DOMContentLoaded', () => {
     initFollowUpEventListeners();
     // Puedes agregar aquí otras inicializaciones si agregas más módulos
 });
+
+/**
+ * Inicializa los event listeners para el seguimiento y reagendamiento
+ */
+const initFollowUpEventListeners = () => {
+    // Event listener para el botón de reagendar
+    if (elements.rescheduleFollowUpBtn) {
+        elements.rescheduleFollowUpBtn.addEventListener('click', () => {
+            if (currentProspectIdForModal) {
+                showRescheduleModal();
+            }
+        });
+    }
+    
+    // Event listener para confirmar reagendamiento
+    if (elements.rescheduleConfirmBtn) {
+        elements.rescheduleConfirmBtn.addEventListener('click', async () => {
+            await handleRescheduleConfirm();
+        });
+    }
+    
+    // Event listener para cancelar reagendamiento
+    if (elements.rescheduleCancelBtn) {
+        elements.rescheduleCancelBtn.addEventListener('click', () => {
+            hideRescheduleModal();
+        });
+    }
+    
+    // Event listener para el botón de guardar seguimiento
+    if (elements.saveFollowUpBtn) {
+        elements.saveFollowUpBtn.addEventListener('click', async () => {
+            await handleSaveFollowUp();
+        });
+    }
+};
+
+/**
+ * Muestra el modal de reagendamiento
+ */
+const showRescheduleModal = () => {
+    if (elements.rescheduleModal) {
+        elements.rescheduleModal.classList.remove('hidden');
+        
+        // Inicializar Flatpickr para el selector de fecha
+        if (elements.rescheduleDateInput && typeof flatpickr !== 'undefined') {
+            flatpickr(elements.rescheduleDateInput, {
+                dateFormat: 'Y-m-d',
+                minDate: new Date(),
+                locale: 'es',
+                allowInput: false
+            });
+        }
+    }
+};
+
+/**
+ * Oculta el modal de reagendamiento
+ */
+const hideRescheduleModal = () => {
+    if (elements.rescheduleModal) {
+        elements.rescheduleModal.classList.add('hidden');
+    }
+};
+
+/**
+ * Maneja la confirmación del reagendamiento
+ */
+const handleRescheduleConfirm = async () => {
+    if (!currentProspectIdForModal) {
+        showToast('No hay prospecto seleccionado', 'error');
+        return;
+    }
+    
+    const selectedDate = elements.rescheduleDateInput?.value;
+    if (!selectedDate) {
+        showToast('Por favor selecciona una fecha', 'error');
+        return;
+    }
+    
+    try {
+        const prospectRef = doc(db, 'prospects', currentProspectIdForModal);
+        await updateDoc(prospectRef, {
+            reagendadoPara: selectedDate,
+            status: 'Seguimiento agendado',
+            lastUpdated: new Date().toISOString().split('T')[0]
+        });
+        
+        showToast('Seguimiento reagendado exitosamente', 'success');
+        hideRescheduleModal();
+        
+        // Actualizar calendario si está en la pantalla de prospección
+        if (currentUserRole === 'prospector' || currentUserRole === 'admin') {
+            renderProspectingCalendar();
+        }
+        
+    } catch (error) {
+        console.error('Error al reagendar:', error);
+        showToast('Error al reagendar: ' + error.message, 'error');
+    }
+};
+
+/**
+ * Maneja el guardado del seguimiento
+ */
+const handleSaveFollowUp = async () => {
+    if (!currentProspectIdForModal) {
+        showToast('No hay prospecto seleccionado', 'error');
+        return;
+    }
+    
+    const followUpNotes = elements.followUpNotes?.value?.trim();
+    const contactResult = elements.contactResult?.value;
+    
+    if (!contactResult) {
+        showToast('Por favor selecciona un resultado del contacto', 'error');
+        return;
+    }
+    
+    try {
+        const prospectRef = doc(db, 'prospects', currentProspectIdForModal);
+        const updateData = {
+            status: contactResult,
+            lastUpdated: new Date().toISOString().split('T')[0]
+        };
+        
+        if (followUpNotes) {
+            updateData.followUpNotes = followUpNotes;
+        }
+        
+        // Si el resultado es "Seguimiento agendado", mantener la fecha de reagendamiento
+        if (contactResult !== 'Seguimiento agendado') {
+            updateData.reagendadoPara = null;
+        }
+        
+        await updateDoc(prospectRef, updateData);
+        
+        showToast('Seguimiento guardado exitosamente', 'success');
+        
+        // Cerrar modal de detalles
+        if (elements.detailModal) {
+            elements.detailModal.classList.add('hidden');
+        }
+        
+        // Actualizar calendario si está en la pantalla de prospección
+        if (currentUserRole === 'prospector' || currentUserRole === 'admin') {
+            renderProspectingCalendar();
+        }
+        
+    } catch (error) {
+        console.error('Error al guardar seguimiento:', error);
+        showToast('Error al guardar seguimiento: ' + error.message, 'error');
+    }
+};
 
 /**
  * Muestra el modal de edición de prospecto y llena los campos

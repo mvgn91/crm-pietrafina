@@ -1798,6 +1798,98 @@ h2, h3 {
   animation: modalSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* Estilos para el calendario semanal */
+.weekly-calendar-day {
+    @apply bg-white border border-slate-200 rounded-lg p-3 cursor-pointer transition-all duration-200 hover:shadow-md;
+    min-height: 80px;
+    position: relative;
+}
+
+.weekly-calendar-day:hover {
+    @apply border-slate-300 shadow-md;
+}
+
+.weekly-calendar-day.today {
+    @apply border-blue-500 bg-blue-50;
+}
+
+.weekly-calendar-day.selected {
+    @apply border-slate-800 bg-slate-100;
+}
+
+.weekly-calendar-day.has-followups {
+    @apply border-orange-400 bg-orange-50;
+}
+
+.weekly-calendar-day.has-followups:hover {
+    @apply border-orange-500 bg-orange-100;
+}
+
+.weekly-calendar-day.weekend {
+    @apply bg-slate-50;
+}
+
+.weekly-calendar-day .day-number {
+    @apply text-lg font-bold text-slate-800 mb-1;
+}
+
+.weekly-calendar-day .day-name {
+    @apply text-xs text-slate-600 mb-2 font-medium;
+}
+
+.weekly-calendar-day .followup-count {
+    @apply absolute top-2 right-2 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center;
+}
+
+.weekly-calendar-day .followup-indicator {
+    @apply absolute bottom-2 left-2 right-2 h-1 bg-orange-400 rounded-full;
+}
+
+.weekly-calendar-day.has-followups .followup-indicator {
+    @apply bg-orange-500;
+}
+
+.weekly-calendar-day .day-date {
+    @apply text-xs text-slate-500;
+}
+
+/* Animaciones para el calendario */
+@keyframes calendarDayPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.weekly-calendar-day.has-followups {
+    animation: calendarDayPulse 2s ease-in-out infinite;
+}
+
+.weekly-calendar-day.has-followups:hover {
+    animation: none;
+}
+
+/* Responsive para el calendario */
+@media (max-width: 768px) {
+    .weekly-calendar-day {
+        min-height: 60px;
+        padding: 0.5rem;
+    }
+    
+    .weekly-calendar-day .day-number {
+        font-size: 0.875rem;
+    }
+    
+    .weekly-calendar-day .day-name {
+        font-size: 0.75rem;
+    }
+    
+    .weekly-calendar-day .followup-count {
+        width: 1rem;
+        height: 1rem;
+        font-size: 0.625rem;
+    }
+}
+
 @keyframes modalSlideUp {
   from {
     opacity: 0;
