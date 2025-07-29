@@ -1966,9 +1966,9 @@ h2, h3 {
 .prospect-bell-badge {
     @apply absolute text-white font-bold flex items-center justify-center;
     background: linear-gradient(135deg, #FBC02D 0%, #FFC107 100%);
-    width: 24px;
-    height: 24px;
-    border-radius: 12px;
+    width: 28px;
+    height: 28px;
+    border-radius: 14px;
     box-shadow: 0 2px 6px rgba(251, 192, 45, 0.3);
     border: 2px solid #ffffff;
     top: 8px;
@@ -2311,8 +2311,8 @@ h2, h3 {
     }
     
     .prospect-bell-badge {
-        width: 20px;
-        height: 20px;
+        width: 24px;
+        height: 24px;
         top: 6px;
         right: 6px;
         border-width: 2px;
@@ -2335,8 +2335,8 @@ h2, h3 {
     }
     
     .prospect-bell-badge {
-        width: 18px;
-        height: 18px;
+        width: 22px;
+        height: 22px;
         top: 4px;
         right: 4px;
         border-width: 1px;
