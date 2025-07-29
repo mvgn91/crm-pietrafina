@@ -2363,7 +2363,7 @@ function getStatusBadgeColor(status) {
     case 'Completado': return '#10b981';
     default: return '#ef4444';
   }
-}
+// ...existing code...
 
 // --- Renderizar calendario semanal de reagendados ---
 function renderProspectingCalendar() {
