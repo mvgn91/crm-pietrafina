@@ -1264,7 +1264,7 @@ const showWhatsAppModal = (prospectId) => {
         return;
     }
 
-    // Generar mensaje de WhatsApp personalizado
+    // Llenar el área de mensaje de WhatsApp con el mensaje personalizado
     const businessName = prospect.businessName || 'su empresa';
     const contactPerson = prospect.contactPerson ? `, ${prospect.contactPerson}` : '';
     
@@ -1281,6 +1281,35 @@ Me comunico porque creemos que ${businessName} podría beneficiarse enormemente 
 *PIETRAFINA - Pisos de Piedra Natural*
 📱 WhatsApp: +52 442 123 4567
 🌐 www.pietrafina.com`;
+
+    // Mostrar el área de mensaje de WhatsApp
+    if (elements.whatsappMessageArea) {
+        elements.whatsappMessageArea.classList.remove('hidden');
+    }
+    
+    // Llenar el textarea con el mensaje
+    if (elements.whatsappMessage) {
+        elements.whatsappMessage.value = whatsappMessage;
+    }
+    
+    // Configurar el botón de confirmar envío
+    if (elements.whatsappConfirmSendBtn) {
+        elements.whatsappConfirmSendBtn.onclick = () => {
+            sendWhatsAppMessage(prospect);
+        };
+    }
+};
+
+/**
+ * Envía el mensaje de WhatsApp usando la app nativa
+ */
+const sendWhatsAppMessage = (prospect) => {
+    const message = elements.whatsappMessage?.value?.trim();
+    
+    if (!message) {
+        showToast('El mensaje no puede estar vacío', 'error');
+        return;
+    }
 
     // Limpiar y formatear número de teléfono
     const phoneNumber = prospect.phone.replace(/\D/g, '');
@@ -1317,14 +1346,14 @@ Me comunico porque creemos que ${businessName} podría beneficiarse enormemente 
         // Para dispositivos móviles, usar la app nativa de WhatsApp
         if (isIOS) {
             // Para iOS, usar whatsapp://send
-            whatsappUrl = `whatsapp://send?phone=${cleanPhone}&text=${encodeURIComponent(whatsappMessage)}`;
+            whatsappUrl = `whatsapp://send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
         } else {
             // Para Android, usar intent://
-            whatsappUrl = `intent://send/${cleanPhone}#Intent;scheme=smsto;package=com.whatsapp;S.sms_body=${encodeURIComponent(whatsappMessage)};end`;
+            whatsappUrl = `intent://send/${cleanPhone}#Intent;scheme=smsto;package=com.whatsapp;S.sms_body=${encodeURIComponent(message)};end`;
         }
     } else {
         // Para escritorio, usar WhatsApp Web como fallback
-        whatsappUrl = `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(whatsappMessage)}`;
+        whatsappUrl = `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
     }
     
     // Abrir WhatsApp
@@ -1337,7 +1366,7 @@ Me comunico porque creemos que ${businessName} podría beneficiarse enormemente 
             setTimeout(() => {
                 if (!document.hidden) {
                     // Fallback: copiar mensaje al portapapeles
-                    navigator.clipboard.writeText(whatsappMessage).then(() => {
+                    navigator.clipboard.writeText(message).then(() => {
                         showToast('Mensaje copiado al portapapeles. Pégalo en WhatsApp.', 'info');
                     });
                 }
@@ -1345,6 +1374,11 @@ Me comunico porque creemos que ${businessName} podría beneficiarse enormemente 
         } else {
             // En escritorio, abrir WhatsApp Web
             window.open(whatsappUrl, '_blank');
+        }
+        
+        // Ocultar el área de mensaje de WhatsApp
+        if (elements.whatsappMessageArea) {
+            elements.whatsappMessageArea.classList.add('hidden');
         }
         
         showToast('Abriendo WhatsApp...', 'success');
