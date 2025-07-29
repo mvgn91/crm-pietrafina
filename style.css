@@ -1800,57 +1800,106 @@ h2, h3 {
 
 /* Estilos para el calendario semanal */
 .weekly-calendar-day {
-    @apply bg-white border border-slate-200 rounded-lg p-3 cursor-pointer transition-all duration-200 hover:shadow-md;
-    min-height: 80px;
+    @apply bg-white border border-slate-200 rounded-xl p-4 cursor-pointer transition-all duration-300 hover:shadow-lg;
+    min-height: 90px;
     position: relative;
+    background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%);
+    border: 2px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .weekly-calendar-day:hover {
-    @apply border-slate-300 shadow-md;
+    @apply border-red-300 shadow-xl;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(220, 38, 38, 0.15);
 }
 
 .weekly-calendar-day.today {
-    @apply border-blue-500 bg-blue-50;
+    @apply border-red-500;
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2);
+    border: 2px solid #ef4444;
 }
 
 .weekly-calendar-day.selected {
-    @apply border-slate-800 bg-slate-100;
+    @apply border-red-700;
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.25);
+    border: 2px solid #dc2626;
 }
 
 .weekly-calendar-day.has-followups {
-    @apply border-orange-400 bg-orange-50;
+    @apply border-orange-400;
+    background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.2);
+    border: 2px solid #fb923c;
 }
 
 .weekly-calendar-day.has-followups:hover {
-    @apply border-orange-500 bg-orange-100;
+    @apply border-orange-500;
+    background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+    box-shadow: 0 8px 25px rgba(249, 115, 22, 0.3);
+    transform: translateY(-3px);
 }
 
 .weekly-calendar-day.weekend {
-    @apply bg-slate-50;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 2px solid #cbd5e1;
 }
 
 .weekly-calendar-day .day-number {
-    @apply text-lg font-bold text-slate-800 mb-1;
+    @apply text-2xl font-bold mb-2;
+    color: #dc2626 !important;
+    text-shadow: 0 1px 2px rgba(220, 38, 38, 0.1);
+    font-family: 'Fraunces', serif;
+}
+
+.weekly-calendar-day.today .day-number {
+    color: #dc2626 !important;
+    text-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);
+}
+
+.weekly-calendar-day.selected .day-number {
+    color: #dc2626 !important;
+    text-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+}
+
+.weekly-calendar-day.has-followups .day-number {
+    color: #dc2626 !important;
+    text-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);
 }
 
 .weekly-calendar-day .day-name {
-    @apply text-xs text-slate-600 mb-2 font-medium;
+    @apply text-sm text-slate-600 mb-3 font-semibold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: 'Poppins', sans-serif;
 }
 
 .weekly-calendar-day .followup-count {
-    @apply absolute top-2 right-2 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center;
+    @apply absolute top-3 right-3 text-white text-sm font-bold rounded-full flex items-center justify-center;
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    width: 28px;
+    height: 28px;
+    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+    border: 2px solid #ffffff;
 }
 
 .weekly-calendar-day .followup-indicator {
-    @apply absolute bottom-2 left-2 right-2 h-1 bg-orange-400 rounded-full;
+    @apply absolute bottom-3 left-3 right-3 h-2 rounded-full;
+    background: linear-gradient(90deg, #f97316 0%, #ea580c 100%);
+    box-shadow: 0 1px 3px rgba(249, 115, 22, 0.3);
 }
 
 .weekly-calendar-day.has-followups .followup-indicator {
-    @apply bg-orange-500;
+    background: linear-gradient(90deg, #ea580c 0%, #dc2626 100%);
+    box-shadow: 0 2px 6px rgba(249, 115, 22, 0.4);
 }
 
 .weekly-calendar-day .day-date {
-    @apply text-xs text-slate-500;
+    @apply text-xs text-slate-500 font-medium;
+    font-family: 'Poppins', sans-serif;
+    margin-top: 4px;
 }
 
 /* Animaciones para el calendario */
@@ -1868,15 +1917,105 @@ h2, h3 {
     animation: none;
 }
 
+/* Estilos para los botones de navegación del calendario */
+#prev-week-btn, #next-week-btn {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    border: 2px solid #cbd5e1;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#prev-week-btn:hover, #next-week-btn:hover {
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+    border-color: #94a3b8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+#today-btn {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+    border: 2px solid #dc2626;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+    font-weight: 600;
+}
+
+#today-btn:hover {
+    background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+}
+
+/* Estilos para el display de la semana actual */
+#current-week-display {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    padding: 8px 16px;
+    border-radius: 12px;
+    border: 2px solid #fecaca;
+    color: #dc2626 !important;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.1);
+}
+
+/* Estilos para el resumen de la semana */
+#week-summary .bg-white {
+    background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%) !important;
+    border: 2px solid #fecaca;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+#week-summary .bg-white:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.1);
+    border-color: #fca5a5;
+}
+
+/* Estilos para el contenedor del calendario */
+#weekly-calendar {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    padding: 20px;
+    border-radius: 16px;
+    border: 2px solid #fecaca;
+    box-shadow: 0 4px 20px rgba(220, 38, 38, 0.1);
+}
+
+/* Estilos para el indicador de filtro */
+#filter-indicator {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 2px solid #fecaca;
+    color: #dc2626 !important;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.1);
+}
+
+#clear-filter-btn {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%) !important;
+    border: 2px solid #cbd5e1;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+}
+
+#clear-filter-btn:hover {
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%) !important;
+    border-color: #94a3b8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
 /* Responsive para el calendario */
 @media (max-width: 768px) {
     .weekly-calendar-day {
-        min-height: 60px;
-        padding: 0.5rem;
+        min-height: 70px;
+        padding: 0.75rem;
     }
     
     .weekly-calendar-day .day-number {
-        font-size: 0.875rem;
+        font-size: 1.25rem;
     }
     
     .weekly-calendar-day .day-name {
@@ -1884,9 +2023,18 @@ h2, h3 {
     }
     
     .weekly-calendar-day .followup-count {
-        width: 1rem;
-        height: 1rem;
-        font-size: 0.625rem;
+        width: 1.5rem;
+        height: 1.5rem;
+        font-size: 0.75rem;
+    }
+    
+    #weekly-calendar {
+        padding: 15px;
+    }
+    
+    #current-week-display {
+        padding: 6px 12px;
+        font-size: 0.875rem;
     }
 }
 
