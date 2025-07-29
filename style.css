@@ -1798,219 +1798,103 @@ h2, h3 {
   animation: modalSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Estilos para el calendario semanal - VERSIÓN PRO */
+/* Estilos para el calendario semanal - MATERIAL DESIGN */
 .weekly-calendar-day {
-    @apply bg-white border border-slate-200 rounded-xl p-4 cursor-pointer transition-all duration-500 hover:shadow-2xl;
-    min-height: 100px;
+    @apply bg-white border border-slate-200 rounded-xl p-4 cursor-pointer transition-all duration-300 hover:shadow-lg;
+    min-height: 90px;
     position: relative;
-    background: linear-gradient(145deg, #ffffff 0%, #fef2f2 50%, #fecaca 100%);
-    border: 3px solid transparent;
-    background-clip: padding-box;
-    box-shadow: 
-        0 4px 6px rgba(0, 0, 0, 0.05),
-        0 1px 3px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
-    overflow: hidden;
-}
-
-.weekly-calendar-day::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(220, 38, 38, 0.05) 0%, rgba(239, 68, 68, 0.1) 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 1;
-}
-
-.weekly-calendar-day:hover::before {
-    opacity: 1;
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
 }
 
 .weekly-calendar-day:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 
-        0 20px 40px rgba(220, 38, 38, 0.15),
-        0 8px 16px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
-    border-color: #ef4444;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: #cbd5e1;
 }
 
 .weekly-calendar-day.today {
-    background: linear-gradient(145deg, #fef2f2 0%, #fee2e2 50%, #fecaca 100%);
-    border: 3px solid #ef4444;
-    box-shadow: 
-        0 8px 25px rgba(220, 38, 38, 0.25),
-        0 4px 10px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
-    position: relative;
-}
-
-.weekly-calendar-day.today::after {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(45deg, #ef4444, #dc2626, #b91c1c, #ef4444);
-    border-radius: inherit;
-    z-index: -1;
-    animation: borderGlow 2s ease-in-out infinite;
+    background: #fef2f2;
+    border: 2px solid #ef4444;
+    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.15);
 }
 
 .weekly-calendar-day.selected {
-    background: linear-gradient(145deg, #fee2e2 0%, #fecaca 50%, #fca5a5 100%);
-    border: 3px solid #dc2626;
-    box-shadow: 
-        0 12px 30px rgba(220, 38, 38, 0.3),
-        0 6px 15px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
-    transform: translateY(-2px) scale(1.01);
+    background: #fee2e2;
+    border: 2px solid #dc2626;
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.2);
+    transform: translateY(-1px);
 }
 
 .weekly-calendar-day.has-followups {
-    background: linear-gradient(145deg, #fff7ed 0%, #fed7aa 50%, #fdba74 100%);
-    border: 3px solid #fb923c;
-    box-shadow: 
-        0 6px 20px rgba(249, 115, 22, 0.25),
-        0 3px 8px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
-    position: relative;
-}
-
-.weekly-calendar-day.has-followups::before {
-    background: linear-gradient(135deg, rgba(249, 115, 22, 0.1) 0%, rgba(251, 146, 60, 0.15) 100%);
+    background: #fff7ed;
+    border: 2px solid #fb923c;
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.15);
 }
 
 .weekly-calendar-day.has-followups:hover {
-    transform: translateY(-5px) scale(1.03);
-    box-shadow: 
-        0 25px 50px rgba(249, 115, 22, 0.35),
-        0 10px 20px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(249, 115, 22, 0.2);
     border-color: #f97316;
 }
 
 .weekly-calendar-day.weekend {
-    background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
-    border: 3px solid #cbd5e1;
-    opacity: 0.8;
+    background: #f8fafc;
+    border: 2px solid #cbd5e1;
+    opacity: 0.9;
 }
 
 .weekly-calendar-day.weekend:hover {
     opacity: 1;
-    transform: translateY(-2px) scale(1.01);
+    transform: translateY(-1px);
 }
 
 .weekly-calendar-day .day-number {
-    @apply text-3xl font-bold mb-3 relative z-10;
-    color: #dc2626 !important;
-    text-shadow: 
-        0 2px 4px rgba(220, 38, 38, 0.2),
-        0 1px 2px rgba(0, 0, 0, 0.1);
+    @apply text-2xl font-bold mb-2;
+    color: #dc2626;
     font-family: 'Fraunces', serif;
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    position: relative;
+    font-weight: 600;
 }
 
 .weekly-calendar-day.today .day-number {
-    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-shadow: 
-        0 3px 6px rgba(220, 38, 38, 0.3),
-        0 2px 4px rgba(0, 0, 0, 0.1);
+    color: #dc2626;
+    font-weight: 700;
 }
 
 .weekly-calendar-day.selected .day-number {
-    background: linear-gradient(135deg, #dc2626 0%, #7f1d1d 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-shadow: 
-        0 3px 6px rgba(220, 38, 38, 0.4),
-        0 2px 4px rgba(0, 0, 0, 0.1);
+    color: #dc2626;
+    font-weight: 700;
 }
 
 .weekly-calendar-day.has-followups .day-number {
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-shadow: 
-        0 3px 6px rgba(220, 38, 38, 0.3),
-        0 2px 4px rgba(0, 0, 0, 0.1);
+    color: #dc2626;
+    font-weight: 600;
 }
 
 .weekly-calendar-day .day-name {
-    @apply text-sm text-slate-600 mb-3 font-bold relative z-10;
+    @apply text-sm text-slate-600 mb-2 font-medium;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
 }
 
 .weekly-calendar-day .followup-count {
-    @apply absolute top-3 right-3 text-white text-sm font-bold rounded-full flex items-center justify-center relative z-10;
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 50%, #dc2626 100%);
-    width: 32px;
-    height: 32px;
-    box-shadow: 
-        0 4px 12px rgba(249, 115, 22, 0.4),
-        0 2px 6px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    border: 2px solid #ffffff;
-    animation: countPulse 2s ease-in-out infinite;
+    @apply absolute top-2 right-2 text-white text-xs font-bold rounded-full flex items-center justify-center;
+    background: #f97316;
+    width: 24px;
+    height: 24px;
+    box-shadow: 0 2px 4px rgba(249, 115, 22, 0.3);
 }
 
 .weekly-calendar-day .followup-indicator {
-    @apply absolute bottom-3 left-3 right-3 h-3 rounded-full relative z-10;
-    background: linear-gradient(90deg, #f97316 0%, #ea580c 50%, #dc2626 100%);
-    box-shadow: 
-        0 2px 8px rgba(249, 115, 22, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    position: relative;
-    overflow: hidden;
-}
-
-.weekly-calendar-day .followup-indicator::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-    animation: shimmer 2s infinite;
+    @apply absolute bottom-2 left-2 right-2 h-1 rounded-full;
+    background: #f97316;
 }
 
 .weekly-calendar-day.has-followups .followup-indicator {
-    background: linear-gradient(90deg, #ea580c 0%, #dc2626 50%, #b91c1c 100%);
-    box-shadow: 
-        0 3px 10px rgba(249, 115, 22, 0.5),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
-
-.weekly-calendar-day .day-date {
-    @apply text-xs text-slate-500 font-semibold relative z-10;
-    font-family: 'Poppins', sans-serif;
-    margin-top: 6px;
-    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    background: #ea580c;
 }
 
 /* Animaciones para el calendario */
@@ -2043,317 +1927,156 @@ h2, h3 {
     animation: none;
 }
 
-/* Estilos para los botones de navegación del calendario - VERSIÓN PRO */
+/* Estilos para los botones de navegación del calendario - MATERIAL DESIGN */
 #prev-week-btn, #next-week-btn {
-    background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
-    border: 3px solid #cbd5e1;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 
-        0 4px 8px rgba(0, 0, 0, 0.1),
-        0 2px 4px rgba(0, 0, 0, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8);
-    position: relative;
-    overflow: hidden;
-}
-
-#prev-week-btn::before, #next-week-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-    transition: left 0.5s ease;
-}
-
-#prev-week-btn:hover::before, #next-week-btn:hover::before {
-    left: 100%;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
 }
 
 #prev-week-btn:hover, #next-week-btn:hover {
-    background: linear-gradient(145deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
-    border-color: #64748b;
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: 
-        0 8px 20px rgba(0, 0, 0, 0.15),
-        0 4px 8px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 #today-btn {
-    background: linear-gradient(145deg, #dc2626 0%, #b91c1c 50%, #991b1b 100%) !important;
-    border: 3px solid #dc2626;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 
-        0 6px 15px rgba(220, 38, 38, 0.3),
-        0 3px 8px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    font-weight: 700;
-    position: relative;
-    overflow: hidden;
-}
-
-#today-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.6s ease;
-}
-
-#today-btn:hover::before {
-    left: 100%;
+    background: #dc2626 !important;
+    border: 2px solid #dc2626;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+    font-weight: 600;
+    border-radius: 12px;
 }
 
 #today-btn:hover {
-    background: linear-gradient(145deg, #b91c1c 0%, #991b1b 50%, #7f1d1d 100%) !important;
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 
-        0 12px 25px rgba(220, 38, 38, 0.4),
-        0 6px 12px rgba(0, 0, 0, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    background: #b91c1c !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
 }
 
-/* Estilos para el display de la semana actual - VERSIÓN PRO */
+/* Estilos para el display de la semana actual - MATERIAL DESIGN */
 #current-week-display {
-    background: linear-gradient(145deg, #fef2f2 0%, #fee2e2 50%, #fecaca 100%);
-    padding: 12px 20px;
-    border-radius: 16px;
-    border: 3px solid #fca5a5;
+    background: #fef2f2;
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: 2px solid #fecaca;
     color: #dc2626 !important;
-    font-weight: 700;
-    box-shadow: 
-        0 4px 12px rgba(220, 38, 38, 0.15),
-        0 2px 6px rgba(0, 0, 0, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8);
-    position: relative;
-    overflow: hidden;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.1);
 }
 
-#current-week-display::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    animation: shimmer 3s infinite;
-}
-
-/* Estilos para el resumen de la semana - VERSIÓN PRO */
+/* Estilos para el resumen de la semana - MATERIAL DESIGN */
 #week-summary .bg-white {
-    background: linear-gradient(145deg, #ffffff 0%, #fef2f2 50%, #fecaca 100%) !important;
-    border: 3px solid #fca5a5;
-    border-radius: 16px;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 
-        0 4px 12px rgba(0, 0, 0, 0.05),
-        0 2px 6px rgba(0, 0, 0, 0.03),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8);
-    position: relative;
-    overflow: hidden;
-}
-
-#week-summary .bg-white::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(220, 38, 38, 0.05) 0%, rgba(239, 68, 68, 0.1) 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-#week-summary .bg-white:hover::before {
-    opacity: 1;
+    background: #ffffff !important;
+    border: 2px solid #fecaca;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 #week-summary .bg-white:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 
-        0 8px 25px rgba(220, 38, 38, 0.15),
-        0 4px 12px rgba(0, 0, 0, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
-    border-color: #f87171;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.1);
+    border-color: #fca5a5;
 }
 
-/* Estilos para el contenedor del calendario - VERSIÓN PRO */
+/* Estilos para el contenedor del calendario - MATERIAL DESIGN */
 #weekly-calendar {
-    background: linear-gradient(145deg, #fef2f2 0%, #fee2e2 50%, #fecaca 100%);
-    padding: 25px;
-    border-radius: 20px;
-    border: 3px solid #fca5a5;
-    box-shadow: 
-        0 8px 30px rgba(220, 38, 38, 0.15),
-        0 4px 15px rgba(0, 0, 0, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8);
-    position: relative;
-    overflow: hidden;
+    background: #fef2f2;
+    padding: 20px;
+    border-radius: 16px;
+    border: 2px solid #fecaca;
+    box-shadow: 0 4px 20px rgba(220, 38, 38, 0.1);
 }
 
-#weekly-calendar::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(220, 38, 38, 0.03) 0%, rgba(239, 68, 68, 0.06) 100%);
-    pointer-events: none;
-}
-
-/* Estilos para el indicador de filtro - VERSIÓN PRO */
+/* Estilos para el indicador de filtro - MATERIAL DESIGN */
 #filter-indicator {
-    background: linear-gradient(145deg, #fef2f2 0%, #fee2e2 50%, #fecaca 100%);
-    padding: 8px 16px;
-    border-radius: 12px;
-    border: 3px solid #fca5a5;
+    background: #fef2f2;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 2px solid #fecaca;
     color: #dc2626 !important;
-    font-weight: 700;
-    box-shadow: 
-        0 4px 12px rgba(220, 38, 38, 0.15),
-        0 2px 6px rgba(0, 0, 0, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8);
-    position: relative;
-    overflow: hidden;
-}
-
-#filter-indicator::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    animation: shimmer 2.5s infinite;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.1);
 }
 
 #clear-filter-btn {
-    background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%) !important;
-    border: 3px solid #cbd5e1;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 
-        0 4px 8px rgba(0, 0, 0, 0.1),
-        0 2px 4px rgba(0, 0, 0, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8);
-    font-weight: 700;
-    position: relative;
-    overflow: hidden;
-}
-
-#clear-filter-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-    transition: left 0.5s ease;
-}
-
-#clear-filter-btn:hover::before {
-    left: 100%;
+    background: #f8fafc !important;
+    border: 2px solid #e2e8f0;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+    border-radius: 8px;
 }
 
 #clear-filter-btn:hover {
-    background: linear-gradient(145deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%) !important;
-    border-color: #64748b;
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: 
-        0 8px 20px rgba(0, 0, 0, 0.15),
-        0 4px 8px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    background: #e2e8f0 !important;
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Responsive para el calendario - VERSIÓN PRO */
+/* Responsive para el calendario - MATERIAL DESIGN */
 @media (max-width: 768px) {
     .weekly-calendar-day {
-        min-height: 80px;
+        min-height: 75px;
         padding: 0.75rem;
-        border-width: 2px;
     }
     
     .weekly-calendar-day .day-number {
         font-size: 1.5rem;
-        margin-bottom: 0.5rem;
     }
     
     .weekly-calendar-day .day-name {
         font-size: 0.75rem;
-        margin-bottom: 0.5rem;
-        letter-spacing: 0.5px;
     }
     
     .weekly-calendar-day .followup-count {
-        width: 1.75rem;
-        height: 1.75rem;
+        width: 1.5rem;
+        height: 1.5rem;
         font-size: 0.75rem;
-        top: 0.5rem;
-        right: 0.5rem;
-    }
-    
-    .weekly-calendar-day .followup-indicator {
-        height: 0.5rem;
-        bottom: 0.5rem;
-        left: 0.5rem;
-        right: 0.5rem;
     }
     
     #weekly-calendar {
         padding: 15px;
-        border-radius: 16px;
     }
     
     #current-week-display {
         padding: 8px 12px;
         font-size: 0.875rem;
-        border-radius: 12px;
     }
     
     #prev-week-btn, #next-week-btn {
         padding: 0.5rem;
-        border-width: 2px;
     }
     
     #today-btn {
         padding: 0.5rem 1rem;
         font-size: 0.75rem;
-        border-width: 2px;
     }
     
     #week-summary .bg-white {
         padding: 1rem;
-        border-radius: 12px;
-        border-width: 2px;
     }
     
     #filter-indicator {
         padding: 6px 12px;
-        border-radius: 8px;
-        border-width: 2px;
         font-size: 0.75rem;
     }
     
     #clear-filter-btn {
         padding: 6px 12px;
-        border-radius: 8px;
-        border-width: 2px;
         font-size: 0.75rem;
     }
 }
 
 @media (max-width: 480px) {
     .weekly-calendar-day {
-        min-height: 70px;
+        min-height: 65px;
         padding: 0.5rem;
     }
     
@@ -2366,8 +2089,8 @@ h2, h3 {
     }
     
     .weekly-calendar-day .followup-count {
-        width: 1.5rem;
-        height: 1.5rem;
+        width: 1.25rem;
+        height: 1.25rem;
         font-size: 0.625rem;
     }
     

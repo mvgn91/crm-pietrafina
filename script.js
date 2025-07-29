@@ -1475,7 +1475,6 @@ const renderWeeklyCalendar = () => {
         dayElement.innerHTML = `
             <div class="day-name">${weekDays[i]}</div>
             <div class="day-number">${currentDate.getDate()}</div>
-            <div class="day-date">${formatDate(dateString)}</div>
             ${hasFollowups ? `<div class="followup-count">${dayProspects.length}</div>` : ''}
             ${hasFollowups ? '<div class="followup-indicator"></div>' : ''}
         `;
