@@ -292,6 +292,11 @@ const elements = {
     whatsappMessage: document.getElementById('whatsappMessage'),
     whatsappConfirmSendBtn: document.getElementById('whatsappConfirmSendBtn'),
     whatsappCancelBtn: document.getElementById('whatsappCancelBtn'),
+    whatsappModal: document.getElementById('whatsapp-modal'),
+    whatsappModalClose: document.getElementById('whatsapp-modal-close'),
+    whatsappModalMessage: document.getElementById('whatsapp-modal-message'),
+    whatsappModalSendBtn: document.getElementById('whatsapp-modal-send-btn'),
+    whatsappModalCancelBtn: document.getElementById('whatsapp-modal-cancel-btn'),
 saveFollowUpBtn: document.getElementById('saveFollowUpBtn'),
     deleteProspectBtn: document.getElementById('deleteProspectBtn'),
     rescheduleActionArea: document.getElementById('reschedule-action-area'),
@@ -1278,10 +1283,7 @@ const showWhatsAppModal = (prospectId) => {
         return;
     }
 
-    // Primero abrir el modal de detalles
-    showProspectDetailsModal(prospectId);
-
-    // Llenar el área de mensaje de WhatsApp con el mensaje personalizado
+    // Llenar el mensaje de WhatsApp personalizado
     const businessName = prospect.businessName || 'su empresa';
     const contactPerson = prospect.contactPerson ? `, ${prospect.contactPerson}` : '';
     
@@ -1299,44 +1301,56 @@ Me comunico porque creemos que ${businessName} podría beneficiarse enormemente 
 📱 WhatsApp: +52 442 123 4567
 🌐 www.pietrafina.com`;
 
-    // Mostrar el área de mensaje de WhatsApp después de un breve delay para asegurar que el modal esté abierto
-    setTimeout(() => {
-        console.log('🔍 Elemento whatsappMessageArea:', elements.whatsappMessageArea);
-        if (elements.whatsappMessageArea) {
-            elements.whatsappMessageArea.classList.remove('hidden');
-            console.log('✅ Área de WhatsApp mostrada');
-        } else {
-            console.error('❌ Elemento whatsappMessageArea no encontrado');
-        }
-        
-        // Llenar el textarea con el mensaje
-        if (elements.whatsappMessage) {
-            elements.whatsappMessage.value = whatsappMessage;
-        }
-        
-        // Configurar el botón de confirmar envío
-        if (elements.whatsappConfirmSendBtn) {
-            elements.whatsappConfirmSendBtn.onclick = () => {
-                sendWhatsAppMessage(prospect);
-            };
-        }
-        
-        // Configurar el botón de cancelar
-        if (elements.whatsappCancelBtn) {
-            elements.whatsappCancelBtn.onclick = () => {
-                if (elements.whatsappMessageArea) {
-                    elements.whatsappMessageArea.classList.add('hidden');
-                }
-            };
-        }
-    }, 100);
+    // Llenar el textarea con el mensaje
+    if (elements.whatsappModalMessage) {
+        elements.whatsappModalMessage.value = whatsappMessage;
+    }
+    
+    // Configurar el botón de enviar
+    if (elements.whatsappModalSendBtn) {
+        elements.whatsappModalSendBtn.onclick = () => {
+            sendWhatsAppMessage(prospect);
+        };
+    }
+    
+    // Configurar el botón de cancelar
+    if (elements.whatsappModalCancelBtn) {
+        elements.whatsappModalCancelBtn.onclick = () => {
+            closeWhatsAppModal();
+        };
+    }
+    
+    // Configurar el botón de cerrar
+    if (elements.whatsappModalClose) {
+        elements.whatsappModalClose.onclick = () => {
+            closeWhatsAppModal();
+        };
+    }
+    
+    // Mostrar el modal de WhatsApp
+    if (elements.whatsappModal) {
+        elements.whatsappModal.classList.remove('hidden');
+        console.log('✅ Modal de WhatsApp mostrado');
+    } else {
+        console.error('❌ Elemento whatsappModal no encontrado');
+    }
+};
+
+/**
+ * Cierra el modal de WhatsApp
+ */
+const closeWhatsAppModal = () => {
+    if (elements.whatsappModal) {
+        elements.whatsappModal.classList.add('hidden');
+        console.log('✅ Modal de WhatsApp cerrado');
+    }
 };
 
 /**
  * Envía el mensaje de WhatsApp usando la app nativa
  */
 const sendWhatsAppMessage = (prospect) => {
-    const message = elements.whatsappMessage?.value?.trim();
+    const message = elements.whatsappModalMessage?.value?.trim();
     
     if (!message) {
         showToast('El mensaje no puede estar vacío', 'error');
@@ -1437,10 +1451,8 @@ const sendWhatsAppMessage = (prospect) => {
             }
         }
         
-        // Ocultar el área de mensaje de WhatsApp
-        if (elements.whatsappMessageArea) {
-            elements.whatsappMessageArea.classList.add('hidden');
-        }
+        // Cerrar el modal de WhatsApp
+        closeWhatsAppModal();
         
         showToast('Abriendo WhatsApp...', 'success');
         
@@ -1504,13 +1516,26 @@ const initModalEventListeners = () => {
     }
     
     // Cerrar modales al hacer clic fuera
-    [elements.detailModal, elements.confirmModal].forEach(modal => {
+    [elements.detailModal, elements.confirmModal, elements.whatsappModal].forEach(modal => {
         if (modal) {
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
-                    modal.classList.add('hidden');
+                    if (modal === elements.whatsappModal) {
+                        closeWhatsAppModal();
+                    } else {
+                        modal.classList.add('hidden');
+                    }
                 }
             });
+        }
+    });
+    
+    // Cerrar modal de WhatsApp con tecla Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            if (elements.whatsappModal && !elements.whatsappModal.classList.contains('hidden')) {
+                closeWhatsAppModal();
+            }
         }
     });
 };

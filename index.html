@@ -611,6 +611,64 @@
             </div>
         </div>
 
+        <!-- Modal de WhatsApp para envío de mensajes -->
+        <div id="whatsapp-modal" class="modal-overlay hidden">
+            <div class="modal-container">
+                <div class="modal-header">
+                    <h3>
+                        <i class="fab fa-whatsapp mr-2 text-green-600"></i>
+                        Enviar Mensaje por WhatsApp
+                    </h3>
+                    <button id="whatsapp-modal-close" class="modal-close-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="modal-content">
+                    <div class="mb-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                        <p class="text-sm text-green-800">
+                            <i class="fas fa-lightbulb mr-2"></i>
+                            <strong>Tip:</strong> El mensaje está personalizado con el nombre del prospecto. 
+                            Puedes editarlo antes de enviar.
+                        </p>
+                    </div>
+                    
+                    <label for="whatsapp-modal-message" class="form-label mb-2 block">
+                        <i class="fas fa-edit mr-2"></i>
+                        Mensaje personalizado para WhatsApp:
+                    </label>
+                    <textarea
+                        id="whatsapp-modal-message"
+                        rows="12"
+                        class="form-textarea w-full resize-vertical font-mono text-sm"
+                        placeholder="El mensaje se generará automáticamente con los datos del prospecto..."
+                    ></textarea>
+                    
+                    <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <div class="text-xs text-blue-700">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            <strong>Información:</strong>
+                        </div>
+                        <ul class="text-xs text-blue-600 mt-1 space-y-1">
+                            <li>• El mensaje se abrirá en la aplicación móvil de WhatsApp</li>
+                            <li>• El envío se registrará en el sistema para seguimiento</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button id="whatsapp-modal-send-btn" class="action-btn bg-green-600 hover:bg-green-700 text-white">
+                        <i class="fab fa-whatsapp mr-2"></i>
+                        Enviar por WhatsApp
+                    </button>
+                    <button id="whatsapp-modal-cancel-btn" class="action-btn bg-slate-200 hover:bg-slate-300 text-slate-700">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Nuevo Modal de Edición de Prospecto -->
         <div id="edit-prospect-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
             <div class="bg-white rounded-lg p-6 shadow-xl w-full max-w-md md:max-w-lg mobile-modal">
