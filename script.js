@@ -1027,20 +1027,24 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 const attachAdminCardEventListeners = () => {
     document.querySelectorAll('.view-details-btn').forEach(button => {
-        button.onclick = (event) => {
+        button.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
             const prospectId = event.currentTarget.dataset.id;
             console.log('Ver detalles clicked para prospect:', prospectId);
             showProspectDetailsModal(prospectId);
-        };
+        });
     });
     
     // Event listeners para botones de WhatsApp
     document.querySelectorAll('.whatsapp-btn').forEach(button => {
-        button.onclick = (event) => {
+        button.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
             const prospectId = event.currentTarget.dataset.id;
             console.log('WhatsApp clicked para prospect:', prospectId);
             showWhatsAppModal(prospectId);
-        };
+        });
     });
 };
 
@@ -1049,20 +1053,24 @@ const attachAdminCardEventListeners = () => {
  */
 const attachProspectorCardEventListeners = () => {
     document.querySelectorAll('.view-details-btn').forEach(button => {
-        button.onclick = (event) => {
+        button.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
             const prospectId = event.currentTarget.dataset.id;
             console.log('Ver detalles clicked para prospect:', prospectId);
             showProspectDetailsModal(prospectId);
-        };
+        });
     });
     
     // Event listeners para botones de WhatsApp
     document.querySelectorAll('.whatsapp-btn').forEach(button => {
-        button.onclick = (event) => {
+        button.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
             const prospectId = event.currentTarget.dataset.id;
             console.log('WhatsApp clicked para prospect:', prospectId);
             showWhatsAppModal(prospectId);
-        };
+        });
     });
 };
 
@@ -1259,11 +1267,19 @@ const showModalActionAreas = (prospect) => {
  * Muestra el modal de WhatsApp para un prospecto
  */
 const showWhatsAppModal = (prospectId) => {
+    console.log('🔍 showWhatsAppModal llamado con prospectId:', prospectId);
+    console.log('🔍 allProspects length:', allProspects.length);
+    
     const prospect = allProspects.find(p => p.id === prospectId);
+    console.log('🔍 Prospecto encontrado:', prospect);
+    
     if (!prospect) {
         showToast('Prospecto no encontrado', 'error');
         return;
     }
+
+    // Primero abrir el modal de detalles
+    showProspectDetailsModal(prospectId);
 
     // Llenar el área de mensaje de WhatsApp con el mensaje personalizado
     const businessName = prospect.businessName || 'su empresa';
@@ -1283,31 +1299,37 @@ Me comunico porque creemos que ${businessName} podría beneficiarse enormemente 
 📱 WhatsApp: +52 442 123 4567
 🌐 www.pietrafina.com`;
 
-    // Mostrar el área de mensaje de WhatsApp
-    if (elements.whatsappMessageArea) {
-        elements.whatsappMessageArea.classList.remove('hidden');
-    }
-    
-    // Llenar el textarea con el mensaje
-    if (elements.whatsappMessage) {
-        elements.whatsappMessage.value = whatsappMessage;
-    }
-    
-    // Configurar el botón de confirmar envío
-    if (elements.whatsappConfirmSendBtn) {
-        elements.whatsappConfirmSendBtn.onclick = () => {
-            sendWhatsAppMessage(prospect);
-        };
-    }
-    
-    // Configurar el botón de cancelar
-    if (elements.whatsappCancelBtn) {
-        elements.whatsappCancelBtn.onclick = () => {
-            if (elements.whatsappMessageArea) {
-                elements.whatsappMessageArea.classList.add('hidden');
-            }
-        };
-    }
+    // Mostrar el área de mensaje de WhatsApp después de un breve delay para asegurar que el modal esté abierto
+    setTimeout(() => {
+        console.log('🔍 Elemento whatsappMessageArea:', elements.whatsappMessageArea);
+        if (elements.whatsappMessageArea) {
+            elements.whatsappMessageArea.classList.remove('hidden');
+            console.log('✅ Área de WhatsApp mostrada');
+        } else {
+            console.error('❌ Elemento whatsappMessageArea no encontrado');
+        }
+        
+        // Llenar el textarea con el mensaje
+        if (elements.whatsappMessage) {
+            elements.whatsappMessage.value = whatsappMessage;
+        }
+        
+        // Configurar el botón de confirmar envío
+        if (elements.whatsappConfirmSendBtn) {
+            elements.whatsappConfirmSendBtn.onclick = () => {
+                sendWhatsAppMessage(prospect);
+            };
+        }
+        
+        // Configurar el botón de cancelar
+        if (elements.whatsappCancelBtn) {
+            elements.whatsappCancelBtn.onclick = () => {
+                if (elements.whatsappMessageArea) {
+                    elements.whatsappMessageArea.classList.add('hidden');
+                }
+            };
+        }
+    }, 100);
 };
 
 /**
