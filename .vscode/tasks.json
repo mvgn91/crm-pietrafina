@@ -1,0 +1,14 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "Build Tailwind CSS for Production",
+			"command": "npx tailwindcss -i ./style.css -o ./style.prod.css --minify",
+			"group": "build",
+			"problemMatcher": [],
+			"args": [],
+			"isBackground": false
+		}
+	]
+}

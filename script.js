@@ -1,4 +1,4 @@
-// --- Botón de acceso masivo a WhatsApp ---
+h// --- Botón de acceso masivo a WhatsApp ---
 document.addEventListener('DOMContentLoaded', function () {
   const btn = document.getElementById('whatsapp-massive-button');
   if (btn) {
@@ -2451,7 +2451,7 @@ function renderProspectingCalendar() {
 function isBusinessDay(date) {
     const day = date.getDay();
     return day !== 0 && day !== 6;
-}
+// End of renderProspectorCards
 function getLastNBusinessDays(n) {
     const days = [];
     let date = new Date();
@@ -2462,7 +2462,6 @@ function getLastNBusinessDays(n) {
         date.setDate(date.getDate() - 1);
     }
     return days;
-}
 function isContactedThisMonth(prospect) {
     if (!prospect.followUpNotes || prospect.followUpNotes.length === 0) return false;
     const now = new Date();

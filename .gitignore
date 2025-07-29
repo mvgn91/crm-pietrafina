@@ -1,7 +1,12 @@
+# Node
 node_modules/
+
+# Tailwind output
+style.prod.css
+
+# System
 .DS_Store
 Thumbs.db
-*.log
-*.env
-dist/
+
+# Env
 .env
