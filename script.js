@@ -1282,14 +1282,76 @@ Me comunico porque creemos que ${businessName} podría beneficiarse enormemente 
 📱 WhatsApp: +52 442 123 4567
 🌐 www.pietrafina.com`;
 
-    // Crear URL de WhatsApp
+    // Limpiar y formatear número de teléfono
     const phoneNumber = prospect.phone.replace(/\D/g, '');
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+    
+    // Validar que el número tenga al menos 10 dígitos
+    if (phoneNumber.length < 10) {
+        showToast('Número de teléfono inválido', 'error');
+        return;
+    }
+    
+    // Formatear según las reglas de México
+    let cleanPhone = phoneNumber;
+    if (phoneNumber.startsWith('52') && phoneNumber.length >= 12) {
+        // Ya tiene código de país México (52)
+        cleanPhone = phoneNumber;
+    } else if (phoneNumber.length === 10) {
+        // Número de 10 dígitos, agregar código de país México
+        cleanPhone = '52' + phoneNumber;
+    } else if (phoneNumber.length === 11 && phoneNumber.startsWith('1')) {
+        // Número con 1 al inicio (formato antiguo), remover el 1 y agregar 52
+        cleanPhone = '52' + phoneNumber.substring(1);
+    } else if (phoneNumber.length === 12 && phoneNumber.startsWith('521')) {
+        // Formato 521XXXXXXXXX, mantener como está
+        cleanPhone = phoneNumber;
+    }
+
+    // Detectar si es dispositivo móvil
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    
+    let whatsappUrl;
+    
+    if (isMobile) {
+        // Para dispositivos móviles, usar la app nativa de WhatsApp
+        if (isIOS) {
+            // Para iOS, usar whatsapp://send
+            whatsappUrl = `whatsapp://send?phone=${cleanPhone}&text=${encodeURIComponent(whatsappMessage)}`;
+        } else {
+            // Para Android, usar intent://
+            whatsappUrl = `intent://send/${cleanPhone}#Intent;scheme=smsto;package=com.whatsapp;S.sms_body=${encodeURIComponent(whatsappMessage)};end`;
+        }
+    } else {
+        // Para escritorio, usar WhatsApp Web como fallback
+        whatsappUrl = `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(whatsappMessage)}`;
+    }
     
     // Abrir WhatsApp
-    window.open(whatsappUrl, '_blank');
-    
-    showToast('Abriendo WhatsApp...', 'success');
+    try {
+        if (isMobile) {
+            // En móvil, intentar abrir la app nativa
+            window.location.href = whatsappUrl;
+            
+            // Si después de 2 segundos la página sigue visible, la app no se abrió
+            setTimeout(() => {
+                if (!document.hidden) {
+                    // Fallback: copiar mensaje al portapapeles
+                    navigator.clipboard.writeText(whatsappMessage).then(() => {
+                        showToast('Mensaje copiado al portapapeles. Pégalo en WhatsApp.', 'info');
+                    });
+                }
+            }, 2000);
+        } else {
+            // En escritorio, abrir WhatsApp Web
+            window.open(whatsappUrl, '_blank');
+        }
+        
+        showToast('Abriendo WhatsApp...', 'success');
+    } catch (error) {
+        console.error('Error al abrir WhatsApp:', error);
+        showToast('Error al abrir WhatsApp', 'error');
+    }
 };
 
 /**

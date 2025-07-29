@@ -517,9 +517,9 @@ document.addEventListener('DOMContentLoaded', function () {
         mobileUrl = `whatsapp://send?phone=${phone}&text=${encodedMessage}`;
         console.log('🍎 iOS detectado - usando whatsapp://send');
       } else {
-        // Para Android, usar wa.me que abre la app nativa
-        mobileUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
-        console.log('🤖 Android detectado - usando wa.me');
+        // Para Android, usar intent:// para abrir la app nativa
+        mobileUrl = `intent://send/${phone}#Intent;scheme=smsto;package=com.whatsapp;S.sms_body=${encodedMessage};end`;
+        console.log('🤖 Android detectado - usando intent:// para app nativa');
       }
 
       try {
@@ -564,10 +564,10 @@ document.addEventListener('DOMContentLoaded', function () {
         
       } else {
         // Para otros sistemas de escritorio (Mac, Linux)
-        console.log('💻 Otro sistema de escritorio - usando wa.me');
+        console.log('💻 Otro sistema de escritorio - usando WhatsApp Web');
         
         try {
-          const whatsappUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
+          const whatsappUrl = `https://web.whatsapp.com/send?phone=${phone}&text=${encodedMessage}`;
           const newWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
           
           if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
