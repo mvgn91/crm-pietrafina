@@ -2534,7 +2534,7 @@ renderProspectorCards = function() {
     addEntryAnimations();
     addHoverEffects();
     renderProspectingCalendar();
-}
+// End of renderProspectorCards override
 // Modificar createProspectCardHTML para aceptar un cuarto parámetro (isReagendado) y aplicar la clase y etiqueta visual
 const originalCreateProspectCardHTML = createProspectCardHTML;
 createProspectCardHTML = function(prospect, isAdminView = false, isArchiveView = false, isReagendado = false) {
