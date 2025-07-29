@@ -1962,6 +1962,38 @@ h2, h3 {
     box-shadow: 0 3px 10px rgba(251, 192, 45, 0.4);
 }
 
+/* Badge de campana para tarjetas de prospectos */
+.prospect-bell-badge {
+    @apply absolute text-white font-bold flex items-center justify-center;
+    background: linear-gradient(135deg, #FBC02D 0%, #FFC107 100%);
+    width: 24px;
+    height: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(251, 192, 45, 0.3);
+    border: 2px solid #ffffff;
+    top: 8px;
+    right: 8px;
+    z-index: 10;
+    position: absolute;
+    transform: scale(1);
+    transition: all 0.2s ease-in-out;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.prospect-bell-badge:hover {
+    transform: scale(1.05);
+    box-shadow: 0 3px 10px rgba(251, 192, 45, 0.4);
+}
+
+.prospect-bell-badge i {
+    color: #1e293b;
+    font-weight: 600;
+}
+
 .weekly-calendar-day .followup-indicator {
     @apply absolute bottom-3 left-3 right-3 h-1 rounded-full;
     background: #D32F2F;
@@ -2278,6 +2310,19 @@ h2, h3 {
         text-align: center;
     }
     
+    .prospect-bell-badge {
+        width: 20px;
+        height: 20px;
+        top: 6px;
+        right: 6px;
+        border-width: 2px;
+    }
+    
+    .prospect-bell-badge i {
+        width: 0.6rem;
+        height: 0.6rem;
+    }
+    
     #current-week-display {
         padding: 6px 10px;
         font-size: 0.75rem;
@@ -2287,6 +2332,19 @@ h2, h3 {
     #week-summary .bg-white div[id$="-today"],
     #week-summary .bg-white div[id$="-week"] {
         font-size: 1.75rem;
+    }
+    
+    .prospect-bell-badge {
+        width: 18px;
+        height: 18px;
+        top: 4px;
+        right: 4px;
+        border-width: 1px;
+    }
+    
+    .prospect-bell-badge i {
+        width: 0.5rem;
+        height: 0.5rem;
     }
 }
 

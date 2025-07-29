@@ -849,7 +849,7 @@ const createProspectCardHTML = (prospect, isAdminView = false, isArchiveView = f
         `;
     }
 
-    // Campana de alerta si reagendado para hoy o un día antes
+    // Badge de alerta si reagendado para hoy o un día antes
     let bellHTML = '';
     if (prospect.reagendadoPara) {
         const today = new Date();
@@ -858,7 +858,7 @@ const createProspectCardHTML = (prospect, isAdminView = false, isArchiveView = f
         reagDate.setHours(0,0,0,0);
         const diffDays = Math.floor((reagDate - today) / (1000*60*60*24));
         if (diffDays === 0 || diffDays === -1) {
-            bellHTML = `<i data-lucide="bell" class="w-4 h-4 text-yellow-500 mr-1" title="Reagendación próxima"></i>`;
+            bellHTML = `<div class="prospect-bell-badge" title="Reagendación próxima"><i data-lucide="bell" class="w-3 h-3"></i></div>`;
         }
     }
 
@@ -884,8 +884,9 @@ const createProspectCardHTML = (prospect, isAdminView = false, isArchiveView = f
     let fechaLabel = prospect.reagendadoPara ? 'Reagendación:' : 'Enviado:';
     let compactHTML = `
       <div class="prospect-card">
+        ${bellHTML}
         <div class="card-header">
-          <div class="card-title">${bellHTML}${prospect.businessName}</div>
+          <div class="card-title">${prospect.businessName}</div>
           ${statusTag}
         </div>
         ${prospect.contactPerson ? `<div class="card-encargado">${prospect.contactPerson}</div>` : ''}
