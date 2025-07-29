@@ -2483,21 +2483,7 @@ function isRecent(prospect, recentDays) {
 function isReagendado(prospect) {
     return prospect.status === 'Seguimiento agendado' || !!prospect.reagendadoPara;
 }
-function renderProspectorCards() {
-    // Obtener filtro seleccionado
-    const statusFilter = document.getElementById('prospectorStatusFilter')?.value || 'all';
-    const recentDays = parseInt(document.getElementById('prospectorRecentDays')?.value || '7', 10);
-    let filteredProspects = allProspects.slice();
-    // Filtrar según selección
-    if (statusFilter === 'contactedThisMonth') {
-        filteredProspects = filteredProspects.filter(isContactedThisMonth);
-    } else if (statusFilter === 'recent') {
-        filteredProspects = filteredProspects.filter(p => isRecent(p, recentDays));
-    } else if (statusFilter === 'reagendados') {
-        filteredProspects = filteredProspects.filter(isReagendado);
-    }
-    // Separar reagendados y normales
-    const reagendados = filteredProspects.filter(isReagendado);
+// ...existing code...
     const normales = filteredProspects.filter(p => !isReagendado(p));
     // Ordenar por fecha de creación descendente
     reagendados.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
