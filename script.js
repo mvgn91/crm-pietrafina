@@ -2564,5 +2564,3 @@ if (recentDaysInput) {
         renderProspectorCards();
     });
 }
-// Llamar renderProspectorCards al cargar
-// ...existing code...
