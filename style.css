@@ -1932,6 +1932,10 @@ h2, h3 {
     transition: all 0.2s ease-in-out;
     line-height: 1;
     color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 .weekly-calendar-day:hover .followup-count {
@@ -2194,6 +2198,10 @@ h2, h3 {
         right: 6px;
         border-width: 2px;
         color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
     }
     
     .weekly-calendar-day .followup-indicator {
@@ -2264,6 +2272,10 @@ h2, h3 {
         right: 4px;
         border-width: 1px;
         color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
     }
     
     #current-week-display {
