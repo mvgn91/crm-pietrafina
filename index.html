@@ -617,7 +617,7 @@
                 <div class="modal-header">
                     <h3>
                         <i class="fab fa-whatsapp mr-2 text-green-600"></i>
-                        Enviar Mensaje por WhatsApp
+                        Enviar Material por WhatsApp
                     </h3>
                     <button id="whatsapp-modal-close" class="modal-close-btn">
                         <i class="fas fa-times"></i>
@@ -628,11 +628,21 @@
                     <div class="mb-4 p-4 bg-green-50 rounded-lg border border-green-200">
                         <p class="text-sm text-green-800">
                             <i class="fas fa-lightbulb mr-2"></i>
-                            <strong>Tip:</strong> El mensaje está personalizado con el nombre del prospecto. 
+                            <strong>Tip:</strong> El mensaje está personalizado con el nombre del prospecto y incluye todos los materiales. 
                             Puedes editarlo antes de enviar.
                         </p>
                     </div>
                     
+                    <div class="mb-4">
+                        <label class="form-label mb-2 block">
+                            <i class="fas fa-check-square mr-2"></i>
+                            Seleccionar materiales a enviar:
+                        </label>
+                        <div id="materials-checkbox-container" class="space-y-2">
+                            <!-- Checkboxes will be inserted here by JS -->
+                        </div>
+                    </div>
+
                     <label for="whatsapp-modal-message" class="form-label mb-2 block">
                         <i class="fas fa-edit mr-2"></i>
                         Mensaje personalizado para WhatsApp:
@@ -651,6 +661,7 @@
                         </div>
                         <ul class="text-xs text-blue-600 mt-1 space-y-1">
                             <li>• El mensaje se abrirá en la aplicación móvil de WhatsApp</li>
+                            <li>• Los enlaces a los materiales están incluidos automáticamente</li>
                             <li>• El envío se registrará en el sistema para seguimiento</li>
                         </ul>
                     </div>

@@ -49,6 +49,22 @@ let currentWeekStart = null;
 let selectedCalendarDate = null;
 let filteredProspects = [];
 
+// Materiales disponibles para envío
+const MATERIALS = [
+    {
+        name: 'CATALOGO DE PRODUCTOS',
+        url: 'http://bit.ly/3IbX56b'
+    },
+    {
+        name: 'LOOKBOOK DE OBRAS',
+        url: 'https://bit.ly/4kj5TnW'
+    },
+    {
+        name: 'SELECCION DE MATERIALES PREMIUM',
+        url: 'https://bit.ly/4etgonw'
+    }
+];
+
 // Usuarios de demostración para pruebas (estructura simplificada)
 const DEMO_USERS = {
     'admin@demo.com': { role: 'admin', name: 'MVGN Admin', uid: 'demo-admin-uid' },
@@ -297,6 +313,7 @@ const elements = {
     whatsappModalMessage: document.getElementById('whatsapp-modal-message'),
     whatsappModalSendBtn: document.getElementById('whatsapp-modal-send-btn'),
     whatsappModalCancelBtn: document.getElementById('whatsapp-modal-cancel-btn'),
+    materialsCheckboxContainer: document.getElementById('materials-checkbox-container'),
 saveFollowUpBtn: document.getElementById('saveFollowUpBtn'),
     deleteProspectBtn: document.getElementById('deleteProspectBtn'),
     rescheduleActionArea: document.getElementById('reschedule-action-area'),
@@ -1283,28 +1300,13 @@ const showWhatsAppModal = (prospectId) => {
         return;
     }
 
-    // Llenar el mensaje de WhatsApp personalizado
-    const businessName = prospect.businessName || 'su empresa';
-    const contactPerson = prospect.contactPerson ? `, ${prospect.contactPerson}` : '';
+    // Generar checkboxes de materiales
+    populateMaterialsCheckboxes();
     
-    const whatsappMessage = `¡Hola${contactPerson}! 👋
-
-Espero que esté muy bien. Le escribo desde PIETRAFINA, somos una empresa especializada en pisos de piedra natural de la más alta calidad.
-
-Me comunico porque creemos que ${businessName} podría beneficiarse enormemente de nuestros productos premium para sus proyectos.
-
-¿Tendría disponibilidad para una breve llamada esta semana? Me encantaría compartirle nuestro catálogo y discutir cómo podemos agregar valor a sus proyectos.
-
-¡Quedamos atentos!
-
-*PIETRAFINA - Pisos de Piedra Natural*
-📱 WhatsApp: +52 442 123 4567
-🌐 www.pietrafina.com`;
-
-    // Llenar el textarea con el mensaje
-    if (elements.whatsappModalMessage) {
-        elements.whatsappModalMessage.value = whatsappMessage;
-    }
+    // Generar mensaje inicial después de crear los checkboxes
+    setTimeout(() => {
+        updateWhatsAppMessage(prospect);
+    }, 100);
     
     // Configurar el botón de enviar
     if (elements.whatsappModalSendBtn) {
@@ -1347,9 +1349,77 @@ const closeWhatsAppModal = () => {
 };
 
 /**
+ * Genera checkboxes de materiales
+ */
+const populateMaterialsCheckboxes = () => {
+    if (!elements.materialsCheckboxContainer) return;
+    
+    elements.materialsCheckboxContainer.innerHTML = '';
+    MATERIALS.forEach((material, index) => {
+        const checkboxId = `material-${index}`;
+        const checkboxHTML = `
+            <div class="flex items-center">
+                <input id="${checkboxId}" type="checkbox" value="${material.url}" class="form-checkbox h-5 w-5 text-green-600" checked>
+                <label for="${checkboxId}" class="ml-2 text-gray-700">${material.name}</label>
+            </div>
+        `;
+        elements.materialsCheckboxContainer.insertAdjacentHTML('beforeend', checkboxHTML);
+    });
+
+    // Agregar event listeners para actualizar mensaje cuando cambien los checkboxes
+    elements.materialsCheckboxContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+            const prospect = allProspects.find(p => p.id === currentProspectIdForModal);
+            if (prospect) {
+                updateWhatsAppMessage(prospect);
+            }
+        });
+    });
+};
+
+/**
+ * Actualiza el mensaje en el textarea
+ */
+const updateWhatsAppMessage = (prospect) => {
+    if (!prospect || !elements.whatsappModalMessage) return;
+    
+    const contactName = prospect.contactPerson || prospect.businessName || 'Estimado/a';
+    
+    let message = `¡Hola ${contactName}!\n\n`;
+    message += `Adjunto el material previamente acordado:\n\n`;
+    
+    // Obtener materiales seleccionados
+    const selectedMaterials = [];
+    if (elements.materialsCheckboxContainer) {
+        const checkboxes = elements.materialsCheckboxContainer.querySelectorAll('input[type="checkbox"]:checked');
+        checkboxes.forEach(checkbox => {
+            const material = MATERIALS.find(m => m.url === checkbox.value);
+            if (material) {
+                selectedMaterials.push(material);
+            }
+        });
+    }
+
+    // Agregar materiales al mensaje
+    if (selectedMaterials.length > 0) {
+        selectedMaterials.forEach((material) => {
+            message += `*${material.name}*\n${material.url}\n\n`;
+        });
+    }
+    
+    message += `Quedo atento a sus comentarios.\n\n`;
+    message += `Saludos cordiales,\n`;
+    message += `${currentUserName}\n`;
+    message += `Pietra Fina`;
+    
+    elements.whatsappModalMessage.value = message;
+};
+
+/**
  * Envía el mensaje de WhatsApp usando la app nativa
  */
 const sendWhatsAppMessage = (prospect) => {
+    // Obtener el mensaje del textarea (permite ediciones del usuario)
     const message = elements.whatsappModalMessage?.value?.trim();
     
     if (!message) {
