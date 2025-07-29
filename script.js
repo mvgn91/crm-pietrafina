@@ -1300,6 +1300,9 @@ const showWhatsAppModal = (prospectId) => {
         return;
     }
 
+    // Guardar el prospectId para que los checkboxes puedan acceder a él
+    window.currentProspectIdForWhatsApp = prospectId;
+
     // Generar checkboxes de materiales
     populateMaterialsCheckboxes();
     
@@ -1369,7 +1372,9 @@ const populateMaterialsCheckboxes = () => {
     // Agregar event listeners para actualizar mensaje cuando cambien los checkboxes
     elements.materialsCheckboxContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
         checkbox.addEventListener('change', () => {
-            const prospect = allProspects.find(p => p.id === currentProspectIdForModal);
+            // Buscar el prospecto actual usando el prospectId que se pasó a showWhatsAppModal
+            const currentProspectId = window.currentProspectIdForWhatsApp;
+            const prospect = allProspects.find(p => p.id === currentProspectId);
             if (prospect) {
                 updateWhatsAppMessage(prospect);
             }
