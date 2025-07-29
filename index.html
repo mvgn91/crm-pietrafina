@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRM Pietra Fina</title>
-    <!-- Tailwind CSS compilado -->
-    <link rel="stylesheet" href="./style.prod.css">
-    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fraunces:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -17,83 +15,572 @@
     <!-- Flatpickr para el selector de fechas -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" href="./style.css">
 </head>
-<body class="antialiased font-poppins text-slate-800 bg-gradient-to-br from-white via-red-50 to-red-100 min-vh-100 d-flex flex-column">
+<body class="antialiased font-poppins text-slate-800" style="background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%);">
     <!-- Fondo coherente con Pietra Fina: rojo sobre blanco -->
     <div class="fixed inset-0 bg-gradient-to-br from-white via-red-50 to-red-100"></div>
-    <div class="fixed inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23000000\" fill-opacity=\"0.03\"%3E%3Ccircle cx=\"30\" cy=\"30\" r=\"2\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-60"></div>
+    <div class="fixed inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23000000" fill-opacity="0.03"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-60"></div>
     <div class="fixed inset-0 bg-gradient-to-t from-red-50/30 via-transparent to-transparent"></div>
 
-    <div class="container-fluid flex-grow-1 d-flex flex-column p-0 position-relative z-10">
+    <!-- Contenedor principal de la aplicación -->
+    <div id="app-container" class="min-h-screen flex flex-col relative z-10">
         <!-- Encabezado -->
-        <header id="app-header" class="navbar navbar-expand-lg navbar-light bg-white/90 backdrop-blur-sm sticky-top border-bottom shadow-sm mb-3">
-            <div class="container d-flex align-items-center justify-content-between py-2">
-                <a class="navbar-brand d-flex align-items-center gap-2" href="#">
-                    <img id="header-logo" src="https://static.wixstatic.com/media/769a0c_8d5b9317c0a84f4f856798df627db1e2~mv2.jpg/v1/fill/w_104,h_96,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/LOGO%20NEGRO%20DEF_edited.jpg" alt="Logo de Pietra Fina" class="h-8 rounded-xl">
-                    <span class="font-fraunces font-bold text-lg">CRM Pietra Fina</span>
-                </a>
-                <div id="auth-status" class="text-xs font-poppins text-slate-600 flex-shrink-0">
+        <header id="app-header" class="bg-white/90 backdrop-blur-sm sticky top-0 z-20 border-b border-slate-200 shadow-sm transition-colors duration-300 mobile-header">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+                <div class="flex items-center gap-2 sm:gap-4">
+                    <img id="header-logo" src="https://static.wixstatic.com/media/769a0c_8d5b9317c0a84f4f856798df627db1e2~mv2.jpg/v1/fill/w_104,h_96,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/LOGO%20NEGRO%20DEF_edited.jpg" alt="Logo de Pietra Fina" class="h-8 sm:h-12 rounded-xl">
+                    <div class="min-w-0 flex-1">
+                        <h1 id="header-title" class="text-lg sm:text-xl lg:text-2xl font-fraunces font-bold flex items-center truncate">
+                            <span class="truncate">CRM Pietra Fina</span>
+                            <span id="online-status-indicator" class="ml-1 sm:ml-2 text-green-500 text-xs sm:text-sm flex items-center flex-shrink-0">
+                                <i class="fas fa-wifi mr-1"></i> <span class="hidden sm:inline text-xs">Conexión</span>
+                            </span>
+                        </h1>
+                        <p id="app-version-indicator" class="font-mono text-xs text-slate-500">2.8 ver.</p>
+                    </div>
+                </div>
+                <div id="auth-status" class="text-xs sm:text-sm font-poppins text-slate-600 flex-shrink-0">
                     <!-- El estado de autenticación del usuario se mostrará aquí -->
                 </div>
             </div>
         </header>
 
-        <main class="flex-grow-1 d-flex align-items-center justify-content-center p-2 p-md-4">
-            <div class="container">
-                <!-- Pantalla de inicio de sesión / Selección de rol -->
-                <section id="login-screen" class="row justify-content-center">
-                    <div class="col-12 col-md-8 col-lg-6">
-                        <div class="card shadow-lg my-5 animate-fadeIn">
-                            <div class="card-body p-4 p-md-5 text-center">
-                                <h2 class="card-title text-3xl font-fraunces font-bold mb-4">Acceso</h2>
-                                <p class="font-poppins text-slate-600 font-semibold mb-4">Inicia sesión o selecciona tu rol:</p>
-                                <!-- Formulario de inicio de sesión -->
-                                <form id="login-form" class="mb-4">
-                                    <div class="mb-3 text-start">
-                                        <label for="login-email" class="form-label">Correo Electrónico</label>
-                                        <input type="email" id="login-email" placeholder="Correo Electrónico" required class="form-control">
-                                    </div>
-                                    <div class="mb-3 text-start">
-                                        <label for="login-password" class="form-label">Contraseña</label>
-                                        <input type="password" id="login-password" placeholder="Contraseña" required class="form-control">
-                                    </div>
-                                    <button type="submit" id="login-button" class="btn btn-danger w-100 py-2 text-white font-poppins">
-                                        <i data-lucide="log-in" class="w-4 h-4 mr-2"></i> Iniciar Sesión
-                                    </button>
-                                </form>
-                                <p id="login-error-message" class="text-danger text-sm mt-2 hidden font-poppins">Mensaje de error.</p>
-                                <!-- Botones de selección de rol -->
-                                <div id="role-selection-buttons" class="d-flex flex-column gap-3 justify-content-center align-items-center hidden" style="min-height:200px;">
-                                    <button id="admin-button" class="btn btn-danger w-100 d-flex align-items-center justify-content-center gap-2 font-poppins">
-                                        <i data-lucide="database"></i> Gestión de Base de Datos
-                                    </button>
-                                    <button id="prospector-button" class="btn btn-dark w-100 d-flex align-items-center justify-content-center gap-2 font-poppins">
-                                        <i data-lucide="headphones"></i> Prospección de Clientes
-                                    </button>
-                                    <button id="archive-button" class="btn btn-success w-100 d-flex align-items-center justify-content-center gap-2 font-poppins">
-                                        <i data-lucide="archive"></i> Archivo de Prospección
-                                    </button>
-                                    <button id="whatsapp-massive-button" class="btn btn-success w-100 d-flex align-items-center justify-content-center gap-2 font-poppins">
-                                        <i data-lucide="message-circle"></i> Enviar Material por WhatsApp
-                                    </button>
-                                    <button id="logout-button" class="btn btn-outline-dark w-100 d-flex align-items-center justify-content-center gap-2 font-poppins">
-                                        <i data-lucide="log-out"></i> Cerrar Sesión
-                                    </button>
-                                </div>
-                            </div>
+        <!-- Contenedor de notificación diario -->
+        <div id="daily-notification-container"></div>
+
+        <!-- Área de contenido principal -->
+        <main class="flex-grow flex items-center justify-center p-4">
+            <!-- Pantalla de inicio de sesión / Selección de rol -->
+            <section id="login-screen" class="w-full max-w-md bg-white rounded-xl shadow-xl p-8 text-center animate-fadeIn">
+                                        <h2 class="text-4xl font-fraunces font-bold text-slate-800 mb-6 flex items-center justify-center">
+                            <i data-lucide="key" class="w-8 h-8 mr-3"></i> Acceso
+                        </h2>
+                <p class="font-poppins text-slate-600 font-semibold mb-8">Inicia sesión o selecciona tu rol:</p>
+
+                <!-- Formulario de inicio de sesión -->
+                <div id="login-form-container" class="mb-8 p-6 bg-slate-50 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 class="text-2xl font-fraunces text-slate-700 mb-4">Iniciar Sesión</h3>
+                    <form id="login-form" class="grid grid-cols-1 gap-4">
+                        <div>
+                            <label for="login-email" class="sr-only">Correo Electrónico</label>
+                            <input type="email" id="login-email" placeholder="Correo Electrónico" required class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:border-red-600 focus:ring-red-600 p-2 font-poppins mobile-btn">
+                        </div>
+                        <div>
+                            <label for="login-password" class="sr-only">Contraseña</label>
+                            <input type="password" id="login-password" placeholder="Contraseña" required class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:border-red-600 focus:ring-red-600 p-2 font-poppins mobile-btn">
+                        </div>
+                        <button type="submit" id="login-button" class="w-full bg-red-700 hover:bg-red-800 text-white font-poppins py-3 px-6 btn-primary mobile-btn">
+                            <i data-lucide="log-in" class="w-4 h-4 mr-2"></i> Iniciar Sesión
+                        </button>
+                    </form>
+                    <p id="login-error-message" class="text-red-500 text-sm mt-4 hidden font-poppins">Mensaje de error.</p>
+                </div>
+
+                <!-- Botones de selección de rol (después de iniciar sesión exitosamente) -->
+                <div style="position:relative; min-height:400px;">
+                  <div id="role-selection-buttons" class="flex flex-col gap-4 justify-center hidden" style="position:relative; z-index:1;">
+                    <button id="admin-button" class="bg-red-700 hover:bg-red-800 text-white font-poppins py-4 px-8 btn-primary rounded-md mobile-btn">
+                        <i data-lucide="database" class="w-5 h-5 mr-3"></i> Gestión de Base de Datos
+                    </button>
+                    <button id="prospector-button" class="bg-slate-800 hover:bg-slate-900 text-white font-poppins py-4 px-8 btn-primary rounded-md mobile-btn">
+                        <i data-lucide="headphones" class="w-5 h-5 mr-3"></i> Prospección de Clientes
+                    </button>
+                    <button id="archive-button" class="bg-emerald-700 hover:bg-emerald-800 text-white font-poppins py-4 px-8 btn-primary rounded-md mobile-btn">
+                        <i data-lucide="archive" class="w-5 h-5 mr-3"></i> Archivo de Prospección
+                    </button>
+                    <button id="whatsapp-massive-button" class="bg-green-600 hover:bg-green-700 text-white font-poppins py-4 px-8 btn-primary rounded-md mobile-btn">
+                        <i data-lucide="message-circle" class="w-5 h-5 mr-3"></i> Enviar Material por WhatsApp
+                    </button>
+                    <button id="logout-button" class="bg-white text-black border border-black font-poppins py-4 px-8 rounded-md hover:bg-black hover:text-white transition-all duration-200 mobile-btn">
+                        <i data-lucide="log-out" class="w-5 h-5 mr-2"></i> Cerrar Sesión
+                    </button>
+                </div>
+            </section>
+
+            <!-- Sección de administración -->
+            <section id="admin-screen" class="w-full max-w-7xl bg-white rounded-xl shadow-xl p-8 hidden animate-fadeIn">
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-6 border-b border-slate-200 pb-4">
+                    <h2 class="text-3xl font-fraunces text-slate-800 mb-4 sm:mb-0">Gestión de Base de Datos (Administrador)</h2>
+                    <!-- Navegación del administrador -->
+                    <div class="flex flex-wrap justify-center sm:justify-end gap-2 mobile-nav">
+                        <button id="nav-to-prospector-from-admin" class="py-2 px-4 bg-red-700 text-white font-poppins rounded-md hover:bg-red-800 transition duration-200 mobile-btn">
+                            <i data-lucide="headphones" class="w-4 h-4 mr-2"></i> Ir a Prospección
+                        </button>
+                         <button id="nav-to-archive-from-admin" class="py-2 px-4 bg-emerald-700 text-white font-poppins rounded-md hover:bg-emerald-800 transition duration-200 mobile-btn">
+                            <i data-lucide="archive" class="w-4 h-4 mr-2"></i> Ir a Archivo
+                        </button>
+                        <button id="back-to-role-selection-admin" class="py-2 px-4 bg-gray-700 text-gray-200 font-poppins rounded-md hover:bg-gray-600 transition duration-200 mobile-btn">
+                            <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i> Volver a Selección de Rol
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Formulario para añadir nuevo prospecto -->
+                <div class="mb-8 p-4 sm:p-6 bg-slate-50 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 class="text-xl sm:text-2xl font-fraunces text-slate-700 mb-4">Agregar Nuevo Cliente/Prospecto</h3>
+                    <form id="add-prospect-form" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mobile-form">
+                        <div>
+                            <label for="businessName" class="block text-sm font-poppins font-medium text-slate-700 mb-1">Nombre del Negocio o Empresa <span class="text-red-500">*</span></label>
+                            <input type="text" id="businessName" name="businessName" required class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:border-red-600 focus:ring-red-600 p-2 font-poppins mobile-btn">
+                        </div>
+                        <div>
+                            <label for="contactPerson" class="block text-sm font-poppins font-medium text-slate-700 mb-1">Encargado o Persona Objetivo al Llamar (Opcional)</label>
+                            <input type="text" id="contactPerson" name="contactPerson" class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:border-red-600 focus:ring-red-600 p-2 font-poppins mobile-btn">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-poppins font-medium text-slate-700 mb-1">Correo Electrónico <span class="text-red-500">*</span></label>
+                            <input type="email" id="email" name="email" required class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:border-red-600 focus:ring-red-600 p-2 font-poppins mobile-btn">
+                        </div>
+                        <div>
+                            <label for="phone" class="block text-sm font-poppins font-medium text-slate-700 mb-1">Teléfono de Contacto <span class="text-red-500">*</span></label>
+                            <input type="tel" id="phone" name="phone" required class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:border-red-600 focus:ring-red-600 p-2 font-poppins mobile-btn">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="classification" class="block text-sm font-poppins font-medium text-slate-700 mb-1">Clasificación del Cliente <span class="text-red-500">*</span></label>
+                            <select id="classification" name="classification" required class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:border-red-600 focus:ring-red-600 p-2 font-poppins mobile-btn">
+                                <option value="">Selecciona una opción</option>
+                                <option value="Despacho de Arquitectos">Despacho de Arquitectos</option>
+                                <option value="Diseño de Interiores">Diseño de Interiores</option>
+                                <option value="Constructoras">Constructoras</option>
+                                <option value="Distribuidores de acabados">Distribuidores de acabados</option>
+                                <option value="Mueblerías">Mueblerías</option>
+                                <option value="Showrooms de Baños / Cocinas">Showrooms de Baños / Cocinas</option>
+                                <option value="Hoteles / Desarrolladores de Hospitalidad">Hoteles / Desarrolladores de Hospitalidad</option>
+                                <option value="Cruceros / Espacios Comerciales de Lujo">Cruceros / Espacios Comerciales de Lujo</option>
+                                <option value="Pisos y Recubrimientos">Pisos y Recubrimientos</option>
+                                <option value="Corporativos / Oficinas">Corporativos / Oficinas</option>
+                                <option value="Proyectos Holísticos / Wellness">Proyectos Holísticos / Wellness</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div id="otherClassificationContainer" class="hidden md:col-span-2">
+                            <label for="otherClassification" class="block text-sm font-poppins font-medium text-slate-700 mb-1">Especificar Otra Clasificación <span class="text-red-500">*</span></label>
+                            <input type="text" id="otherClassification" name="otherClassification" class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:border-red-600 focus:ring-red-600 p-2 font-poppins mobile-btn">
+                        </div>
+                        <!-- Campo de observaciones -->
+                        <div class="md:col-span-2">
+                            <label for="observations" class="block text-sm font-poppins font-medium text-slate-700 mb-1">Observaciones (Opcional)</label>
+                            <textarea id="observations" name="observations" rows="3" class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:border-red-600 focus:ring-red-600 p-2 font-poppins mobile-btn" placeholder="Notas adicionales sobre el prospecto..."></textarea>
+                        </div>
+                        <div class="md:col-span-2">
+                            <button type="submit" class="w-full bg-red-700 hover:bg-red-800 text-white font-poppins py-3 px-6 btn-primary mobile-btn">
+                                <i data-lucide="plus-circle" class="w-4 h-4 mr-2"></i> Añadir Prospecto
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Sección del Dashboard -->
+                <div class="mb-8 p-4 sm:p-6 bg-slate-50 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 class="text-xl sm:text-2xl font-fraunces text-slate-700 mb-4">Dashboard de Estadísticas</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                        <div class="chart-container">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="conversionChart"></canvas>
                         </div>
                     </div>
-                </section>
-                <!-- Aquí seguiría la estructura de las demás secciones (admin, prospector, archive) usando el grid de Bootstrap y utilidades de Tailwind para detalles visuales. -->
-            </div>
+                    <div id="prospecting-results-summary" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 font-poppins mt-4 sm:mt-6">
+                        <div class="bg-slate-50 p-4 rounded-md shadow-sm border border-slate-200">
+                            <p class="text-sm text-slate-700">Total Prospectos</p>
+                            <p id="totalProspectsCount" class="text-2xl font-bold text-slate-800">0</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-md shadow-sm border border-slate-200">
+                            <p class="text-sm text-slate-700">En Prospección</p>
+                            <p id="enProspeccionCount" class="text-2xl font-bold text-blue-600">0</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-md shadow-sm border border-slate-200">
+                            <p class="text-sm text-slate-700">Interesados</p>
+                            <p id="interesadoCount" class="text-2xl font-bold text-green-600">0</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-md shadow-sm border border-slate-200">
+                            <p class="text-sm text-slate-700">Cliente convertido</p>
+                            <p id="clienteConvertidoCount" class="text-2xl font-bold text-green-700">0</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-md shadow-sm border border-slate-200">
+                            <p class="text-sm text-slate-700">Ya es nuestro cliente</p>
+                            <p id="yaEsClienteCount" class="text-2xl font-bold text-green-800">0</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-md shadow-sm border border-slate-200">
+                            <p class="text-sm text-slate-700">Tasa de Conversión</p>
+                            <p id="conversionRate" class="text-2xl font-bold text-purple-600">0%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de prospectos (Ahora en tarjetas) -->
+                <div class="mb-8 p-6 bg-slate-50 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 class="text-2xl font-fraunces text-slate-700 mb-4">Listado de Prospectos</h3>
+                    <div class="flex flex-col sm:flex-row gap-4 mb-4 font-poppins">
+                        <div class="flex-grow">
+                            <label for="statusFilter" class="block text-sm font-medium text-slate-700 mb-1">Filtrar por Estatus:</label>
+                            <select id="statusFilter" class="mt-1 block w-full border-slate-300 rounded-lg shadow-sm focus:border-slate-800 focus:ring-slate-800 p-2 mobile-btn">
+                                <option value="all">Todos</option>
+                                <option value="Pendiente de Correo">Pendiente de Correo</option>
+                                <option value="En Prospección">En Prospección</option>
+                                <option value="Pendiente de Validación">Pendiente de Validación</option>
+                                <option value="Interesado">Interesado</option>
+                                <option value="No contesta">No contesta</option>
+                                <option value="Rechazado">Rechazado</option>
+                                <option value="Seguimiento agendado">Seguimiento agendado</option>
+                                <option value="Reactivar Contacto">Reactivar Contacto</option>
+                                
+                                <option value="Completado">Completado</option>
+                            </select>
+                        </div>
+                        <div class="flex-grow">
+                            <label for="dateFilter" class="block text-sm font-medium text-slate-700 mb-1">Filtrar por Fecha de Correo:</label>
+                            <input type="date" id="dateFilter" class="mt-1 block w-full border-slate-300 rounded-lg shadow-sm focus:border-slate-800 focus:ring-slate-800 p-2 mobile-btn">
+                        </div>
+                        <div class="flex-grow">
+                            <label for="searchFilter" class="block text-sm font-medium text-slate-700 mb-1">Buscar:</label>
+                            <input type="text" id="searchFilter" placeholder="Nombre del negocio o contacto" class="mt-1 block w-full border-slate-300 rounded-lg shadow-sm focus:border-slate-800 focus:ring-slate-800 p-2 mobile-btn">
+                        </div>
+                    </div>
+                    <!-- Cards Container for Admin -->
+                    <div id="admin-prospects-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Las tarjetas de prospectos se llenarán con JavaScript -->
+                    </div>
+                    <div id="admin-no-prospects" class="text-center py-8 text-slate-400 font-poppins hidden">
+                        <i class="fas fa-inbox text-4xl mb-4"></i>
+                        <p>No hay prospectos que mostrar.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección de prospección (Prospector) -->
+            <section id="prospector-screen" class="w-full max-w-7xl bg-white rounded-xl shadow-xl p-8 hidden animate-fadeIn">
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-6 border-b border-slate-200 pb-4">
+                    <h2 class="text-3xl font-fraunces text-slate-800 mb-4 sm:mb-0">Prospección de Clientes</h2>
+                    <div class="flex flex-wrap justify-center sm:justify-end gap-2 mobile-nav">
+                        <button id="nav-to-admin-from-prospector" class="py-2 px-4 bg-red-700 text-white font-poppins rounded-md hover:bg-red-800 transition duration-200 mobile-btn">
+                            <i class="fas fa-tools mr-2"></i> Ir a Administración
+                        </button>
+                        <button id="nav-to-archive-from-prospector" class="py-2 px-4 bg-emerald-700 text-white font-poppins rounded-md hover:bg-emerald-800 transition duration-200 mobile-btn">
+                            <i class="fas fa-archive mr-2"></i> Ir a Archivo
+                        </button>
+                        <button id="back-to-role-selection-prospector" class="py-2 px-4 bg-slate-200 text-slate-700 font-poppins rounded-md hover:bg-slate-300 transition duration-200 mobile-btn">
+                            <i class="fas fa-arrow-left mr-2"></i> Volver a Selección de Rol
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Prospectos disponibles para prospección (Ahora en tarjetas) -->
+                <div class="mb-8 p-6 bg-slate-50 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 class="text-2xl font-fraunces text-slate-700 mb-4">Mis Prospectos Asignados</h3>
+                    <!-- Cards Container for Prospector -->
+                    <div id="prospector-prospects-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Las tarjetas de prospectos se llenarán con JavaScript -->
+                    </div>
+                    <div id="prospector-no-prospects" class="text-center py-8 text-slate-400 font-poppins hidden">
+                        <i class="fas fa-inbox text-4xl mb-4"></i>
+                        <p>No hay prospectos disponibles para prospección en este momento.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección de Archivo de Prospección -->
+            <section id="archive-screen" class="w-full max-w-7xl bg-white rounded-xl shadow-xl p-8 hidden animate-fadeIn">
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-6 border-b border-slate-200 pb-4">
+                    <h2 class="text-3xl font-fraunces text-slate-800 mb-4 sm:mb-0">Archivo de Prospección</h2>
+                    <div class="flex flex-wrap justify-center sm:justify-end gap-2 mobile-nav">
+                        <button id="nav-to-admin-from-archive" class="py-2 px-4 bg-red-700 text-white font-poppins rounded-md hover:bg-red-800 transition duration-200 mobile-btn">
+                            <i class="fas fa-tools mr-2"></i> Ir a Administración
+                        </button>
+                        <button id="nav-to-prospector-from-archive" class="py-2 px-4 bg-slate-800 text-white font-poppins rounded-md hover:bg-slate-900 transition duration-200 mobile-btn">
+                            <i class="fas fa-headset mr-2"></i> Ir a Prospección
+                        </button>
+                        <button id="back-to-role-selection-archive" class="py-2 px-4 bg-slate-200 text-slate-700 font-poppins rounded-lg hover:bg-slate-300 transition duration-200 mobile-btn">
+                            <i class="fas fa-arrow-left mr-2"></i> Volver a Selección de Rol
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mb-4 flex flex-col sm:flex-row gap-4 font-poppins">
+                    <div class="flex-grow">
+                        <label for="archiveStatusFilter" class="block text-sm font-medium text-slate-700 mb-1">Filtrar por Estatus Final:</label>
+                        <select id="archiveStatusFilter" class="mt-1 block w-full border-slate-300 rounded-lg shadow-sm focus:border-slate-800 focus:ring-slate-800 p-2 mobile-btn">
+                            <option value="all">Todos los Finalizados</option>
+                            <option value="Interesado">Interesado</option>
+                            <option value="No contesta">No contesta</option>
+                            <option value="Rechazado">Rechazado</option>
+                            <option value="Completado">Completado</option>
+                            
+                        </select>
+                    </div>
+                    <div class="flex-grow">
+                        <label for="archiveSearchFilter" class="block text-sm font-medium text-slate-700 mb-1">Buscar en Archivo:</label>
+                        <input type="text" id="archiveSearchFilter" placeholder="Nombre del negocio o contacto" class="mt-1 block w-full border-slate-300 rounded-lg shadow-sm focus:border-slate-800 focus:ring-slate-800 p-2 mobile-btn">
+                    </div>
+                </div>
+
+                <div id="archive-prospects-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Cards de prospectos archivados se llenarán aquí -->
+                </div>
+                <div id="archive-no-prospects" class="text-center py-8 text-slate-400 font-poppins hidden">
+                    <i class="fas fa-archive text-4xl mb-4"></i>
+                    <p>No hay prospectos archivados para mostrar.</p>
+                </div>
+            </section>
         </main>
 
-        <footer class="bg-white border-top text-center py-3 mt-auto">
-            <span class="text-xs text-gray-500 font-poppins tracking-wide">POWERED BY MVGN LABS 2025</span>
-        </footer>
+        <!-- Modal de confirmación -->
+        <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+            <div class="bg-white rounded-lg p-6 shadow-xl w-full max-w-md mobile-modal">
+                <h3 id="confirm-modal-title" class="text-lg font-fraunces text-slate-800 mb-4">Confirmar Acción</h3>
+                <p id="confirm-modal-message" class="text-slate-600 font-poppins mb-6">¿Estás seguro de que deseas realizar esta acción?</p>
+                <div class="flex justify-end gap-3">
+                    <button id="confirm-cancel-btn" class="px-4 py-2 bg-slate-200 text-slate-700 font-poppins rounded-lg hover:bg-slate-300 transition duration-200 mobile-btn">Cancelar</button>
+                    <button id="confirm-action-btn" class="px-4 py-2 bg-red-700 text-white font-poppins rounded-lg hover:bg-red-800 transition duration-200 mobile-btn">Confirmar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de detalles/seguimiento de prospecto - OPTIMIZADO -->
+        <div id="detail-modal" class="modal-overlay hidden">
+            <div class="modal-container animate-modalIn">
+                <!-- Header del modal -->
+                <div class="modal-header">
+                    <h3>Detalles del Prospecto</h3>
+                    <button id="detail-close-btn" class="modal-close-btn">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                
+                <!-- Contenido principal del modal -->
+                <div class="modal-content">
+                    <!-- Grid de detalles optimizado -->
+                    <div class="details-grid">
+                        <div class="detail-card">
+                            <div class="detail-label">
+                                <i data-lucide="building" class="w-4 h-4"></i>
+                                Nombre
+                            </div>
+                            <div class="detail-value" id="detail-businessName">-</div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-label">
+                                <i data-lucide="user" class="w-4 h-4"></i>
+                                Contacto
+                            </div>
+                            <div class="detail-value" id="detail-contactPerson">-</div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-label">
+                                <i data-lucide="mail" class="w-4 h-4"></i>
+                                Email
+                            </div>
+                            <div class="detail-value" id="detail-email">-</div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-label">
+                                <i data-lucide="phone" class="w-4 h-4"></i>
+                                Teléfono
+                            </div>
+                            <div class="detail-value">
+                                <span id="detail-phone">-</span>
+                                <a id="call-button" class="call-btn ml-2 hidden" href="#" style="text-decoration: none;">
+                                    <i data-lucide="phone" class="w-4 h-4"></i> Llamar
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-label">
+                                <i data-lucide="tag" class="w-4 h-4"></i>
+                                Clasificación
+                            </div>
+                            <div class="detail-value" id="detail-classification">-</div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-label">
+                                <i data-lucide="calendar" class="w-4 h-4"></i>
+                                Seguimiento Agendado
+                            </div>
+                            <div class="detail-value" id="detail-prospectingDueDate">-</div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-label">
+                                <i data-lucide="send" class="w-4 h-4"></i>
+                                Fecha de Envío de Correo
+                            </div>
+                            <div class="detail-value" id="detail-sentEmailDate">-</div>
+                        </div>
+                        
+                        <div class="detail-card" id="detail-reagendadoPara-container" style="display: none;">
+                            <div class="detail-label">
+                                <i data-lucide="calendar-check" class="w-4 h-4"></i>
+                                Reagendado para
+                            </div>
+                            <div class="detail-value" id="detail-reagendadoPara">-</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Observaciones -->
+                    <div class="details-grid">
+                        <div class="detail-card" style="grid-column: 1 / -1;">
+                            <div class="detail-label">
+                                <i data-lucide="file-text" class="w-4 h-4"></i>
+                                Observaciones
+                            </div>
+                            <div class="detail-value" id="detail-observations">-</div>
+                        </div>
+                    </div>
+
+                    <!-- Área de actualización de contacto para prospector -->
+                    <div id="prospector-action-area" class="action-section hidden">
+                        <h4><i data-lucide="edit" class="w-4 h-4"></i> Actualizar Contacto</h4>
+                        <div class="form-group">
+                            <label for="followUpNotes" class="form-label">Notas de Seguimiento:</label>
+                            <textarea id="followUpNotes" rows="3" class="form-textarea" placeholder="Describe el resultado del contacto..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactResult" class="form-label">Resultado del Contacto:</label>
+                            <select id="contactResult" class="form-select">
+                                <option value="">Selecciona un resultado</option>
+                                <option value="Interesado">Interesado</option>
+                                <option value="No contesta">No contesta</option>
+                                <option value="Rechazado">Rechazado</option>
+                                <option value="Seguimiento agendado">Seguimiento agendado</option>
+                                <option value="Ya es nuestro cliente">Ya es nuestro cliente</option>
+                                <option value="Convertido a cliente">Convertido a cliente</option>
+                            </select>
+                        </div>
+                        <div id="whatsappMessageArea" style="display: none; margin-top: 10px;">
+                            <label for="whatsappMessage" style="font-weight: 500; color: #166534;">Mensaje para WhatsApp:</label>
+                            <textarea id="whatsappMessage" rows="3" class="form-textarea" style="width: 100%; margin-top: 4px;"></textarea>
+                            <button id="whatsappConfirmSendBtn" type="button" class="action-btn bg-green-600 hover:bg-green-700 text-white" style="margin-top: 6px; float: right;">
+                                <i data-lucide="message-circle" class="w-4 h-4"></i> Enviar mensaje
+                            </button>
+                        </div>
+                        <button id="saveFollowUpBtn" class="action-btn bg-slate-800 hover:bg-slate-900 text-white w-full">
+                            <i data-lucide="save" class="w-4 h-4"></i> Guardar Seguimiento
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Botones de acción del modal - ESTILO OPTIMIZADO -->
+                <div class="modal-actions">
+                    <!-- Botón de reagendar seguimiento -->
+                    <div id="reschedule-action-area" class="hidden">
+                        <button id="rescheduleFollowUpBtn" class="action-btn bg-black hover:bg-white text-white hover:text-black border border-black hover:border-black transition-all duration-200">
+                            <i data-lucide="calendar" class="w-4 h-4"></i>
+                            Reagendar
+                        </button>
+                    </div>
+
+                    <!-- Botón de edición para administradores -->
+                    <div id="edit-prospect-action-area" class="hidden">
+                        <button id="editProspectBtn" class="action-btn bg-black hover:bg-white text-white hover:text-black border border-black hover:border-black transition-all duration-200">
+                            <i data-lucide="edit" class="w-4 h-4"></i>
+                            Editar
+                        </button>
+                    </div>
+
+                    <!-- Botón de eliminación para administradores -->
+                    <div id="admin-actions-area" class="hidden">
+                        <button id="deleteProspectBtn" class="action-btn bg-black hover:bg-white text-white hover:text-black border border-black hover:border-black transition-all duration-200">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de reagendación (Selector de fechas) -->
+        <div id="reschedule-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+            <div class="bg-white rounded-lg p-6 shadow-xl w-full max-w-md mobile-modal">
+                <h3 class="text-lg font-fraunces text-slate-800 mb-4">Reagendar Seguimiento</h3>
+                <div class="mb-4">
+                    <label for="reschedule-date" class="block text-sm font-medium text-slate-700 mb-1">Selecciona nueva fecha de seguimiento:</label>
+                    <input type="text" id="reschedule-date" class="mt-1 block w-full border-slate-300 rounded-lg shadow-sm focus:border-slate-800 focus:ring-slate-800 p-2 font-poppins" readonly>
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button id="reschedule-cancel-btn" class="px-4 py-2 bg-slate-200 text-slate-700 font-poppins rounded-lg hover:bg-slate-300 transition duration-200 mobile-btn">Cancelar</button>
+                    <button id="reschedule-confirm-btn" class="px-4 py-2 bg-orange-600 text-white font-poppins rounded-lg hover:bg-orange-700 transition duration-200 mobile-btn">Confirmar Reagendación</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nuevo Modal de Edición de Prospecto -->
+        <div id="edit-prospect-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+            <div class="bg-white rounded-lg p-6 shadow-xl w-full max-w-md md:max-w-lg mobile-modal">
+                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <h3 class="text-xl font-fraunces text-slate-800">Editar Prospecto</h3>
+                    <button id="edit-prospect-close-btn" class="text-slate-500 hover:text-slate-700">
+                        <i class="fas fa-times-circle text-2xl"></i>
+                    </button>
+                </div>
+                <form id="edit-prospect-form" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-700 font-poppins text-sm mb-6">
+                    <div>
+                        <label for="edit-businessName" class="block text-sm font-medium text-slate-700 mb-1">Nombre del Negocio:</label>
+                        <input type="text" id="edit-businessName" name="businessName" required class="mt-1 block w-full border-slate-300 rounded-lg shadow-sm focus:border-slate-800 focus:ring-slate-800 p-2 font-poppins">
+                    </div>
+                    <div>
+                        <label for="edit-contactPerson" class="block text-sm font-medium text-slate-700 mb-1">Contacto:</label>
+                        <input type="text" id="edit-contactPerson" name="contactPerson" class="mt-1 block w-full border-slate-300 rounded-lg shadow-sm focus:border-slate-800 focus:ring-slate-800 p-2 font-poppins">
+                    </div>
+                    <div>
+                        <label for="edit-email" class="block text-sm font-medium text-slate-700 mb-1">Email:</label>
+                        <input type="email" id="edit-email" name="email" required class="mt-1 block w-full border-slate-300 rounded-lg shadow-sm focus:border-slate-800 focus:ring-slate-800 p-2 font-poppins">
+                    </div>
+                    <div>
+                        <label for="edit-phone" class="block text-sm font-medium text-slate-700 mb-1">Teléfono:</label>
+                        <input type="tel" id="edit-phone" name="phone" required class="mt-1 block w-full border-slate-300 rounded-lg shadow-sm focus:border-slate-800 focus:ring-slate-800 p-2 font-poppins">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="edit-classification" class="block text-sm font-medium text-slate-700 mb-1">Clasificación:</label>
+                        <select id="edit-classification" name="classification" required class="mt-1 block w-full border-slate-300 rounded-lg shadow-sm focus:border-slate-800 focus:ring-slate-800 p-2 font-poppins">
+                            <option value="">Selecciona una opción</option>
+                            <option value="Despacho de Arquitectos">Despacho de Arquitectos</option>
+                            <option value="Diseño de Interiores">Diseño de Interiores</option>
+                            <option value="Constructoras">Constructoras</option>
+                            <option value="Distribuidores de acabados">Distribuidores de acabados</option>
+                            <option value="Mueblerías">Mueblerías</option>
+                            <option value="Showrooms de Baños / Cocinas">Showrooms de Baños / Cocinas</option>
+                            <option value="Hoteles / Desarrolladores de Hospitalidad">Hoteles / Desarrolladores de Hospitalidad</option>
+                            <option value="Cruceros / Espacios Comerciales de Lujo">Cruceros / Espacios Comerciales de Lujo</option>
+                            <option value="Pisos y Recubrimientos">Pisos y Recubrimientos</option>
+                            <option value="Corporativos / Oficinas">Corporativos / Oficinas</option>
+                            <option value="Proyectos Holísticos / Wellness">Proyectos Holísticos / Wellness</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div id="editOtherClassificationContainer" class="hidden md:col-span-2">
+                        <label for="edit-otherClassification" class="block text-sm font-medium text-slate-700 mb-1">Especificar Otra Clasificación:</label>
+                        <input type="text" id="edit-otherClassification" name="otherClassification" class="mt-1 block w-full border-slate-300 rounded-lg shadow-sm focus:border-slate-800 focus:ring-slate-800 p-2 font-poppins">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="edit-observations" class="block text-sm font-medium text-slate-700 mb-1">Observaciones:</label>
+                        <textarea id="edit-observations" name="observations" rows="3" class="mt-1 block w-full border-slate-300 rounded-lg shadow-sm focus:border-slate-800 focus:ring-slate-800 p-2 font-poppins"></textarea>
+                    </div>
+                    <div class="md:col-span-2 flex justify-end gap-3 pt-4">
+                        <button type="button" id="edit-prospect-cancel-btn" class="px-4 py-2 bg-slate-200 text-slate-700 font-poppins rounded-lg hover:bg-slate-300 transition duration-200 mobile-btn">Cancelar</button>
+                        <button type="submit" id="edit-prospect-save-btn" class="px-4 py-2 bg-green-600 text-white font-poppins rounded-lg hover:bg-green-700 transition duration-200 mobile-btn">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Contenedor de notificaciones 'toast' -->
+        <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
     </div>
-    <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Fondo Matrix para selección de roles -->
     <script src="./matrix-bg.js"></script>
+    <!-- JavaScript personalizado -->
     <script type="module" src="./script.js"></script>
+    <footer class="w-full text-center py-4 bg-white border-t border-gray-200 mt-8">
+      <span class="text-xs text-gray-500 font-poppins tracking-wide">POWERED BY MVGN LABS 2025</span>
+    </footer>
 </body>
 </html>
