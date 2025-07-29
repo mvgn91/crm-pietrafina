@@ -1800,13 +1800,18 @@ h2, h3 {
 
 /* Estilos para el calendario semanal - MATERIAL DESIGN */
 .weekly-calendar-day {
-    @apply bg-white border border-slate-200 rounded-xl p-4 cursor-pointer transition-all duration-300 hover:shadow-lg;
+    @apply bg-white border border-slate-200 cursor-pointer transition-all duration-300 hover:shadow-lg;
     min-height: 90px;
     position: relative;
     background: #ffffff;
     border: 2px solid #e2e8f0;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    border-radius: 16px;
+    border-radius: 8px;
+    padding: 12px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .weekly-calendar-day:hover {
@@ -1852,10 +1857,14 @@ h2, h3 {
 }
 
 .weekly-calendar-day .day-number {
-    @apply text-2xl font-bold mb-2;
+    @apply text-2xl font-bold mb-3;
     color: #dc2626;
     font-family: 'Fraunces', serif;
     font-weight: 600;
+    text-align: center;
+    display: block;
+    line-height: 1;
+    margin-top: 8px;
 }
 
 .weekly-calendar-day.today .day-number {
@@ -1874,10 +1883,12 @@ h2, h3 {
 }
 
 .weekly-calendar-day .day-name {
-    @apply text-sm text-slate-600 mb-2 font-medium;
+    @apply text-sm text-slate-600 mb-1 font-medium;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-family: 'Poppins', sans-serif;
+    text-align: center;
+    display: block;
 }
 
 .weekly-calendar-day .followup-count {
@@ -1933,7 +1944,7 @@ h2, h3 {
     border: 2px solid #e2e8f0;
     transition: all 0.3s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-radius: 12px;
+    border-radius: 6px;
 }
 
 #prev-week-btn:hover, #next-week-btn:hover {
@@ -1949,7 +1960,7 @@ h2, h3 {
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
     font-weight: 600;
-    border-radius: 12px;
+    border-radius: 6px;
 }
 
 #today-btn:hover {
@@ -1962,7 +1973,7 @@ h2, h3 {
 #current-week-display {
     background: #fef2f2;
     padding: 10px 16px;
-    border-radius: 12px;
+    border-radius: 6px;
     border: 2px solid #fecaca;
     color: #dc2626 !important;
     font-weight: 600;
@@ -1973,7 +1984,7 @@ h2, h3 {
 #week-summary .bg-white {
     background: #ffffff !important;
     border: 2px solid #fecaca;
-    border-radius: 12px;
+    border-radius: 8px;
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
@@ -1988,7 +1999,7 @@ h2, h3 {
 #weekly-calendar {
     background: #fef2f2;
     padding: 20px;
-    border-radius: 16px;
+    border-radius: 12px;
     border: 2px solid #fecaca;
     box-shadow: 0 4px 20px rgba(220, 38, 38, 0.1);
 }
@@ -1997,7 +2008,7 @@ h2, h3 {
 #filter-indicator {
     background: #fef2f2;
     padding: 6px 12px;
-    border-radius: 8px;
+    border-radius: 6px;
     border: 2px solid #fecaca;
     color: #dc2626 !important;
     font-weight: 600;
@@ -2010,7 +2021,7 @@ h2, h3 {
     transition: all 0.3s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     font-weight: 600;
-    border-radius: 8px;
+    border-radius: 6px;
 }
 
 #clear-filter-btn:hover {
@@ -2024,11 +2035,12 @@ h2, h3 {
 @media (max-width: 768px) {
     .weekly-calendar-day {
         min-height: 75px;
-        padding: 0.75rem;
+        padding: 10px 6px;
     }
     
     .weekly-calendar-day .day-number {
         font-size: 1.5rem;
+        margin-top: 6px;
     }
     
     .weekly-calendar-day .day-name {
