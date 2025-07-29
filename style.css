@@ -1801,54 +1801,55 @@ h2, h3 {
 /* Estilos para el calendario semanal - MATERIAL DESIGN */
 .weekly-calendar-day {
     @apply bg-white border border-slate-200 cursor-pointer transition-all duration-300 hover:shadow-lg;
-    min-height: 90px;
+    min-height: 100px;
     position: relative;
     background: #ffffff;
-    border: 2px solid #e2e8f0;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    border-radius: 8px;
-    padding: 12px 8px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border-radius: 6px;
+    padding: 16px 12px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
+    font-family: 'Fraunces', serif;
 }
 
 .weekly-calendar-day:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     border-color: #cbd5e1;
 }
 
 .weekly-calendar-day.today {
     background: #fef2f2;
-    border: 2px solid #ef4444;
-    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.15);
+    border: 2px solid #dc2626;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.15);
 }
 
 .weekly-calendar-day.selected {
     background: #fee2e2;
     border: 2px solid #dc2626;
-    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.2);
+    box-shadow: 0 3px 10px rgba(220, 38, 38, 0.2);
     transform: translateY(-1px);
 }
 
 .weekly-calendar-day.has-followups {
     background: #fff7ed;
-    border: 2px solid #fb923c;
-    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.15);
+    border: 2px solid #f97316;
+    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.15);
 }
 
 .weekly-calendar-day.has-followups:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(249, 115, 22, 0.2);
-    border-color: #f97316;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+    border-color: #ea580c;
 }
 
 .weekly-calendar-day.weekend {
     background: #f8fafc;
-    border: 2px solid #cbd5e1;
-    opacity: 0.9;
+    border: 1px solid #cbd5e1;
+    opacity: 0.85;
 }
 
 .weekly-calendar-day.weekend:hover {
@@ -1856,15 +1857,27 @@ h2, h3 {
     transform: translateY(-1px);
 }
 
+.weekly-calendar-day .day-name {
+    @apply text-sm text-slate-600 font-medium;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: 'Fraunces', serif;
+    text-align: center;
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
 .weekly-calendar-day .day-number {
-    @apply text-2xl font-bold mb-3;
-    color: #dc2626;
+    @apply text-3xl font-bold;
+    color: #1e293b;
     font-family: 'Fraunces', serif;
     font-weight: 600;
     text-align: center;
     display: block;
     line-height: 1;
-    margin-top: 8px;
+    margin-bottom: 8px;
 }
 
 .weekly-calendar-day.today .day-number {
@@ -1878,34 +1891,31 @@ h2, h3 {
 }
 
 .weekly-calendar-day.has-followups .day-number {
-    color: #dc2626;
+    color: #1e293b;
     font-weight: 600;
 }
 
-.weekly-calendar-day .day-name {
-    @apply text-sm text-slate-600 mb-1 font-medium;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-family: 'Poppins', sans-serif;
-    text-align: center;
-    display: block;
-}
-
 .weekly-calendar-day .followup-count {
-    @apply absolute top-2 right-2 text-white text-xs font-bold rounded-full flex items-center justify-center;
-    background: #f97316;
-    width: 24px;
-    height: 24px;
-    box-shadow: 0 2px 4px rgba(249, 115, 22, 0.3);
+    @apply absolute top-3 right-3 text-white font-bold rounded-full flex items-center justify-center;
+    background: #dc2626;
+    width: 20px;
+    height: 20px;
+    font-family: 'Fraunces', serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(220, 38, 38, 0.3);
+    border: 1px solid #ffffff;
 }
 
 .weekly-calendar-day .followup-indicator {
-    @apply absolute bottom-2 left-2 right-2 h-1 rounded-full;
-    background: #f97316;
+    @apply absolute bottom-3 left-3 right-3 h-1 rounded-full;
+    background: #dc2626;
+    opacity: 0.8;
 }
 
 .weekly-calendar-day.has-followups .followup-indicator {
-    background: #ea580c;
+    background: #dc2626;
+    opacity: 1;
 }
 
 /* Animaciones para el calendario */
@@ -1938,128 +1948,159 @@ h2, h3 {
     animation: none;
 }
 
-/* Estilos para los botones de navegación del calendario - MATERIAL DESIGN */
+/* Estilos para los botones de navegación del calendario - DISEÑO PROFESIONAL */
 #prev-week-btn, #next-week-btn {
     background: #f8fafc;
-    border: 2px solid #e2e8f0;
+    border: 1px solid #e2e8f0;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
 }
 
 #prev-week-btn:hover, #next-week-btn:hover {
     background: #e2e8f0;
     border-color: #cbd5e1;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
 #today-btn {
     background: #dc2626 !important;
-    border: 2px solid #dc2626;
+    border: 1px solid #dc2626;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+    box-shadow: 0 1px 4px rgba(220, 38, 38, 0.2);
     font-weight: 600;
-    border-radius: 6px;
+    border-radius: 4px;
+    font-family: 'Fraunces', serif;
 }
 
 #today-btn:hover {
     background: #b91c1c !important;
     transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
 }
 
-/* Estilos para el display de la semana actual - MATERIAL DESIGN */
+/* Estilos para el display de la semana actual - DISEÑO PROFESIONAL */
 #current-week-display {
     background: #fef2f2;
-    padding: 10px 16px;
-    border-radius: 6px;
-    border: 2px solid #fecaca;
+    padding: 8px 14px;
+    border-radius: 4px;
+    border: 1px solid #fecaca;
     color: #dc2626 !important;
     font-weight: 600;
-    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.1);
+    box-shadow: 0 1px 4px rgba(220, 38, 38, 0.1);
+    font-family: 'Fraunces', serif;
+    font-size: 0.9rem;
 }
 
-/* Estilos para el resumen de la semana - MATERIAL DESIGN */
+/* Estilos para el resumen de la semana - DISEÑO PROFESIONAL */
 #week-summary .bg-white {
     background: #ffffff !important;
-    border: 2px solid #fecaca;
-    border-radius: 8px;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    font-family: 'Fraunces', serif;
 }
 
 #week-summary .bg-white:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.08);
     border-color: #fca5a5;
 }
 
-/* Estilos para el contenedor del calendario - MATERIAL DESIGN */
-#weekly-calendar {
-    background: #fef2f2;
-    padding: 20px;
-    border-radius: 12px;
-    border: 2px solid #fecaca;
-    box-shadow: 0 4px 20px rgba(220, 38, 38, 0.1);
+#week-summary .bg-white span {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
 }
 
-/* Estilos para el indicador de filtro - MATERIAL DESIGN */
+#week-summary .bg-white div[id$="-followups"],
+#week-summary .bg-white div[id$="-today"],
+#week-summary .bg-white div[id$="-week"] {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+}
+
+/* Estilos para el contenedor del calendario - DISEÑO PROFESIONAL */
+#weekly-calendar {
+    background: #fef2f2;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid #fecaca;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.08);
+}
+
+/* Estilos para el indicador de filtro - DISEÑO PROFESIONAL */
 #filter-indicator {
     background: #fef2f2;
     padding: 6px 12px;
-    border-radius: 6px;
-    border: 2px solid #fecaca;
+    border-radius: 4px;
+    border: 1px solid #fecaca;
     color: #dc2626 !important;
     font-weight: 600;
-    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.1);
+    box-shadow: 0 1px 4px rgba(220, 38, 38, 0.1);
+    font-family: 'Fraunces', serif;
+    font-size: 0.875rem;
 }
 
 #clear-filter-btn {
     background: #f8fafc !important;
-    border: 2px solid #e2e8f0;
+    border: 1px solid #e2e8f0;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     font-weight: 600;
-    border-radius: 6px;
+    border-radius: 4px;
+    font-family: 'Fraunces', serif;
+    font-size: 0.875rem;
 }
 
 #clear-filter-btn:hover {
     background: #e2e8f0 !important;
     border-color: #cbd5e1;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
-/* Responsive para el calendario - MATERIAL DESIGN */
+/* Responsive para el calendario - DISEÑO PROFESIONAL */
 @media (max-width: 768px) {
     .weekly-calendar-day {
-        min-height: 75px;
-        padding: 10px 6px;
+        min-height: 80px;
+        padding: 12px 8px;
     }
     
     .weekly-calendar-day .day-number {
-        font-size: 1.5rem;
-        margin-top: 6px;
+        font-size: 1.75rem;
+        margin-bottom: 6px;
     }
     
     .weekly-calendar-day .day-name {
         font-size: 0.75rem;
+        margin-bottom: 6px;
     }
     
     .weekly-calendar-day .followup-count {
-        width: 1.5rem;
-        height: 1.5rem;
-        font-size: 0.75rem;
+        width: 18px;
+        height: 18px;
+        font-size: 0.7rem;
+        top: 2px;
+        right: 2px;
+    }
+    
+    .weekly-calendar-day .followup-indicator {
+        bottom: 2px;
+        left: 2px;
+        right: 2px;
     }
     
     #weekly-calendar {
-        padding: 15px;
+        padding: 12px;
     }
     
     #current-week-display {
-        padding: 8px 12px;
-        font-size: 0.875rem;
+        padding: 6px 10px;
+        font-size: 0.8rem;
     }
     
     #prev-week-btn, #next-week-btn {
@@ -2072,47 +2113,49 @@ h2, h3 {
     }
     
     #week-summary .bg-white {
-        padding: 1rem;
+        padding: 0.75rem;
     }
     
     #filter-indicator {
-        padding: 6px 12px;
+        padding: 5px 10px;
         font-size: 0.75rem;
     }
     
     #clear-filter-btn {
-        padding: 6px 12px;
+        padding: 5px 10px;
         font-size: 0.75rem;
     }
 }
 
 @media (max-width: 480px) {
     .weekly-calendar-day {
-        min-height: 65px;
-        padding: 0.5rem;
+        min-height: 70px;
+        padding: 8px 6px;
     }
     
     .weekly-calendar-day .day-number {
-        font-size: 1.25rem;
+        font-size: 1.5rem;
+        margin-bottom: 4px;
     }
     
     .weekly-calendar-day .day-name {
-        font-size: 0.625rem;
+        font-size: 0.7rem;
+        margin-bottom: 4px;
     }
     
     .weekly-calendar-day .followup-count {
-        width: 1.25rem;
-        height: 1.25rem;
-        font-size: 0.625rem;
+        width: 16px;
+        height: 16px;
+        font-size: 0.65rem;
     }
     
     #weekly-calendar {
-        padding: 10px;
+        padding: 8px;
         gap: 0.5rem;
     }
     
     #current-week-display {
-        padding: 6px 8px;
+        padding: 5px 8px;
         font-size: 0.75rem;
     }
 }
