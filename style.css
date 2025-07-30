@@ -2375,6 +2375,8 @@ h2, h3 {
     color: var(--gray-700);
     margin: 0;
     padding: 0;
+    display: flex;
+    align-items: center;
 }
 
 /* Responsive para los encabezados */

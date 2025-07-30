@@ -789,7 +789,7 @@ const renderProspectorCards = () => {
         if (prospectosSinContactar.length > 0) {
             elements.prospectorProspectsCardsContainer.insertAdjacentHTML('beforeend', `
                 <div class="prospect-section-header">
-                    <h4>📞 Prospectos Sin Contactar (${prospectosSinContactar.length})</h4>
+                    <h4><i data-lucide="phone" class="w-4 h-4 mr-1"></i> Prospectos Sin Contactar (${prospectosSinContactar.length})</h4>
                 </div>
             `);
             
@@ -802,7 +802,7 @@ const renderProspectorCards = () => {
         if (prospectosReagendados.length > 0) {
             elements.prospectorProspectsCardsContainer.insertAdjacentHTML('beforeend', `
                 <div class="prospect-section-header">
-                    <h4>📅 Prospectos Reagendados (${prospectosReagendados.length})</h4>
+                    <h4><i data-lucide="calendar" class="w-4 h-4 mr-1"></i> Prospectos Reagendados (${prospectosReagendados.length})</h4>
                 </div>
             `);
             
@@ -1006,7 +1006,7 @@ const renderAdminCards = () => {
                 if (prospectosSinContactar.length > 0) {
                     elements.adminProspectsCardsContainer.insertAdjacentHTML('beforeend', `
                         <div class="prospect-section-header">
-                            <h4>📞 Prospectos Sin Contactar (${prospectosSinContactar.length})</h4>
+                            <h4><i data-lucide="phone" class="w-4 h-4 mr-1"></i> Prospectos Sin Contactar (${prospectosSinContactar.length})</h4>
                         </div>
                     `);
                     
@@ -1019,7 +1019,7 @@ const renderAdminCards = () => {
                 if (prospectosReagendados.length > 0) {
                     elements.adminProspectsCardsContainer.insertAdjacentHTML('beforeend', `
                         <div class="prospect-section-header">
-                            <h4>📅 Prospectos Reagendados (${prospectosReagendados.length})</h4>
+                            <h4><i data-lucide="calendar" class="w-4 h-4 mr-1"></i> Prospectos Reagendados (${prospectosReagendados.length})</h4>
                         </div>
                     `);
                     
@@ -1032,7 +1032,7 @@ const renderAdminCards = () => {
                 if (otrosProspectos.length > 0) {
                     elements.adminProspectsCardsContainer.insertAdjacentHTML('beforeend', `
                         <div class="prospect-section-header">
-                            <h4>📋 Otros Prospectos (${otrosProspectos.length})</h4>
+                            <h4><i data-lucide="file-text" class="w-4 h-4 mr-1"></i> Otros Prospectos (${otrosProspectos.length})</h4>
                         </div>
                     `);
                     
