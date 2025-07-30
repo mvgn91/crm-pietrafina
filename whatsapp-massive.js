@@ -368,38 +368,45 @@ document.addEventListener('DOMContentLoaded', function () {
     return message;
   }
 
-  // Función para limpiar y formatear número de teléfono
+  // Función para limpiar y formatear número de teléfono para WhatsApp (México)
   function cleanPhoneNumber(phone) {
     if (!phone) return null;
     
     // Remover todos los caracteres que no sean números
     let cleanPhone = phone.replace(/\D/g, '');
     
-    console.log('Número original:', phone);
-    console.log('Número limpio:', cleanPhone);
+    console.log('📱 Número original:', phone);
+    console.log('📱 Número limpio:', cleanPhone);
     
     // Validar que el número tenga al menos 10 dígitos
     if (cleanPhone.length < 10) {
-      console.warn('Número muy corto:', cleanPhone);
+      console.warn('❌ Número muy corto:', cleanPhone);
       return null;
     }
     
-    // Formatear según las reglas de México
-    if (cleanPhone.startsWith('52') && cleanPhone.length >= 12) {
-      // Ya tiene código de país México (52)
+    // Formatear según las reglas de México para WhatsApp
+    if (cleanPhone.length === 10) {
+      // Número de 10 dígitos, agregar 521 (México)
+      const formattedNumber = '521' + cleanPhone;
+      console.log('✅ Número de 10 dígitos → 521 +', cleanPhone, '=', formattedNumber);
+      return formattedNumber;
+    } else if (cleanPhone.length === 12 && cleanPhone.startsWith('52')) {
+      // Ya tiene código de país México (52), agregar 1 para WhatsApp
+      const formattedNumber = '521' + cleanPhone.substring(2);
+      console.log('✅ Número con 52 → 521 +', cleanPhone.substring(2), '=', formattedNumber);
+      return formattedNumber;
+    } else if (cleanPhone.length === 13 && cleanPhone.startsWith('521')) {
+      // Ya tiene formato correcto para WhatsApp (521)
+      console.log('✅ Número ya tiene formato 521:', cleanPhone);
       return cleanPhone;
-    } else if (cleanPhone.length === 10) {
-      // Número de 10 dígitos, agregar código de país México
-      return '52' + cleanPhone;
     } else if (cleanPhone.length === 11 && cleanPhone.startsWith('1')) {
-      // Número con 1 al inicio (formato antiguo), remover el 1 y agregar 52
-      return '52' + cleanPhone.substring(1);
-    } else if (cleanPhone.length === 12 && cleanPhone.startsWith('521')) {
-      // Formato 521XXXXXXXXX, mantener como está
-      return cleanPhone;
+      // Número con 1 al inicio (formato antiguo), remover el 1 y agregar 521
+      const formattedNumber = '521' + cleanPhone.substring(1);
+      console.log('✅ Número con 1 → 521 +', cleanPhone.substring(1), '=', formattedNumber);
+      return formattedNumber;
     } else {
       // Para otros casos, intentar con el número tal como está
-      console.warn('Formato de número no reconocido:', cleanPhone);
+      console.warn('⚠️ Formato de número no reconocido:', cleanPhone);
       return cleanPhone;
     }
   }

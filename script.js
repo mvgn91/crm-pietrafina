@@ -236,6 +236,51 @@ const canUserReschedule = (userId, userRole, userName) => {
            userName === 'Francisco Capetillo';
 };
 
+/**
+ * Función para formatear números de teléfono para WhatsApp (México)
+ * Siempre agrega 521 para números de 10 dígitos
+ */
+const formatPhoneForWhatsApp = (phone) => {
+    if (!phone) return null;
+    
+    // Remover todos los caracteres que no sean números
+    let cleanPhone = phone.replace(/\D/g, '');
+    
+    console.log('📱 Formateando número:', phone, '→', cleanPhone);
+    
+    // Validar que el número tenga al menos 10 dígitos
+    if (cleanPhone.length < 10) {
+        console.warn('❌ Número muy corto:', cleanPhone);
+        return null;
+    }
+    
+    // Formatear según las reglas de México para WhatsApp
+    if (cleanPhone.length === 10) {
+        // Número de 10 dígitos, agregar 521 (México)
+        const formattedNumber = '521' + cleanPhone;
+        console.log('✅ Número de 10 dígitos → 521 +', cleanPhone, '=', formattedNumber);
+        return formattedNumber;
+    } else if (cleanPhone.length === 12 && cleanPhone.startsWith('52')) {
+        // Ya tiene código de país México (52), agregar 1 para WhatsApp
+        const formattedNumber = '521' + cleanPhone.substring(2);
+        console.log('✅ Número con 52 → 521 +', cleanPhone.substring(2), '=', formattedNumber);
+        return formattedNumber;
+    } else if (cleanPhone.length === 13 && cleanPhone.startsWith('521')) {
+        // Ya tiene formato correcto para WhatsApp (521)
+        console.log('✅ Número ya tiene formato 521:', cleanPhone);
+        return cleanPhone;
+    } else if (cleanPhone.length === 11 && cleanPhone.startsWith('1')) {
+        // Número con 1 al inicio (formato antiguo), remover el 1 y agregar 521
+        const formattedNumber = '521' + cleanPhone.substring(1);
+        console.log('✅ Número con 1 → 521 +', cleanPhone.substring(1), '=', formattedNumber);
+        return formattedNumber;
+    } else {
+        // Para otros casos, intentar con el número tal como está
+        console.warn('⚠️ Formato de número no reconocido:', cleanPhone);
+        return cleanPhone;
+    }
+};
+
 // --- Caching de elementos del DOM ---
 const elements = {
     appHeader: document.getElementById('app-header'),
@@ -308,6 +353,7 @@ const elements = {
     whatsappMessage: document.getElementById('whatsappMessage'),
     whatsappConfirmSendBtn: document.getElementById('whatsappConfirmSendBtn'),
     whatsappCancelBtn: document.getElementById('whatsappCancelBtn'),
+    whatsappMessage: document.getElementById('whatsappMessage'),
     whatsappModal: document.getElementById('whatsapp-modal'),
     whatsappModalClose: document.getElementById('whatsapp-modal-close'),
     whatsappModalMessage: document.getElementById('whatsapp-modal-message'),
@@ -1482,21 +1528,21 @@ const closeWhatsAppModal = () => {
  */
 const validateWhatsAppNumber = async (phoneNumber) => {
     try {
-        // Limpiar el número de teléfono (remover espacios, guiones, etc.)
-        const cleanNumber = phoneNumber.replace(/\D/g, '');
+        // Usar la nueva función de formateo que siempre agrega 521
+        const formattedNumber = formatPhoneForWhatsApp(phoneNumber);
         
-        // Si el número no tiene código de país, asumir México (+52)
-        let formattedNumber = cleanNumber;
-        if (!cleanNumber.startsWith('52') && cleanNumber.length === 10) {
-            formattedNumber = '52' + cleanNumber;
-        } else if (cleanNumber.length === 10) {
-            formattedNumber = '52' + cleanNumber;
+        if (!formattedNumber) {
+            console.error('❌ Número inválido para validación:', phoneNumber);
+            return false;
         }
+        
+        console.log('🔍 Validando número formateado:', formattedNumber);
         
         // Verificar formato básico del número
         const isValidFormat = formattedNumber.length >= 12 && formattedNumber.length <= 15;
         
         if (!isValidFormat) {
+            console.error('❌ Formato inválido después de formateo:', formattedNumber);
             return false;
         }
         
@@ -1509,6 +1555,7 @@ const validateWhatsAppNumber = async (phoneNumber) => {
         }
         
         const data = await response.json();
+        console.log('✅ Resultado de validación:', data);
         return data.tieneWhatsapp;
         
     } catch (error) {
@@ -1947,29 +1994,12 @@ const sendWhatsAppMessage = (prospect) => {
         return;
     }
 
-    // Limpiar y formatear número de teléfono
-    const phoneNumber = prospect.phone.replace(/\D/g, '');
+    // Usar la nueva función de formateo que siempre agrega 521
+    const cleanPhone = formatPhoneForWhatsApp(prospect.phone);
     
-    // Validar que el número tenga al menos 10 dígitos
-    if (phoneNumber.length < 10) {
+    if (!cleanPhone) {
         showToast('Número de teléfono inválido', 'error');
         return;
-    }
-    
-    // Formatear según las reglas de México
-    let cleanPhone = phoneNumber;
-    if (phoneNumber.startsWith('52') && phoneNumber.length >= 12) {
-        // Ya tiene código de país México (52)
-        cleanPhone = phoneNumber;
-    } else if (phoneNumber.length === 10) {
-        // Número de 10 dígitos, agregar código de país México
-        cleanPhone = '52' + phoneNumber;
-    } else if (phoneNumber.length === 11 && phoneNumber.startsWith('1')) {
-        // Número con 1 al inicio (formato antiguo), remover el 1 y agregar 52
-        cleanPhone = '52' + phoneNumber.substring(1);
-    } else if (phoneNumber.length === 12 && phoneNumber.startsWith('521')) {
-        // Formato 521XXXXXXXXX, mantener como está
-        cleanPhone = phoneNumber;
     }
 
     console.log('🚀 Iniciando envío de WhatsApp...');
@@ -2673,6 +2703,29 @@ const initFollowUpEventListeners = () => {
             await handleSaveFollowUp();
         });
     }
+    
+    // Event listener para el botón de enviar WhatsApp desde el modal de seguimiento
+    if (elements.whatsappConfirmSendBtn) {
+        elements.whatsappConfirmSendBtn.addEventListener('click', () => {
+            if (currentProspectIdForModal) {
+                const prospect = allProspects.find(p => p.id === currentProspectIdForModal);
+                if (prospect) {
+                    sendWhatsAppMessageFromFollowUp(prospect);
+                }
+            }
+        });
+    }
+    
+    // Event listener para cancelar WhatsApp desde el modal de seguimiento
+    if (elements.whatsappCancelBtn) {
+        elements.whatsappCancelBtn.addEventListener('click', () => {
+            // Ocultar el área de mensaje de WhatsApp
+            const whatsappMessageArea = document.getElementById('whatsappMessageArea');
+            if (whatsappMessageArea) {
+                whatsappMessageArea.classList.add('hidden');
+            }
+        });
+    }
 };
 
 /**
@@ -2737,6 +2790,85 @@ const handleRescheduleConfirm = async () => {
     } catch (error) {
         console.error('Error al reagendar:', error);
         showToast('Error al reagendar: ' + error.message, 'error');
+    }
+};
+
+/**
+ * Envía mensaje de WhatsApp desde el modal de seguimiento
+ */
+const sendWhatsAppMessageFromFollowUp = (prospect) => {
+    // Obtener el mensaje del textarea
+    const message = elements.whatsappMessage?.value?.trim();
+    
+    if (!message) {
+        showToast('El mensaje no puede estar vacío', 'error');
+        return;
+    }
+
+    // Usar la nueva función de formateo que siempre agrega 521
+    const cleanPhone = formatPhoneForWhatsApp(prospect.phone);
+    
+    if (!cleanPhone) {
+        showToast('Número de teléfono inválido', 'error');
+        return;
+    }
+
+    console.log('🚀 Iniciando envío de WhatsApp desde seguimiento...');
+    console.log('📱 Número final para WhatsApp:', cleanPhone);
+    console.log('💬 Mensaje a enviar:', message);
+
+    // ESTRATEGIA UNIFICADA: SIEMPRE intentar abrir la app nativa de WhatsApp
+    console.log('🚀 ESTRATEGIA UNIFICADA: Intentando abrir app nativa de WhatsApp en todos los dispositivos');
+    
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    
+    console.log('🍎 Es iOS:', isIOS);
+
+    try {
+        // ESTRATEGIA UNIFICADA: Intentar app nativa en todos los dispositivos
+        console.log('📱 Intentando abrir app nativa de WhatsApp...');
+        
+        let whatsappUrl = '';
+        if (isIOS) {
+            // Para iOS, usar whatsapp://send
+            whatsappUrl = `whatsapp://send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
+            console.log('🍎 iOS detectado - usando whatsapp://send');
+        } else {
+            // Para Android y otros, usar intent:// para abrir la app nativa
+            whatsappUrl = `intent://send/${cleanPhone}#Intent;scheme=smsto;package=com.whatsapp;S.sms_body=${encodeURIComponent(message)};end`;
+            console.log('🤖 Android/otros detectado - usando intent:// para app nativa');
+        }
+
+        // Intentar abrir la app nativa
+        window.location.href = whatsappUrl;
+        
+        // Esperar un poco para ver si la app se abre
+        setTimeout(() => {
+            // Si la página sigue visible, la app no se abrió
+            if (!document.hidden) {
+                console.warn('⚠️ App de WhatsApp no se abrió, copiando mensaje al portapapeles');
+                navigator.clipboard.writeText(message).then(() => {
+                    showToast('Mensaje copiado al portapapeles. Pégalo en WhatsApp.', 'info');
+                }).catch(err => {
+                    console.error('Error al copiar al portapapeles:', err);
+                    showToast('Error al copiar mensaje al portapapeles', 'error');
+                });
+            } else {
+                console.log('✅ App de WhatsApp abierta exitosamente');
+            }
+        }, 1500);
+        
+        // Ocultar el área de mensaje de WhatsApp
+        const whatsappMessageArea = document.getElementById('whatsappMessageArea');
+        if (whatsappMessageArea) {
+            whatsappMessageArea.classList.add('hidden');
+        }
+        
+        showToast('Abriendo WhatsApp...', 'success');
+        
+    } catch (error) {
+        console.error('❌ Error al enviar mensaje por WhatsApp:', error);
+        showToast('Error al generar el enlace de WhatsApp', 'error');
     }
 };
 
