@@ -1519,6 +1519,12 @@ h2, h3 {
   border: 1px solid #fecaca;
 }
 
+.whatsapp-tag-pending {
+  background: #fef3c7;
+  color: #d97706;
+  border: 1px solid #fed7aa;
+}
+
 @media (max-width: 480px) {
   .prospect-card {
     max-width: 100%;
