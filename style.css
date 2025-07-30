@@ -1525,6 +1525,19 @@ h2, h3 {
   border: 1px solid #fed7aa;
 }
 
+.whatsapp-status-toggle {
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+}
+
+.whatsapp-status-toggle:hover {
+  opacity: 1;
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
 @media (max-width: 480px) {
   .prospect-card {
     max-width: 100%;
