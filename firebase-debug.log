@@ -1,0 +1,56 @@
+[debug] [2025-07-30T04:26:06.129Z] ----------------------------------------------------------------------
+[debug] [2025-07-30T04:26:06.133Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\ncape\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js serve
+[debug] [2025-07-30T04:26:06.133Z] CLI Version:   14.8.0
+[debug] [2025-07-30T04:26:06.134Z] Platform:      win32
+[debug] [2025-07-30T04:26:06.134Z] Node Version:  v22.16.0
+[debug] [2025-07-30T04:26:06.135Z] Time:          Tue Jul 29 2025 22:26:06 GMT-0600 (GMT-06:00)
+[debug] [2025-07-30T04:26:06.135Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-07-30T04:26:06.143Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2025-07-30T04:26:06.643Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-07-30T04:26:06.643Z] > authorizing via signed-in user (jazzfatale@gmail.com)
+[debug] [2025-07-30T04:26:06.643Z] [iam] checking project crm-pietrafina for permissions ["firebase.projects.get"]
+[debug] [2025-07-30T04:26:06.644Z] Checked if tokens are valid: false, expires at: 1752091570791
+[debug] [2025-07-30T04:26:06.644Z] Checked if tokens are valid: false, expires at: 1752091570791
+[debug] [2025-07-30T04:26:06.644Z] > refreshing access token with scopes: []
+[debug] [2025-07-30T04:26:06.645Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-07-30T04:26:06.646Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-07-30T04:26:06.813Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2025-07-30T04:26:06.813Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[debug] [2025-07-30T04:26:06.842Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-07-30T04:26:06.843Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-07-30T04:26:06.856Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/crm-pietrafina:testIamPermissions [none]
+[debug] [2025-07-30T04:26:06.856Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/crm-pietrafina:testIamPermissions x-goog-quota-user=projects/crm-pietrafina
+[debug] [2025-07-30T04:26:06.856Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/crm-pietrafina:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2025-07-30T04:26:07.529Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/crm-pietrafina:testIamPermissions 200
+[debug] [2025-07-30T04:26:07.529Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/crm-pietrafina:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2025-07-30T04:26:07.532Z] Checked if tokens are valid: true, expires at: 1753853165843
+[debug] [2025-07-30T04:26:07.533Z] Checked if tokens are valid: true, expires at: 1753853165843
+[debug] [2025-07-30T04:26:07.534Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/crm-pietrafina/services/cloudresourcemanager.googleapis.com [none]
+[debug] [2025-07-30T04:26:07.534Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/crm-pietrafina/services/cloudresourcemanager.googleapis.com x-goog-quota-user=projects/crm-pietrafina
+[debug] [2025-07-30T04:26:07.994Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/crm-pietrafina/services/cloudresourcemanager.googleapis.com 200
+[debug] [2025-07-30T04:26:07.996Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/crm-pietrafina/services/cloudresourcemanager.googleapis.com [omitted]
+[debug] [2025-07-30T04:26:08.014Z] Checked if tokens are valid: true, expires at: 1753853165843
+[debug] [2025-07-30T04:26:08.015Z] Checked if tokens are valid: true, expires at: 1753853165843
+[debug] [2025-07-30T04:26:08.015Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/crm-pietrafina [none]
+[debug] [2025-07-30T04:26:08.131Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/crm-pietrafina 200
+[debug] [2025-07-30T04:26:08.132Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/crm-pietrafina {"projectNumber":"765972736898","projectId":"crm-pietrafina","lifecycleState":"ACTIVE","name":"CRM PIETRAFINA","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2025-06-20T19:29:55.247084Z"}
+[info] 
+[info] === Serving from 'C:\PROYECTOS DE APLICACION\CRM PIETRAFINA'...
+[info] 
+[debug] [2025-07-30T04:26:08.153Z] Checked if tokens are valid: true, expires at: 1753853165843
+[debug] [2025-07-30T04:26:08.154Z] Checked if tokens are valid: true, expires at: 1753853165843
+[debug] [2025-07-30T04:26:08.155Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/crm-pietrafina/sites 
+[debug] [2025-07-30T04:26:08.882Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/crm-pietrafina/sites 200
+[debug] [2025-07-30T04:26:08.883Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/crm-pietrafina/sites {"sites":[{"name":"projects/crm-pietrafina/sites/crm-pietrafina","defaultUrl":"https://crm-pietrafina.web.app","appId":"1:765972736898:web:3cffb3322601fa5d607d9b","type":"DEFAULT_SITE"},{"name":"projects/crm-pietrafina/sites/crm-pietrafina-123","defaultUrl":"https://crm-pietrafina-123.web.app","type":"USER_SITE"}]}
+[debug] [2025-07-30T04:26:08.885Z] Checked if tokens are valid: true, expires at: 1753853165843
+[debug] [2025-07-30T04:26:08.885Z] Checked if tokens are valid: true, expires at: 1753853165843
+[debug] [2025-07-30T04:26:08.886Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/crm-pietrafina/webApps/1:765972736898:web:3cffb3322601fa5d607d9b/config [none]
+[debug] [2025-07-30T04:26:09.293Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/crm-pietrafina/webApps/1:765972736898:web:3cffb3322601fa5d607d9b/config 200
+[debug] [2025-07-30T04:26:09.293Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/crm-pietrafina/webApps/1:765972736898:web:3cffb3322601fa5d607d9b/config {"projectId":"crm-pietrafina","appId":"1:765972736898:web:3cffb3322601fa5d607d9b","storageBucket":"crm-pietrafina.firebasestorage.app","apiKey":"AIzaSyB2VgG-spKXngIcC5pbP_Knpi3e06c6z4E","authDomain":"crm-pietrafina.firebaseapp.com","messagingSenderId":"765972736898","measurementId":"G-2BZ0J4T69V"}
+[debug] [2025-07-30T04:26:09.304Z] Checked if tokens are valid: true, expires at: 1753853165843
+[debug] [2025-07-30T04:26:09.304Z] Checked if tokens are valid: true, expires at: 1753853165843
+[debug] [2025-07-30T04:26:09.304Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/crm-pietrafina [none]
+[debug] [2025-07-30T04:26:09.515Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/crm-pietrafina 200
+[debug] [2025-07-30T04:26:09.515Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/crm-pietrafina {"projectId":"crm-pietrafina","projectNumber":"765972736898","displayName":"CRM PIETRAFINA","name":"projects/crm-pietrafina","resources":{"hostingSite":"crm-pietrafina"},"state":"ACTIVE","etag":"1_dfc1de2c-5e27-440e-88a2-c5ba64a335db"}
+[info] +  hosting[crm-pietrafina]: Local server: http://localhost:5000 {"metadata":{"emulator":{"name":"hosting"},"message":"Local server: \u001b[4m\u001b[1mhttp://localhost:5000\u001b[22m\u001b[24m"}}
