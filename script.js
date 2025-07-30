@@ -317,6 +317,8 @@ const elements = {
     whatsappNoWhatsappBtn: document.getElementById('whatsapp-no-whatsapp-btn'),
     validateAllWhatsappBtn: document.getElementById('validate-all-whatsapp-btn'),
     validateAllWhatsappProspectorBtn: document.getElementById('validate-all-whatsapp-prospector-btn'),
+    refreshDataBtn: document.getElementById('refresh-data-btn'),
+    refreshDataProspectorBtn: document.getElementById('refresh-data-prospector-btn'),
     materialsCheckboxContainer: document.getElementById('materials-checkbox-container'),
 saveFollowUpBtn: document.getElementById('saveFollowUpBtn'),
     deleteProspectBtn: document.getElementById('deleteProspectBtn'),
@@ -1517,26 +1519,36 @@ const validateWhatsAppNumber = async (phoneNumber) => {
 };
 
 /**
- * Valida automáticamente todos los prospectos sin validación de WhatsApp
+ * Valida automáticamente todos los prospectos con refresh completo de datos
  */
 const validateAllWhatsAppNumbers = async () => {
     try {
-        showToast('Iniciando verificación de números de WhatsApp...', 'info');
+        showToast('🔄 Actualizando datos desde la base de datos...', 'info');
         
+        // Primero hacer un refresh completo de los datos desde Firestore
+        await refreshProspectsFromDatabase();
+        
+        showToast('📱 Iniciando verificación de números de WhatsApp...', 'info');
+        
+        // Ahora filtrar prospectos con datos actualizados
         const prospectsToValidate = allProspects.filter(p => 
             p.phone && p.whatsappValidated === undefined
         );
         
         if (prospectsToValidate.length === 0) {
-            showToast('Todos los prospectos ya están verificados', 'info');
+            showToast('✅ Todos los prospectos ya están verificados', 'success');
             return;
         }
         
         let validatedCount = 0;
         let totalCount = prospectsToValidate.length;
         
+        showToast(`🔍 Encontrados ${totalCount} prospectos para verificar`, 'info');
+        
         for (const prospect of prospectsToValidate) {
             try {
+                showToast(`📞 Verificando ${prospect.businessName || prospect.contactPerson || 'prospecto'}...`, 'info');
+                
                 const hasWhatsApp = await validateWhatsAppNumber(prospect.phone);
                 
                 // Actualizar en Firestore
@@ -1553,9 +1565,9 @@ const validateAllWhatsAppNumbers = async () => {
                 
                 validatedCount++;
                 
-                // Mostrar progreso cada 5 prospectos
-                if (validatedCount % 5 === 0) {
-                    showToast(`Verificando... ${validatedCount}/${totalCount} prospectos`, 'info');
+                // Mostrar progreso cada 3 prospectos
+                if (validatedCount % 3 === 0) {
+                    showToast(`✅ Verificando... ${validatedCount}/${totalCount} prospectos`, 'info');
                 }
                 
                 // Pequeña pausa para no sobrecargar el microservicio
@@ -1567,18 +1579,68 @@ const validateAllWhatsAppNumbers = async () => {
             }
         }
         
-        // Re-renderizar las tarjetas
+        // Re-renderizar las tarjetas con datos actualizados
         if (currentUserRole === 'admin') {
             renderAdminCards();
         } else {
             renderProspectorCards();
         }
         
-        showToast(`Verificación completada: ${validatedCount} prospectos procesados.`, 'success');
+        // Actualizar dashboard y resumen
+        updateProspectingResultsSummary();
+        updateDashboard();
+        
+        showToast(`🎉 Verificación completada: ${validatedCount} prospectos procesados con datos actualizados.`, 'success');
         
     } catch (error) {
         console.error('Error en verificación automática:', error);
-        showToast('Error durante la verificación automática', 'error');
+        showToast('❌ Error durante la verificación automática', 'error');
+    }
+};
+
+/**
+ * Función para hacer refresh completo de prospectos desde Firestore
+ */
+const refreshProspectsFromDatabase = async () => {
+    try {
+        console.log('🔄 Iniciando refresh completo de prospectos desde Firestore...');
+        
+        // Obtener todos los prospectos directamente desde Firestore
+        const prospectsCollectionRef = collection(db, 'prospects');
+        const snapshot = await getDocs(prospectsCollectionRef);
+        
+        let fetchedProspects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        // Ordenar por fecha de creación (más recientes primero)
+        fetchedProspects.sort((a, b) => {
+            const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+            const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+            return dateB.getTime() - dateA.getTime();
+        });
+        
+        // Actualizar el array global
+        allProspects = fetchedProspects;
+        
+        console.log(`✅ Refresh completado: ${allProspects.length} prospectos cargados desde Firestore`);
+        
+        // Re-renderizar todas las vistas
+        renderAdminCards();
+        renderProspectorCards();
+        renderArchiveCards();
+        updateProspectingResultsSummary();
+        updateDashboard();
+        
+        // Actualizar calendario si está en la pantalla de prospección
+        if (currentUserRole === 'prospector' || currentUserRole === 'admin') {
+            renderProspectingCalendar();
+        }
+        
+        return true;
+        
+    } catch (error) {
+        console.error('❌ Error haciendo refresh de prospectos:', error);
+        showToast('Error al actualizar datos desde la base de datos', 'error');
+        return false;
     }
 };
 
@@ -1672,6 +1734,27 @@ const validateNewProspectsWhatsApp = async () => {
         
     } catch (error) {
         console.error('Error en validación automática de prospectos nuevos:', error);
+    }
+};
+
+/**
+ * Función para hacer solo refresh de datos sin verificación de WhatsApp
+ */
+const refreshDataOnly = async () => {
+    try {
+        showToast('🔄 Actualizando datos desde la base de datos...', 'info');
+        
+        const success = await refreshProspectsFromDatabase();
+        
+        if (success) {
+            showToast('✅ Datos actualizados correctamente desde la base de datos', 'success');
+        } else {
+            showToast('❌ Error al actualizar datos', 'error');
+        }
+        
+    } catch (error) {
+        console.error('Error en refresh de datos:', error);
+        showToast('❌ Error al actualizar datos', 'error');
     }
 };
 
@@ -2027,7 +2110,7 @@ const initModalEventListeners = () => {
         elements.validateAllWhatsappBtn.addEventListener('click', () => {
             showConfirmModal(
                 'Verificar WhatsApp',
-                '¿Deseas verificar el formato de todos los números de WhatsApp de los prospectos? Esto abrirá un modal de confirmación para cada número.',
+                '¿Deseas verificar todos los números de WhatsApp de los prospectos? Esto:\n\n• Actualizará los datos desde la base de datos\n• Verificará cada número con el microservicio de WhatsApp\n• Actualizará el estado en tiempo real\n\n¿Continuar?',
                 validateAllWhatsAppNumbers,
                 'Iniciar Verificación',
                 'btn-success'
@@ -2039,10 +2122,35 @@ const initModalEventListeners = () => {
         elements.validateAllWhatsappProspectorBtn.addEventListener('click', () => {
             showConfirmModal(
                 'Verificar WhatsApp',
-                '¿Deseas verificar el formato de todos los números de WhatsApp de los prospectos? Esto abrirá un modal de confirmación para cada número.',
+                '¿Deseas verificar todos los números de WhatsApp de los prospectos? Esto:\n\n• Actualizará los datos desde la base de datos\n• Verificará cada número con el microservicio de WhatsApp\n• Actualizará el estado en tiempo real\n\n¿Continuar?',
                 validateAllWhatsAppNumbers,
                 'Iniciar Verificación',
                 'btn-success'
+            );
+        });
+    }
+    
+    // Botones de refresh de datos
+    if (elements.refreshDataBtn) {
+        elements.refreshDataBtn.addEventListener('click', () => {
+            showConfirmModal(
+                'Actualizar Datos',
+                '¿Deseas actualizar todos los datos desde la base de datos? Esto refrescará la información de todos los prospectos.',
+                refreshDataOnly,
+                'Actualizar Datos',
+                'btn-info'
+            );
+        });
+    }
+    
+    if (elements.refreshDataProspectorBtn) {
+        elements.refreshDataProspectorBtn.addEventListener('click', () => {
+            showConfirmModal(
+                'Actualizar Datos',
+                '¿Deseas actualizar todos los datos desde la base de datos? Esto refrescará la información de todos los prospectos.',
+                refreshDataOnly,
+                'Actualizar Datos',
+                'btn-info'
             );
         });
     }
