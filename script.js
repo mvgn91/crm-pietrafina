@@ -65,34 +65,36 @@ const MATERIALS = [
     }
 ];
 
-// Usuarios de demostración para pruebas (estructura simplificada)
-const DEMO_USERS = {
-    'admin@demo.com': { role: 'admin', name: 'MVGN Admin', uid: 'demo-admin-uid' },
-    'prospector@demo.com': { role: 'prospector', name: 'Demo Prospector', uid: 'demo-prospector-uid' },
-    'nicolas@pietrafina.com': { role: 'prospector', name: 'Nicolás Capetillo', uid: 'nicolas-demo-uid' },
-    'francisco@pietrafina.com': { role: 'prospector', name: 'Francisco Capetillo', uid: 'francisco-demo-uid' }
-};
 
-// UIDs reales de usuarios clave
+
+// UIDs reales de usuarios con permisos de administrador
 const ADMIN_UIDS = [
-  "kRTRRDQ9k9hFzSqy1rDkMDtvaav2", // Administrador
+  "kRTRRDQ9k9hFzSqy1rDkMDtvaav2", // MVGN
   "Wv1BcMQlQreQ3doUPccObJdX6cS2", // Nicolás Capetillo
-  "demo-admin-uid"
+  "n4WFgGtOtDQwYaV9QXy16bDvYE32"  // Francisco Capetillo
 ];
+
 const NICOLAS_UID = 'Wv1BcMQlQreQ3doUPccObJdX6cS2';
 const FRANCISCO_UID = 'n4WFgGtOtDQwYaV9QXy16bDvYE32';
+const MVGN_UID = 'kRTRRDQ9k9hFzSqy1rDkMDtvaav2';
 
 /**
  * Obtiene el rol y nombre de un usuario basado en su UID.
  */
 const getUserRoleAndName = (uid) => {
-    // Buscar el nombre real del usuario si está en DEMO_USERS
-    for (const email in DEMO_USERS) {
-        if (DEMO_USERS[email].uid === uid) {
-            return { role: 'admin', name: DEMO_USERS[email].name };
-        }
+    // Mapeo de UID a nombres reales
+    const userNames = {
+        'kRTRRDQ9k9hFzSqy1rDkMDtvaav2': 'MVGN',
+        'Wv1BcMQlQreQ3doUPccObJdX6cS2': 'Nicolás Capetillo',
+        'n4WFgGtOtDQwYaV9QXy16bDvYE32': 'Francisco Capetillo'
+    };
+    
+    // Si el UID está en el mapeo, devolver el nombre real
+    if (userNames[uid]) {
+        return { role: 'admin', name: userNames[uid] };
     }
-    // Si no está en DEMO_USERS, devolver 'admin' y UID como nombre
+    
+    // Si no está en el mapeo, devolver 'admin' y UID como nombre
     return { role: 'admin', name: uid };
 };
 
@@ -344,6 +346,7 @@ const elements = {
     detailRemainingDays: document.getElementById('detail-remainingDays'),
     detailContactedBy: document.getElementById('detail-contactedBy'),
     detailObservations: document.getElementById('detail-observations'),
+    detailFollowUpNotes: document.getElementById('detail-followUpNotes'),
     detailReagendadoParaContainer: document.getElementById('detail-reagendadoPara-container'),
     detailReagendadoPara: document.getElementById('detail-reagendadoPara'),
     prospectorActionArea: document.getElementById('prospector-action-area'),
@@ -407,6 +410,14 @@ saveFollowUpBtn: document.getElementById('saveFollowUpBtn'),
     completedWeek: document.getElementById('completed-week'),
     filterIndicator: document.getElementById('filter-indicator'),
     clearFilterBtn: document.getElementById('clear-filter-btn'),
+    
+    // Modal de confirmación de correo
+    emailConfirmModal: document.getElementById('email-confirm-modal'),
+    emailConfirmBusinessName: document.getElementById('email-confirm-business-name'),
+    emailConfirmEmail: document.getElementById('email-confirm-email'),
+    emailConfirmContact: document.getElementById('email-confirm-contact'),
+    emailConfirmCancelBtn: document.getElementById('email-confirm-cancel-btn'),
+    emailConfirmActionBtn: document.getElementById('email-confirm-action-btn'),
 };
 
 // --- Funciones de control de carga (para botones) ---
@@ -423,48 +434,7 @@ const hideLoading = (element, originalText) => {
     element.classList.remove('loading-skeleton');
 };
 
-// --- Autenticación de demostración para pruebas ---
-const handleDemoLogin = async (email, password) => {
-    if (email in DEMO_USERS && password === 'demo123') {
-        const demoUser = DEMO_USERS[email];
-        currentUser = { uid: demoUser.uid, email: email };
-        currentUserId = demoUser.uid;
-        const userInfo = getUserRoleAndName(currentUserId);
-        currentUserName = userInfo.name;
-        currentUserRole = userInfo.role;
 
-        elements.onlineStatusIndicator.classList.remove('is-offline');
-        elements.onlineStatusIndicator.classList.add('is-online');
-        elements.onlineStatusIndicator.querySelector('i').className = 'fas fa-wifi mr-1';
-        elements.onlineStatusIndicator.querySelector('span').textContent = 'Online';
-
-        elements.authStatusDiv.innerHTML = `
-            <span class="px-3 py-1" style="background-color: var(--primary-500); color: white; border-radius: var(--radius-full); font-size: 0.75rem; display: flex; align-items: center; box-shadow: var(--shadow-sm);">
-                <i class="fas fa-circle mr-2" style="color: white; font-size: 0.5rem;"></i> ${getGreetingTime()} ${currentUserName} <span class="ml-2" style="color: var(--primary-100); font-size: 0.65rem;">(DEMO)</span>
-            </span>
-        `;
-
-        elements.loginFormContainer.classList.add('hidden');
-        elements.roleSelectionButtons.classList.remove('hidden');
-
-        elements.adminButton.classList.add('btn-disabled');
-        elements.prospectorButton.classList.add('btn-disabled');
-        elements.archiveButton.classList.add('btn-disabled');
-
-        if (currentUserRole === 'admin') {
-            elements.adminButton.classList.remove('btn-disabled');
-            elements.prospectorButton.classList.remove('btn-disabled');
-            elements.archiveButton.classList.remove('btn-disabled');
-        } else if (currentUserRole === 'prospector') {
-            elements.prospectorButton.classList.remove('btn-disabled');
-            elements.archiveButton.classList.remove('btn-disabled');
-        }
-
-        loadProspects();
-        return true;
-    }
-    return false;
-};
 
 // --- Manejo de autenticación y roles ---
 onAuthStateChanged(auth, async (user) => {
@@ -489,8 +459,10 @@ onAuthStateChanged(auth, async (user) => {
 
             elements.onlineStatusIndicator.classList.remove('is-offline');
             elements.onlineStatusIndicator.classList.add('is-online');
-            elements.onlineStatusIndicator.querySelector('i').className = 'fas fa-circle mr-1';
-            elements.onlineStatusIndicator.querySelector('span').textContent = 'Online';
+            const statusDot = elements.onlineStatusIndicator.querySelector('.w-2');
+            const statusText = elements.onlineStatusIndicator.querySelector('span');
+            if (statusDot) statusDot.style.background = 'var(--success-500)';
+            if (statusText) statusText.textContent = 'Online';
 
         elements.authStatusDiv.innerHTML = `
             <span class="px-3 py-1" style="background-color: var(--primary-500); color: white; border-radius: var(--radius-full); font-size: 0.75rem; display: flex; align-items: center; box-shadow: var(--shadow-sm);">
@@ -535,8 +507,10 @@ onAuthStateChanged(auth, async (user) => {
         
         elements.onlineStatusIndicator.classList.remove('is-online');
         elements.onlineStatusIndicator.classList.add('is-offline');
-        elements.onlineStatusIndicator.querySelector('i').className = 'fas fa-circle mr-1';
-        elements.onlineStatusIndicator.querySelector('span').textContent = 'Offline';
+        const statusDot = elements.onlineStatusIndicator.querySelector('.w-2');
+        const statusText = elements.onlineStatusIndicator.querySelector('span');
+        if (statusDot) statusDot.style.background = 'var(--error-500)';
+        if (statusText) statusText.textContent = 'Offline';
 
         elements.loginFormContainer.classList.remove('hidden');
         elements.roleSelectionButtons.classList.add('hidden');
@@ -566,12 +540,7 @@ elements.loginForm.addEventListener('submit', async (e) => {
         // Configurar persistencia local primero
         await setPersistence(auth, browserLocalPersistence);
         
-        // Intentar login demo primero
-        if (await handleDemoLogin(email, password)) {
-            return;
-        }
-
-        // Si no es demo, intentar login normal
+        // Intentar login normal
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         
@@ -592,7 +561,7 @@ elements.loginForm.addEventListener('submit', async (e) => {
         } else if (error.code === 'auth/too-many-requests') {
             errorMessage = "Demasiados intentos de inicio de sesión fallidos. Intenta de nuevo más tarde.";
         } else if (error.code === 'auth/invalid-credential') {
-            errorMessage = "Credenciales inválidas. Prueba con las credenciales de demo.";
+            errorMessage = "Credenciales inválidas.";
         }
         showToast(errorMessage, 'error');
         elements.loginErrorMessage.textContent = errorMessage;
@@ -743,6 +712,16 @@ const loadProspects = () => {
 
             let fetchedProspects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
+            // DEBUG: Verificar si los prospectos tienen followUpNotes
+            console.log('🔍 DEBUG - Verificando datos de prospectos cargados...');
+            fetchedProspects.forEach((prospect, index) => {
+                if (prospect.followUpNotes || prospect.internalNotes) {
+                    const notesText = formatFollowUpNotes(prospect.followUpNotes || prospect.internalNotes);
+                    const preview = notesText.length > 100 ? notesText.substring(0, 100) + '...' : notesText;
+                    console.log(`🔍 DEBUG - Prospecto ${index + 1}: ${prospect.businessName} tiene notas:`, preview);
+                }
+            });
+
             fetchedProspects.sort((a, b) => {
                 const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
                 const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
@@ -753,8 +732,13 @@ const loadProspects = () => {
 
             console.log(`Total prospectos cargados:`, allProspects.length);
             
-            // Validar automáticamente números de WhatsApp para prospectos nuevos
-            validateNewProspectsWhatsApp();
+                    // Validar automáticamente números de WhatsApp para prospectos nuevos
+        validateNewProspectsWhatsApp();
+        
+        // DEBUG: Verificar datos de Firestore automáticamente
+        setTimeout(() => {
+            debugFirestoreData();
+        }, 2000);
             
             renderAdminCards();
             renderProspectorCards();
@@ -990,7 +974,7 @@ const createProspectCardHTML = (prospect, isAdminView = false, isArchiveView = f
     // Etiqueta de validación de WhatsApp
     let whatsappTag = '';
     if (prospect.whatsappValidated === true) {
-      whatsappTag = `<span class="whatsapp-tag whatsapp-tag-validated">VALIDADA</span>`;
+      whatsappTag = `<span class="whatsapp-tag whatsapp-tag-validated">CON WHATSAPP</span>`;
     } else if (prospect.whatsappValidated === false) {
       whatsappTag = `<span class="whatsapp-tag whatsapp-tag-no-whatsapp">SIN WHATSAPP</span>`;
     } else if (prospect.phone) {
@@ -1019,7 +1003,12 @@ const createProspectCardHTML = (prospect, isAdminView = false, isArchiveView = f
         </div>
         <div class="card-date"><span class="label">${fechaLabel}</span> ${fecha}</div>
         <div class="card-actions">
-          <button data-id="${prospect.id}" class="btn btn-whatsapp whatsapp-btn"><i data-lucide="message-circle" class="w-4 h-4 mr-2"></i> WhatsApp</button>
+          ${prospect.status === 'Pendiente de Correo' ? 
+            `<button data-id="${prospect.id}" class="btn btn-email-confirm email-confirm-btn" style="background-color: #3b82f6; color: white;">
+              <i data-lucide="mail" class="w-4 h-4 mr-2"></i> Confirmar Correo
+            </button>` : 
+            `<button data-id="${prospect.id}" class="btn btn-whatsapp whatsapp-btn"><i data-lucide="message-circle" class="w-4 h-4 mr-2"></i> WhatsApp</button>`
+          }
           <button data-id="${prospect.id}" class="btn btn-detail view-details-btn">Ver Detalle</button>
         </div>
       </div>
@@ -1230,6 +1219,21 @@ const attachAdminCardEventListeners = () => {
             showWhatsAppModal(prospectId);
         });
     });
+    
+    // Event listeners para botones de confirmación de correo
+    document.querySelectorAll('.email-confirm-btn').forEach(button => {
+        button.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            const prospectId = event.currentTarget.dataset.id;
+            const prospect = allProspects.find(p => p.id === prospectId);
+            if (prospect) {
+                console.log('Confirmar correo clicked para prospect:', prospectId);
+                window.pendingEmailConfirmProspectId = prospectId;
+                showEmailConfirmModal(prospect);
+            }
+        });
+    });
 };
 
 /**
@@ -1394,6 +1398,23 @@ const showProspectDetailsModal = (prospectId) => {
     if (elements.detailProspectingDueDate) elements.detailProspectingDueDate.textContent = formatDate(prospect.prospectingDueDate);
     if (elements.detailContactedBy) elements.detailContactedBy.textContent = prospect.assignedByName || 'No asignado';
     if (elements.detailObservations) elements.detailObservations.textContent = prospect.observations || 'Sin observaciones';
+    
+    // DEBUG: Verificar si las notas de seguimiento existen
+    console.log('🔍 DEBUG - Prospecto:', prospect.businessName);
+    console.log('🔍 DEBUG - followUpNotes:', prospect.followUpNotes);
+    console.log('🔍 DEBUG - internalNotes:', prospect.internalNotes);
+    console.log('🔍 DEBUG - followUpNotes type:', typeof prospect.followUpNotes);
+    console.log('🔍 DEBUG - internalNotes type:', typeof prospect.internalNotes);
+    console.log('🔍 DEBUG - followUpNotes length:', prospect.followUpNotes ? prospect.followUpNotes.length : 'null');
+    console.log('🔍 DEBUG - internalNotes length:', prospect.internalNotes ? prospect.internalNotes.length : 'null');
+    
+    if (elements.detailFollowUpNotes) {
+        // Intentar con followUpNotes primero, luego con internalNotes como fallback
+        let notesText = formatFollowUpNotes(prospect.followUpNotes || prospect.internalNotes);
+        
+        elements.detailFollowUpNotes.textContent = notesText;
+        console.log('🔍 DEBUG - Texto mostrado en modal:', notesText);
+    }
 
     // Mostrar días restantes
     if (elements.detailRemainingDays) {
@@ -1658,6 +1679,17 @@ const refreshProspectsFromDatabase = async () => {
         
         let fetchedProspects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
+        // DEBUG: Verificar datos cargados en refresh
+        console.log('🔄 DEBUG - Verificando datos en refresh...');
+        fetchedProspects.forEach((prospect, index) => {
+            if (prospect.followUpNotes || prospect.internalNotes) {
+                console.log(`🔄 DEBUG - Prospecto ${index + 1}: ${prospect.businessName}`);
+                const notesText = formatFollowUpNotes(prospect.followUpNotes || prospect.internalNotes);
+                const preview = notesText.length > 100 ? notesText.substring(0, 100) + '...' : notesText;
+                console.log(`🔄 DEBUG - Notas formateadas:`, preview);
+            }
+        });
+        
         // Ordenar por fecha de creación (más recientes primero)
         fetchedProspects.sort((a, b) => {
             const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
@@ -1730,6 +1762,99 @@ const validateSingleWhatsAppNumber = async (prospectId) => {
     } catch (error) {
         console.error('Error validando número individual:', error);
         showToast('Error al validar el número', 'error');
+    }
+};
+
+/**
+ * Función para convertir notas de seguimiento a texto legible
+ */
+const formatFollowUpNotes = (notes) => {
+    if (!notes) return 'Sin notas de seguimiento previas';
+    
+    if (typeof notes === 'string') {
+        return notes;
+    }
+    
+    if (Array.isArray(notes)) {
+        return notes.map(note => {
+            if (typeof note === 'string') return note;
+            if (typeof note === 'object') {
+                // Formatear específicamente para el formato de notas del CRM
+                if (note.notes && note.timestamp && note.by) {
+                    const date = new Date(note.timestamp);
+                    const formattedDate = date.toLocaleDateString('es-ES', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    return `${formattedDate} - ${note.notes} (por ${note.by.name})`;
+                }
+                // Fallback para otros formatos
+                return `${note.date || ''} - ${note.text || note.message || note.note || JSON.stringify(note)}`;
+            }
+            return String(note);
+        }).join('\n\n');
+    }
+    
+    if (typeof notes === 'object') {
+        // Si es un objeto con propiedades como date, text, message, etc.
+        if (notes.text || notes.message || notes.note) {
+            return `${notes.date || ''} - ${notes.text || notes.message || notes.note}`;
+        }
+        // Si es un objeto con múltiples entradas
+        return Object.entries(notes).map(([key, value]) => {
+            if (typeof value === 'object') {
+                return `${key}: ${JSON.stringify(value)}`;
+            }
+            return `${key}: ${value}`;
+        }).join('\n');
+    }
+    
+    return JSON.stringify(notes);
+};
+
+/**
+ * Función temporal para verificar datos de Firestore directamente
+ */
+const debugFirestoreData = async () => {
+    try {
+        console.log('🔍 DEBUG - Verificando datos directamente en Firestore...');
+        
+        const prospectsCollectionRef = collection(db, 'prospects');
+        const snapshot = await getDocs(prospectsCollectionRef);
+        
+        let foundNotes = 0;
+        let totalProspects = 0;
+        
+        snapshot.docs.forEach((doc, index) => {
+            const data = doc.data();
+            totalProspects++;
+            
+            if (data.followUpNotes || data.internalNotes) {
+                foundNotes++;
+                console.log(`🔍 DEBUG - Documento ${index + 1} (${doc.id}): ${data.businessName}`);
+                
+                const notesText = formatFollowUpNotes(data.followUpNotes || data.internalNotes);
+                const preview = notesText.length > 100 ? notesText.substring(0, 100) + '...' : notesText;
+                console.log(`🔍 DEBUG - Notas formateadas:`, preview);
+                console.log('---');
+            }
+        });
+        
+        console.log(`🔍 DEBUG - Resumen: ${foundNotes} de ${totalProspects} prospectos tienen notas`);
+        
+        // Mostrar en pantalla
+        showToast(`DEBUG: ${foundNotes} de ${totalProspects} prospectos tienen notas`, 'info');
+        
+        // Hacer la función disponible globalmente para ejecutar desde consola
+        window.debugFirestoreData = debugFirestoreData;
+        console.log('🔍 DEBUG - Función debugFirestoreData() disponible en consola. Ejecuta: debugFirestoreData()');
+        
+    } catch (error) {
+        console.error('❌ Error verificando datos de Firestore:', error);
+        showToast('Error verificando datos de Firestore', 'error');
     }
 };
 
@@ -1901,7 +2026,7 @@ const updateWhatsAppValidationButtons = (prospect) => {
 
     // Mostrar el estado actual si ya está validado
     if (prospect.whatsappValidated === true) {
-        elements.whatsappValidatedBtn.innerHTML = '<i class="fas fa-check mr-1"></i> VALIDADO';
+        elements.whatsappValidatedBtn.innerHTML = '<i class="fas fa-check mr-1"></i> CON WHATSAPP';
         elements.whatsappValidatedBtn.className = 'px-3 py-1 text-xs font-medium rounded-md bg-green-600 text-white border border-green-600 transition-colors';
     } else if (prospect.whatsappValidated === false) {
         elements.whatsappValidatedBtn.innerHTML = '<i class="fas fa-times mr-1"></i> SIN WHATSAPP';
@@ -2006,46 +2131,15 @@ const sendWhatsAppMessage = (prospect) => {
     console.log('📱 Número final para WhatsApp:', cleanPhone);
     console.log('💬 Mensaje a enviar:', message);
 
-    // ESTRATEGIA UNIFICADA: SIEMPRE intentar abrir la app nativa de WhatsApp
-    console.log('🚀 ESTRATEGIA UNIFICADA: Intentando abrir app nativa de WhatsApp en todos los dispositivos');
-    
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    
-    console.log('🍎 Es iOS:', isIOS);
-
     try {
-        // ESTRATEGIA UNIFICADA: Intentar app nativa en todos los dispositivos
-        console.log('📱 Intentando abrir app nativa de WhatsApp...');
+        // MÉTODO SIMPLIFICADO Y COMPATIBLE CON MÓVIL
+        // Usar el enlace estándar de WhatsApp Web que funciona en todos los dispositivos
+        const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
         
-        let whatsappUrl = '';
-        if (isIOS) {
-            // Para iOS, usar whatsapp://send
-            whatsappUrl = `whatsapp://send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
-            console.log('🍎 iOS detectado - usando whatsapp://send');
-        } else {
-            // Para Android y otros, usar intent:// para abrir la app nativa
-            whatsappUrl = `intent://send/${cleanPhone}#Intent;scheme=smsto;package=com.whatsapp;S.sms_body=${encodeURIComponent(message)};end`;
-            console.log('🤖 Android/otros detectado - usando intent:// para app nativa');
-        }
-
-        // Intentar abrir la app nativa
-        window.location.href = whatsappUrl;
+        console.log('📱 URL de WhatsApp generada:', whatsappUrl);
         
-        // Esperar un poco para ver si la app se abre
-        setTimeout(() => {
-            // Si la página sigue visible, la app no se abrió
-            if (!document.hidden) {
-                console.warn('⚠️ App de WhatsApp no se abrió, copiando mensaje al portapapeles');
-                navigator.clipboard.writeText(message).then(() => {
-                    showToast('Mensaje copiado al portapapeles. Pégalo en WhatsApp.', 'info');
-                }).catch(err => {
-                    console.error('Error al copiar al portapapeles:', err);
-                    showToast('Error al copiar mensaje al portapapeles', 'error');
-                });
-            } else {
-                console.log('✅ App de WhatsApp abierta exitosamente');
-            }
-        }, 1500);
+        // Abrir en nueva ventana/pestaña
+        window.open(whatsappUrl, '_blank');
         
         // Cerrar el modal de WhatsApp
         closeWhatsAppModal();
@@ -2111,8 +2205,21 @@ const initModalEventListeners = () => {
         elements.confirmCancelBtn.addEventListener('click', hideConfirmModal);
     }
     
+    // Event listeners para el modal de confirmación de correo
+    if (elements.emailConfirmCancelBtn) {
+        elements.emailConfirmCancelBtn.addEventListener('click', hideEmailConfirmModal);
+    }
+    if (elements.emailConfirmActionBtn) {
+        elements.emailConfirmActionBtn.addEventListener('click', () => {
+            if (window.pendingEmailConfirmProspectId) {
+                handleEmailConfirm(window.pendingEmailConfirmProspectId);
+                window.pendingEmailConfirmProspectId = null;
+            }
+        });
+    }
+    
     // Cerrar modales al hacer clic fuera
-    [elements.detailModal, elements.confirmModal, elements.whatsappModal].forEach(modal => {
+    [elements.detailModal, elements.confirmModal, elements.whatsappModal, elements.emailConfirmModal].forEach(modal => {
         if (modal) {
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
@@ -2817,46 +2924,15 @@ const sendWhatsAppMessageFromFollowUp = (prospect) => {
     console.log('📱 Número final para WhatsApp:', cleanPhone);
     console.log('💬 Mensaje a enviar:', message);
 
-    // ESTRATEGIA UNIFICADA: SIEMPRE intentar abrir la app nativa de WhatsApp
-    console.log('🚀 ESTRATEGIA UNIFICADA: Intentando abrir app nativa de WhatsApp en todos los dispositivos');
-    
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    
-    console.log('🍎 Es iOS:', isIOS);
-
     try {
-        // ESTRATEGIA UNIFICADA: Intentar app nativa en todos los dispositivos
-        console.log('📱 Intentando abrir app nativa de WhatsApp...');
+        // MÉTODO SIMPLIFICADO Y COMPATIBLE CON MÓVIL
+        // Usar el enlace estándar de WhatsApp Web que funciona en todos los dispositivos
+        const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
         
-        let whatsappUrl = '';
-        if (isIOS) {
-            // Para iOS, usar whatsapp://send
-            whatsappUrl = `whatsapp://send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
-            console.log('🍎 iOS detectado - usando whatsapp://send');
-        } else {
-            // Para Android y otros, usar intent:// para abrir la app nativa
-            whatsappUrl = `intent://send/${cleanPhone}#Intent;scheme=smsto;package=com.whatsapp;S.sms_body=${encodeURIComponent(message)};end`;
-            console.log('🤖 Android/otros detectado - usando intent:// para app nativa');
-        }
-
-        // Intentar abrir la app nativa
-        window.location.href = whatsappUrl;
+        console.log('📱 URL de WhatsApp generada:', whatsappUrl);
         
-        // Esperar un poco para ver si la app se abre
-        setTimeout(() => {
-            // Si la página sigue visible, la app no se abrió
-            if (!document.hidden) {
-                console.warn('⚠️ App de WhatsApp no se abrió, copiando mensaje al portapapeles');
-                navigator.clipboard.writeText(message).then(() => {
-                    showToast('Mensaje copiado al portapapeles. Pégalo en WhatsApp.', 'info');
-                }).catch(err => {
-                    console.error('Error al copiar al portapapeles:', err);
-                    showToast('Error al copiar mensaje al portapapeles', 'error');
-                });
-            } else {
-                console.log('✅ App de WhatsApp abierta exitosamente');
-            }
-        }, 1500);
+        // Abrir en nueva ventana/pestaña
+        window.open(whatsappUrl, '_blank');
         
         // Ocultar el área de mensaje de WhatsApp
         const whatsappMessageArea = document.getElementById('whatsappMessageArea');
@@ -3019,3 +3095,51 @@ if (elements.editProspectBtn) {
         if (currentProspectIdForModal) showEditProspectModal(currentProspectIdForModal);
     });
 } 
+
+/**
+ * Muestra el modal de confirmación de correo
+ */
+const showEmailConfirmModal = (prospect) => {
+    if (elements.emailConfirmModal && elements.emailConfirmBusinessName && elements.emailConfirmEmail && elements.emailConfirmContact) {
+        elements.emailConfirmBusinessName.textContent = prospect.businessName || 'N/A';
+        elements.emailConfirmEmail.textContent = prospect.email || 'N/A';
+        elements.emailConfirmContact.textContent = prospect.contactPerson || 'N/A';
+        elements.emailConfirmModal.classList.remove('hidden');
+    }
+};
+
+/**
+ * Oculta el modal de confirmación de correo
+ */
+const hideEmailConfirmModal = () => {
+    if (elements.emailConfirmModal) {
+        elements.emailConfirmModal.classList.add('hidden');
+    }
+};
+
+/**
+ * Maneja la confirmación del envío de correo
+ */
+const handleEmailConfirm = async (prospectId) => {
+    try {
+        const prospectRef = doc(db, 'prospects', prospectId);
+        const currentDate = new Date().toISOString().split('T')[0];
+        
+        // Actualizar el prospecto: cambiar estado y agregar fecha de envío de correo
+        await updateDoc(prospectRef, {
+            status: 'En Prospección',
+            sentEmailDate: currentDate,
+            lastUpdated: currentDate
+        });
+        
+        showToast('Correo confirmado. Prospecto movido a prospección.', 'success');
+        hideEmailConfirmModal();
+        
+        // Recargar los datos
+        await loadProspects();
+        
+    } catch (error) {
+        console.error('Error al confirmar correo:', error);
+        showToast('Error al confirmar correo: ' + error.message, 'error');
+    }
+};

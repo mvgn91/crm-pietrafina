@@ -24,7 +24,9 @@ let currentUserName = "Pietra Fina"; // Default name
 onAuthStateChanged(auth, (user) => {
   if (user) {
     // User is signed in.
-    if (user.uid === "Wv1BcMQlQreQ3doUPccObJdX6cS2") { // Nicolas's UID
+    if (user.uid === "kRTRRDQ9k9hFzSqy1rDkMDtvaav2") { // MVGN's UID
+      currentUserName = "MVGN";
+    } else if (user.uid === "Wv1BcMQlQreQ3doUPccObJdX6cS2") { // Nicolas's UID
       currentUserName = "NICOLAS CAPETILLO";
     } else if (user.uid === "n4WFgGtOtDQwYaV9QXy16bDvYE32") { // Francisco's UID
       currentUserName = "FRANCISCO CAPETILLO";
@@ -73,8 +75,8 @@ document.addEventListener('DOMContentLoaded', function () {
     try {
       showLoadingState();
       if (!db) {
-        console.warn('Firestore no disponible, usando datos de prueba');
-        loadTestData();
+        console.warn('Firestore no disponible');
+        showToast('Error: Firestore no está disponible', 'error');
         return;
       }
       
@@ -111,7 +113,6 @@ document.addEventListener('DOMContentLoaded', function () {
     } catch (error) {
       console.error('Error cargando prospectos desde Firestore:', error);
       showToast('Error al cargar prospectos desde la base de datos', 'error');
-      loadTestData();
     }
   }
 
@@ -131,41 +132,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Función para cargar datos de prueba si Firestore no está disponible
-  function loadTestData() {
-    console.log('Cargando datos de prueba...');
-    prospects = [
-      { 
-        id: 'demo1', 
-        businessName: 'Arquitectos Modernos S.A.', 
-        contactPerson: 'Juan Pérez',
-        phone: '5215551234567', 
-        email: 'juan.perez@arquitectosmodernos.com',
-        classification: 'Despacho de Arquitectos',
-        status: 'En Prospección'
-      },
-      { 
-        id: 'demo2', 
-        businessName: 'Diseño Interior Premium', 
-        contactPerson: 'María López',
-        phone: '5215559876543', 
-        email: 'maria.lopez@disenointerior.com',
-        classification: 'Diseño de Interiores',
-        status: 'Interesado'
-      },
-      { 
-        id: 'demo3', 
-        businessName: 'Constructora del Valle', 
-        contactPerson: 'Carlos Ruiz',
-        phone: '5215555555555', 
-        email: 'carlos.ruiz@constructoradelvalle.com',
-        classification: 'Constructoras',
-        status: 'Pendiente de Correo'
-      }
-    ];
-    renderProspects(prospects);
-    showToast('Usando datos de demostración (Firestore no disponible)', 'warning');
-  }
+
 
   // Función para renderizar las tarjetas de prospectos
   function renderProspects(list) {
@@ -492,9 +459,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // FUNCIÓN CORREGIDA para abrir WhatsApp con detección inteligente de dispositivo
+  // FUNCIÓN CORREGIDA para abrir WhatsApp con método simplificado y compatible
   async function openWhatsAppRobust(phone, message) {
-    console.log('🎯 ESTRATEGIA UNIFICADA: Intentando abrir app nativa de WhatsApp en todos los dispositivos');
+    console.log('🎯 MÉTODO SIMPLIFICADO: Usando enlace estándar de WhatsApp Web');
     
     // Estrategia 1: Mensaje corto si es muy largo
     let finalMessage = message;
@@ -508,41 +475,17 @@ document.addEventListener('DOMContentLoaded', function () {
     
     const encodedMessage = encodeURIComponent(finalMessage);
     
-    // ESTRATEGIA UNIFICADA: SIEMPRE intentar abrir la app nativa de WhatsApp
-    console.log('🚀 ESTRATEGIA UNIFICADA: Intentando abrir app nativa de WhatsApp en todos los dispositivos');
-    
-    const isIOS = isIOS();
-    console.log('🍎 Es iOS:', isIOS);
-
     try {
-      // ESTRATEGIA UNIFICADA: Intentar app nativa en todos los dispositivos
-      console.log('📱 Intentando abrir app nativa de WhatsApp...');
+      // MÉTODO SIMPLIFICADO Y COMPATIBLE CON MÓVIL
+      // Usar el enlace estándar de WhatsApp Web que funciona en todos los dispositivos
+      const whatsappUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
       
-      let whatsappUrl = '';
-      if (isIOS) {
-        // Para iOS, usar whatsapp://send
-        whatsappUrl = `whatsapp://send?phone=${phone}&text=${encodedMessage}`;
-        console.log('🍎 iOS detectado - usando whatsapp://send');
-      } else {
-        // Para Android y otros, usar intent:// para abrir la app nativa
-        whatsappUrl = `intent://send/${phone}#Intent;scheme=smsto;package=com.whatsapp;S.sms_body=${encodedMessage};end`;
-        console.log('🤖 Android/otros detectado - usando intent:// para app nativa');
-      }
-
-      // Intentar abrir la app nativa
-      window.location.href = whatsappUrl;
+      console.log('📱 URL de WhatsApp generada:', whatsappUrl);
       
-      // Esperar un poco para ver si la app se abre
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Abrir en nueva ventana/pestaña
+      window.open(whatsappUrl, '_blank');
       
-      // Si la página sigue visible, la app no se abrió
-      if (!document.hidden) {
-        console.warn('⚠️ App de WhatsApp no se abrió, copiando mensaje al portapapeles');
-        await copyToClipboard(finalMessage);
-        showToast('Mensaje copiado al portapapeles. Pégalo en WhatsApp.', 'info');
-      } else {
-        console.log('✅ App de WhatsApp abierta exitosamente');
-      }
+      console.log('✅ WhatsApp abierto exitosamente');
       
     } catch (error) {
       console.error('❌ Error al abrir WhatsApp:', error);
