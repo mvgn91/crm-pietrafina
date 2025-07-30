@@ -1,0 +1,37 @@
+{
+  "name": "whatsapp-validator-service",
+  "version": "1.0.0",
+  "description": "Microservicio para verificar números de WhatsApp usando whatsapp-web.js - CRM Pietra Fina",
+  "main": "whatsapp-validator-service.js",
+  "scripts": {
+    "start": "node whatsapp-validator-service.js",
+    "dev": "nodemon whatsapp-validator-service.js",
+    "test": "node test-service.js"
+  },
+  "keywords": [
+    "whatsapp",
+    "validation",
+    "microservice",
+    "crm",
+    "pietrafina"
+  ],
+  "author": "MVGN Labs",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "whatsapp-web.js": "^1.23.0",
+    "qrcode-terminal": "^0.12.0",
+    "cors": "^2.8.5",
+    "node-fetch": "^2.6.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mvgnlabs/crm-pietrafina"
+  }
+} 

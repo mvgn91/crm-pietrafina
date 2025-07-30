@@ -1476,7 +1476,7 @@ const closeWhatsAppModal = () => {
 };
 
 /**
- * Valida automáticamente si un número de teléfono tiene WhatsApp disponible
+ * Valida si un número de teléfono tiene WhatsApp usando el microservicio
  */
 const validateWhatsAppNumber = async (phoneNumber) => {
     try {
@@ -1498,57 +1498,21 @@ const validateWhatsAppNumber = async (phoneNumber) => {
             return false;
         }
         
-        // Opción 1: Usar WhatsApp Business API (requiere configuración)
-        // return await validateWithWhatsAppBusinessAPI(formattedNumber);
+        // Llamar al microservicio de WhatsApp
+        const response = await fetch(`http://localhost:3000/check-whatsapp/${formattedNumber}`);
         
-        // Opción 2: Verificación manual (más confiable)
-        // Por ahora, asumimos que todos los números con formato válido tienen WhatsApp
-        // Esto es más realista que la simulación anterior
-        return true;
+        if (!response.ok) {
+            console.error('Error en la respuesta del microservicio:', response.status);
+            return false;
+        }
+        
+        const data = await response.json();
+        return data.tieneWhatsapp;
         
     } catch (error) {
         console.error('Error validando número de WhatsApp:', error);
-        return false;
-    }
-};
-
-/**
- * Función para validar usando WhatsApp Business API (requiere configuración)
- */
-const validateWithWhatsAppBusinessAPI = async (phoneNumber) => {
-    try {
-        // Esta función requeriría:
-        // 1. Token de acceso de WhatsApp Business API
-        // 2. Número de teléfono verificado
-        // 3. Configuración del webhook
-        
-        const response = await fetch('https://graph.facebook.com/v17.0/YOUR_PHONE_NUMBER_ID/messages', {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Bearer YOUR_ACCESS_TOKEN',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                messaging_product: 'whatsapp',
-                to: phoneNumber,
-                type: 'template',
-                template: {
-                    name: 'hello_world',
-                    language: {
-                        code: 'en_US'
-                    }
-                }
-            })
-        });
-        
-        const data = await response.json();
-        
-        // Si la respuesta es exitosa, el número tiene WhatsApp
-        return response.ok && !data.error;
-        
-    } catch (error) {
-        console.error('Error con WhatsApp Business API:', error);
-        return false;
+        // Si el microservicio no está disponible, asumir que tiene WhatsApp
+        return true;
     }
 };
 
@@ -1557,7 +1521,7 @@ const validateWithWhatsAppBusinessAPI = async (phoneNumber) => {
  */
 const validateAllWhatsAppNumbers = async () => {
     try {
-        showToast('Iniciando verificación de formato de números...', 'info');
+        showToast('Iniciando verificación de números de WhatsApp...', 'info');
         
         const prospectsToValidate = allProspects.filter(p => 
             p.phone && p.whatsappValidated === undefined
@@ -1573,22 +1537,19 @@ const validateAllWhatsAppNumbers = async () => {
         
         for (const prospect of prospectsToValidate) {
             try {
-                const isValidFormat = await validateWhatsAppNumber(prospect.phone);
+                const hasWhatsApp = await validateWhatsAppNumber(prospect.phone);
                 
-                if (isValidFormat) {
-                    // Si el formato es válido, asumir que tiene WhatsApp
-                    // pero permitir corrección manual después
-                    const prospectRef = doc(db, 'prospects', prospect.id);
-                    await updateDoc(prospectRef, {
-                        whatsappValidated: true,
-                        whatsappValidationDate: new Date().toISOString(),
-                        lastUpdated: new Date().toISOString()
-                    });
-                    
-                    // Actualizar en el array local
-                    prospect.whatsappValidated = true;
-                    prospect.whatsappValidationDate = new Date().toISOString();
-                }
+                // Actualizar en Firestore
+                const prospectRef = doc(db, 'prospects', prospect.id);
+                await updateDoc(prospectRef, {
+                    whatsappValidated: hasWhatsApp,
+                    whatsappValidationDate: new Date().toISOString(),
+                    lastUpdated: new Date().toISOString()
+                });
+                
+                // Actualizar en el array local
+                prospect.whatsappValidated = hasWhatsApp;
+                prospect.whatsappValidationDate = new Date().toISOString();
                 
                 validatedCount++;
                 
@@ -1597,8 +1558,8 @@ const validateAllWhatsAppNumbers = async () => {
                     showToast(`Verificando... ${validatedCount}/${totalCount} prospectos`, 'info');
                 }
                 
-                // Pequeña pausa para no sobrecargar
-                await new Promise(resolve => setTimeout(resolve, 500));
+                // Pequeña pausa para no sobrecargar el microservicio
+                await new Promise(resolve => setTimeout(resolve, 1000));
                 
             } catch (error) {
                 console.error(`Error verificando prospecto ${prospect.id}:`, error);
@@ -1613,11 +1574,53 @@ const validateAllWhatsAppNumbers = async () => {
             renderProspectorCards();
         }
         
-        showToast(`Verificación completada: ${validatedCount} prospectos procesados. Puedes corregir manualmente usando el botón de edición junto a cada etiqueta.`, 'success');
+        showToast(`Verificación completada: ${validatedCount} prospectos procesados.`, 'success');
         
     } catch (error) {
         console.error('Error en verificación automática:', error);
         showToast('Error durante la verificación automática', 'error');
+    }
+};
+
+/**
+ * Valida un solo número de WhatsApp
+ */
+const validateSingleWhatsAppNumber = async (prospectId) => {
+    try {
+        const prospect = allProspects.find(p => p.id === prospectId);
+        if (!prospect) {
+            showToast('Prospecto no encontrado', 'error');
+            return;
+        }
+        
+        showToast('Verificando número de WhatsApp...', 'info');
+        
+        const hasWhatsApp = await validateWhatsAppNumber(prospect.phone);
+        
+        // Actualizar en Firestore
+        const prospectRef = doc(db, 'prospects', prospectId);
+        await updateDoc(prospectRef, {
+            whatsappValidated: hasWhatsApp,
+            whatsappValidationDate: new Date().toISOString(),
+            lastUpdated: new Date().toISOString()
+        });
+        
+        // Actualizar en el array local
+        prospect.whatsappValidated = hasWhatsApp;
+        prospect.whatsappValidationDate = new Date().toISOString();
+        
+        // Re-renderizar las tarjetas
+        if (currentUserRole === 'admin') {
+            renderAdminCards();
+        } else {
+            renderProspectorCards();
+        }
+        
+        showToast(`Número ${hasWhatsApp ? 'tiene' : 'no tiene'} WhatsApp`, hasWhatsApp ? 'success' : 'warning');
+        
+    } catch (error) {
+        console.error('Error validando número individual:', error);
+        showToast('Error al validar el número', 'error');
     }
 };
 
@@ -1669,34 +1672,6 @@ const validateNewProspectsWhatsApp = async () => {
         
     } catch (error) {
         console.error('Error en validación automática de prospectos nuevos:', error);
-    }
-};
-
-/**
- * Valida automáticamente un prospecto específico
- */
-const validateSingleWhatsAppNumber = async (prospectId) => {
-    try {
-        const prospect = allProspects.find(p => p.id === prospectId);
-        if (!prospect || !prospect.phone) {
-            showToast('Prospecto no encontrado o sin número de teléfono', 'error');
-            return;
-        }
-        
-        // Verificar formato del número
-        const isValidFormat = await validateWhatsAppNumber(prospect.phone);
-        
-        if (!isValidFormat) {
-            showToast('Número con formato inválido', 'error');
-            return;
-        }
-        
-        // Mostrar modal de confirmación manual
-        showWhatsAppConfirmationModal(prospect);
-        
-    } catch (error) {
-        console.error('Error validando número individual:', error);
-        showToast('Error al validar el número de WhatsApp', 'error');
     }
 };
 
