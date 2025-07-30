@@ -761,26 +761,64 @@ const renderProspectorCards = () => {
         }
 
         return false;
-    }).sort((a, b) => {
-        const dateA = a.reagendadoPara ? new Date(a.reagendadoPara) : (a.prospectingDueDate ? new Date(a.prospectingDueDate) : new Date(0));
-        const dateB = b.reagendadoPara ? new Date(b.reagendadoPara) : (b.prospectingDueDate ? new Date(b.prospectingDueDate) : new Date(0));
+    });
 
-        if (dateA.getTime() === dateB.getTime()) {
-            const createdAtA = a.createdAt ? new Date(a.createdAt) : new Date(0);
-            const createdAtB = b.createdAt ? new Date(b.createdAt) : new Date(0);
-            return createdAtB.getTime() - createdAtA.getTime();
-        }
-        return dateA.getTime() - dateB.getTime();
+    // Separar prospectos sin contactar y reagendados
+    const prospectosSinContactar = assignedProspects.filter(p => p.status === 'En Prospección');
+    const prospectosReagendados = assignedProspects.filter(p => p.status === 'Seguimiento agendado');
+
+    // Ordenar por fecha de creación (más recientes primero)
+    prospectosSinContactar.sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+        const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+        return dateB.getTime() - dateA.getTime();
+    });
+
+    prospectosReagendados.sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+        const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+        return dateB.getTime() - dateA.getTime();
     });
 
     elements.prospectorProspectsCardsContainer.innerHTML = '';
+    
     if (assignedProspects.length === 0) {
         elements.prospectorNoProspectsDiv.classList.remove('hidden');
     } else {
         elements.prospectorNoProspectsDiv.classList.add('hidden');
-        assignedProspects.forEach(prospect => {
-            elements.prospectorProspectsCardsContainer.insertAdjacentHTML('beforeend', createProspectCardHTML(prospect, false));
-        });
+        
+        // Renderizar prospectos sin contactar primero
+        if (prospectosSinContactar.length > 0) {
+            // Agregar encabezado de sección
+            elements.prospectorProspectsCardsContainer.insertAdjacentHTML('beforeend', `
+                <div class="section-header prospectos-sin-contactar">
+                    <h3>
+                        📞 Prospectos Sin Contactar (${prospectosSinContactar.length})
+                    </h3>
+                </div>
+            `);
+            
+            prospectosSinContactar.forEach(prospect => {
+                elements.prospectorProspectsCardsContainer.insertAdjacentHTML('beforeend', createProspectCardHTML(prospect, false));
+            });
+        }
+
+        // Renderizar prospectos reagendados después
+        if (prospectosReagendados.length > 0) {
+            // Agregar separador y encabezado de sección
+            elements.prospectorProspectsCardsContainer.insertAdjacentHTML('beforeend', `
+                <div class="section-separator"></div>
+                <div class="section-header prospectos-reagendados">
+                    <h3>
+                        📅 Prospectos Reagendados (${prospectosReagendados.length})
+                    </h3>
+                </div>
+            `);
+            
+            prospectosReagendados.forEach(prospect => {
+                elements.prospectorProspectsCardsContainer.insertAdjacentHTML('beforeend', createProspectCardHTML(prospect, false));
+            });
+        }
 
         // Adjuntar event listeners para prospector
         attachProspectorCardEventListeners();
@@ -944,18 +982,87 @@ const renderAdminCards = () => {
     });
 
     if (elements.adminProspectsCardsContainer) {
-    elements.adminProspectsCardsContainer.innerHTML = '';
-    if (filteredProspects.length === 0) {
+        elements.adminProspectsCardsContainer.innerHTML = '';
+        
+        if (filteredProspects.length === 0) {
             elements.adminNoProspectsDiv?.classList.remove('hidden');
-    } else {
+        } else {
             elements.adminNoProspectsDiv?.classList.add('hidden');
-        filteredProspects.forEach(prospect => {
-            elements.adminProspectsCardsContainer.insertAdjacentHTML('beforeend', createProspectCardHTML(prospect, true));
-        });
+            
+            // Separar prospectos por estado
+            const prospectosSinContactar = filteredProspects.filter(p => p.status === 'En Prospección');
+            const prospectosReagendados = filteredProspects.filter(p => p.status === 'Seguimiento agendado');
+            const otrosProspectos = filteredProspects.filter(p => p.status !== 'En Prospección' && p.status !== 'Seguimiento agendado');
 
-        // Re-adjuntar event listeners para los botones recién creados en las tarjetas
-        attachAdminCardEventListeners();
-    }
+            // Ordenar por fecha de creación (más recientes primero)
+            prospectosSinContactar.sort((a, b) => {
+                const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+                const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+                return dateB.getTime() - dateA.getTime();
+            });
+
+            prospectosReagendados.sort((a, b) => {
+                const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+                const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+                return dateB.getTime() - dateA.getTime();
+            });
+
+            otrosProspectos.sort((a, b) => {
+                const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+                const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+                return dateB.getTime() - dateA.getTime();
+            });
+
+            // Renderizar prospectos sin contactar primero
+            if (prospectosSinContactar.length > 0) {
+                elements.adminProspectsCardsContainer.insertAdjacentHTML('beforeend', `
+                    <div class="section-header prospectos-sin-contactar">
+                        <h3>
+                            📞 Prospectos Sin Contactar (${prospectosSinContactar.length})
+                        </h3>
+                    </div>
+                `);
+                
+                prospectosSinContactar.forEach(prospect => {
+                    elements.adminProspectsCardsContainer.insertAdjacentHTML('beforeend', createProspectCardHTML(prospect, true));
+                });
+            }
+
+            // Renderizar prospectos reagendados después
+            if (prospectosReagendados.length > 0) {
+                elements.adminProspectsCardsContainer.insertAdjacentHTML('beforeend', `
+                    <div class="section-separator"></div>
+                    <div class="section-header prospectos-reagendados">
+                        <h3>
+                            📅 Prospectos Reagendados (${prospectosReagendados.length})
+                        </h3>
+                    </div>
+                `);
+                
+                prospectosReagendados.forEach(prospect => {
+                    elements.adminProspectsCardsContainer.insertAdjacentHTML('beforeend', createProspectCardHTML(prospect, true));
+                });
+            }
+
+            // Renderizar otros prospectos al final
+            if (otrosProspectos.length > 0) {
+                elements.adminProspectsCardsContainer.insertAdjacentHTML('beforeend', `
+                    <div class="section-separator"></div>
+                    <div class="section-header otros-prospectos">
+                        <h3>
+                            📋 Otros Prospectos (${otrosProspectos.length})
+                        </h3>
+                    </div>
+                `);
+                
+                otrosProspectos.forEach(prospect => {
+                    elements.adminProspectsCardsContainer.insertAdjacentHTML('beforeend', createProspectCardHTML(prospect, true));
+                });
+            }
+
+            // Re-adjuntar event listeners para los botones recién creados en las tarjetas
+            attachAdminCardEventListeners();
+        }
     }
     
     // Reinicializar Lucide Icons para el contenido dinámico

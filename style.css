@@ -2358,3 +2358,112 @@ h2, h3 {
     transform: translateY(0) scale(1);
   }
 }
+
+/* ===== ESTILOS PARA SECCIONES DE PROSPECTOS ===== */
+.section-header {
+    position: relative;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 0;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-normal);
+}
+
+.section-header:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+.section-header h3 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 1.125rem;
+    color: var(--gray-800);
+    margin: 0;
+    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+}
+
+.section-header h3::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 60%;
+    border-radius: 2px;
+    background: currentColor;
+}
+
+/* Estilos específicos para cada tipo de sección */
+.section-header.prospectos-sin-contactar h3 {
+    color: var(--info-500);
+    border-bottom-color: var(--info-500);
+}
+
+.section-header.prospectos-reagendados h3 {
+    color: var(--warning-500);
+    border-bottom-color: var(--warning-500);
+}
+
+.section-header.otros-prospectos h3 {
+    color: var(--gray-600);
+    border-bottom-color: var(--gray-600);
+}
+
+/* Animación de entrada para las secciones */
+.section-header {
+    animation: sectionSlideIn 0.5s ease-out;
+}
+
+@keyframes sectionSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Separador visual entre secciones */
+.section-separator {
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--gray-200) 50%, transparent 100%);
+    margin: 2rem 0;
+    border-radius: 1px;
+}
+
+/* Responsive para las secciones */
+@media (max-width: 768px) {
+    .section-header {
+        margin-bottom: 1rem;
+        padding: 0.5rem 0;
+    }
+    
+    .section-header h3 {
+        font-size: 1rem;
+        padding: 0 0.75rem;
+    }
+    
+    .section-separator {
+        margin: 1.5rem 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .section-header h3 {
+        font-size: 0.875rem;
+        padding: 0 0.5rem;
+    }
+    
+    .section-header h3::before {
+        width: 3px;
+    }
+}
