@@ -313,6 +313,8 @@ const elements = {
     whatsappModalMessage: document.getElementById('whatsapp-modal-message'),
     whatsappModalSendBtn: document.getElementById('whatsapp-modal-send-btn'),
     whatsappModalCancelBtn: document.getElementById('whatsapp-modal-cancel-btn'),
+    whatsappValidatedBtn: document.getElementById('whatsapp-validated-btn'),
+    whatsappNoWhatsappBtn: document.getElementById('whatsapp-no-whatsapp-btn'),
     materialsCheckboxContainer: document.getElementById('materials-checkbox-container'),
 saveFollowUpBtn: document.getElementById('saveFollowUpBtn'),
     deleteProspectBtn: document.getElementById('deleteProspectBtn'),
@@ -931,6 +933,14 @@ const createProspectCardHTML = (prospect, isAdminView = false, isArchiveView = f
       }
     }
 
+    // Etiqueta de validación de WhatsApp
+    let whatsappTag = '';
+    if (prospect.whatsappValidated === true) {
+      whatsappTag = `<span class="whatsapp-tag whatsapp-tag-validated">VALIDADA</span>`;
+    } else if (prospect.whatsappValidated === false) {
+      whatsappTag = `<span class="whatsapp-tag whatsapp-tag-no-whatsapp">SIN WHATSAPP</span>`;
+    }
+
     // Tarjeta rectangular, limpia y mobile first
     let fecha = prospect.reagendadoPara ? formatDate(prospect.reagendadoPara) : formatDate(prospect.sentEmailDate);
     let fechaLabel = prospect.reagendadoPara ? 'Reagendación:' : 'Enviado:';
@@ -942,7 +952,10 @@ const createProspectCardHTML = (prospect, isAdminView = false, isArchiveView = f
           ${statusTag}
         </div>
         ${prospect.contactPerson ? `<div class="card-encargado">${prospect.contactPerson}</div>` : ''}
-        <div class="card-contact">${prospect.phone}</div>
+        <div class="card-contact">
+          ${prospect.phone}
+          ${whatsappTag}
+        </div>
         <div class="card-date"><span class="label">${fechaLabel}</span> ${fecha}</div>
         <div class="card-actions">
           <button data-id="${prospect.id}" class="btn btn-whatsapp whatsapp-btn"><i data-lucide="message-circle" class="w-4 h-4 mr-2"></i> WhatsApp</button>
@@ -1420,6 +1433,22 @@ const showWhatsAppModal = (prospectId) => {
         };
     }
     
+    // Configurar botones de validación de WhatsApp
+    if (elements.whatsappValidatedBtn) {
+        elements.whatsappValidatedBtn.onclick = () => {
+            updateWhatsAppValidation(prospectId, true);
+        };
+    }
+    
+    if (elements.whatsappNoWhatsappBtn) {
+        elements.whatsappNoWhatsappBtn.onclick = () => {
+            updateWhatsAppValidation(prospectId, false);
+        };
+    }
+    
+    // Actualizar estado visual de los botones de validación
+    updateWhatsAppValidationButtons(prospect);
+    
     // Mostrar el modal de WhatsApp
     if (elements.whatsappModal) {
         elements.whatsappModal.classList.remove('hidden');
@@ -1436,6 +1465,65 @@ const closeWhatsAppModal = () => {
     if (elements.whatsappModal) {
         elements.whatsappModal.classList.add('hidden');
         console.log('✅ Modal de WhatsApp cerrado');
+    }
+};
+
+/**
+ * Actualiza la validación de WhatsApp de un prospecto
+ */
+const updateWhatsAppValidation = async (prospectId, isValidated) => {
+    try {
+        const prospect = allProspects.find(p => p.id === prospectId);
+        if (!prospect) {
+            showToast('Prospecto no encontrado', 'error');
+            return;
+        }
+
+        // Actualizar en Firestore
+        const prospectRef = doc(db, 'prospects', prospectId);
+        await updateDoc(prospectRef, {
+            whatsappValidated: isValidated,
+            lastUpdated: new Date().toISOString()
+        });
+
+        // Actualizar en el array local
+        prospect.whatsappValidated = isValidated;
+
+        // Actualizar estado visual de los botones
+        updateWhatsAppValidationButtons(prospect);
+
+        // Mostrar mensaje de confirmación
+        const message = isValidated ? 'WhatsApp marcado como VALIDADO' : 'WhatsApp marcado como SIN WHATSAPP';
+        showToast(message, 'success');
+
+        // Re-renderizar las tarjetas para mostrar la nueva etiqueta
+        if (currentUserRole === 'admin') {
+            renderAdminCards();
+        } else {
+            renderProspectorCards();
+        }
+
+    } catch (error) {
+        console.error('Error al actualizar validación de WhatsApp:', error);
+        showToast('Error al actualizar la validación de WhatsApp', 'error');
+    }
+};
+
+/**
+ * Actualiza el estado visual de los botones de validación de WhatsApp
+ */
+const updateWhatsAppValidationButtons = (prospect) => {
+    if (!elements.whatsappValidatedBtn || !elements.whatsappNoWhatsappBtn) return;
+
+    // Resetear estilos de ambos botones
+    elements.whatsappValidatedBtn.className = 'px-3 py-1 text-xs font-medium rounded-md bg-green-100 text-green-800 border border-green-300 hover:bg-green-200 transition-colors';
+    elements.whatsappNoWhatsappBtn.className = 'px-3 py-1 text-xs font-medium rounded-md bg-red-100 text-red-800 border border-red-300 hover:bg-red-200 transition-colors';
+
+    // Aplicar estilo activo según el estado actual
+    if (prospect.whatsappValidated === true) {
+        elements.whatsappValidatedBtn.className = 'px-3 py-1 text-xs font-medium rounded-md bg-green-600 text-white border border-green-600 transition-colors';
+    } else if (prospect.whatsappValidated === false) {
+        elements.whatsappNoWhatsappBtn.className = 'px-3 py-1 text-xs font-medium rounded-md bg-red-600 text-white border border-red-600 transition-colors';
     }
 };
 
