@@ -1,0 +1,42 @@
+# Archivos de desarrollo
+node_modules/
+.git/
+.github/
+.vscode/
+.bolt/
+.firebase/
+
+# Archivos de configuración de desarrollo
+package-lock.json
+*.log
+*.tmp
+*.temp
+
+# Archivos de documentación
+*.md
+estructura-proyecto.txt
+
+# Archivos de prueba
+test/
+tests/
+__tests__/
+
+# Archivos de build innecesarios
+dist/
+build/
+
+# Archivos de configuración de otros frameworks
+vite.config.*
+webpack.config.*
+rollup.config.*
+tsconfig.json
+postcss.config.js
+tailwind.config.js
+
+# Archivos de microservicio (se despliegan por separado)
+whatsapp-validator-service/
+
+# Archivos de respaldo
+*.zip
+*.bak
+*.backup 

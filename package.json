@@ -2,11 +2,10 @@
   "name": "crm-pietrafina",
   "description": "CRM para gestión de prospectos de Pietra Fina",
   "version": "3.0.0",
-  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "echo 'Este es un proyecto estático. Abre index.html en tu navegador.'",
+    "build": "echo 'Proyecto estático - no requiere build'",
+    "preview": "echo 'Proyecto estático - abre index.html en tu navegador'"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",
