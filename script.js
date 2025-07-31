@@ -49,6 +49,73 @@ let currentWeekStart = null;
 let selectedCalendarDate = null;
 let filteredProspects = [];
 
+// Definición del flujo de estatus del CRM
+const STATUS_FLOW = {
+    'Pendiente de Correo': {
+        name: 'Pendiente de Correo',
+        description: 'Prospecto recién agregado, esperando confirmación de envío de correo',
+        color: '#6b7280',
+        nextStatuses: ['En Prospección'],
+        actions: ['confirmar_correo']
+    },
+    'En Prospección': {
+        name: 'En Prospección',
+        description: 'Prospecto en proceso de seguimiento activo (7 días hábiles)',
+        color: '#3b82f6',
+        nextStatuses: ['Interesado', 'Seguimiento agendado', 'No contesta', 'Rechazado', 'Ya es nuestro cliente'],
+        actions: ['seguimiento', 'reagendar', 'whatsapp']
+    },
+    'Interesado': {
+        name: 'Interesado',
+        description: 'Prospecto que ha mostrado interés (semáforo amarillo)',
+        color: '#f59e0b',
+        nextStatuses: ['Seguimiento agendado', 'Convertido a cliente', 'No contesta', 'Rechazado'],
+        actions: ['seguimiento', 'reagendar', 'whatsapp', 'enviar_material']
+    },
+    'Seguimiento agendado': {
+        name: 'Seguimiento agendado',
+        description: 'Prospecto con cita o reunión programada (equivalente a Interesado)',
+        color: '#8b5cf6',
+        nextStatuses: ['Interesado', 'Convertido a cliente', 'No contesta', 'Rechazado'],
+        actions: ['seguimiento', 'reagendar', 'whatsapp', 'enviar_material']
+    },
+    'No contesta': {
+        name: 'No contesta',
+        description: 'Prospecto que no responde a los contactos',
+        color: '#ef4444',
+        nextStatuses: ['Reactivar Contacto', 'Rechazado'],
+        actions: ['reactivar']
+    },
+    'Rechazado': {
+        name: 'Rechazado',
+        description: 'Prospecto que ha rechazado abiertamente la propuesta',
+        color: '#dc2626',
+        nextStatuses: [],
+        actions: []
+    },
+    'Reactivar Contacto': {
+        name: 'Reactivar Contacto',
+        description: 'Prospecto vencido que requiere reactivación',
+        color: '#7c3aed',
+        nextStatuses: ['En Prospección', 'Interesado', 'Seguimiento agendado'],
+        actions: ['reactivar', 'reagendar']
+    },
+    'Convertido a cliente': {
+        name: 'Convertido a cliente',
+        description: 'Prospecto convertido en cliente por campaña de prospección',
+        color: '#059669',
+        nextStatuses: [],
+        actions: []
+    },
+    'Ya es nuestro cliente': {
+        name: 'Ya es nuestro cliente',
+        description: 'Prospecto que ya era cliente de la empresa',
+        color: '#047857',
+        nextStatuses: [],
+        actions: []
+    }
+};
+
 // Materiales disponibles para envío
 const MATERIALS = [
     {
@@ -369,7 +436,7 @@ const elements = {
     refreshDataBtn: document.getElementById('refresh-data-btn'),
     refreshDataProspectorBtn: document.getElementById('refresh-data-prospector-btn'),
     materialsCheckboxContainer: document.getElementById('materials-checkbox-container'),
-saveFollowUpBtn: document.getElementById('saveFollowUpBtn'),
+    saveFollowUpBtn: document.getElementById('saveFollowUpBtn'),
     deleteProspectBtn: document.getElementById('deleteProspectBtn'),
     rescheduleActionArea: document.getElementById('reschedule-action-area'),
     adminActionsArea: document.getElementById('admin-actions-area'),
@@ -910,6 +977,13 @@ const showToast = (message, type = 'info', duration = 3000) => {
  * Retorna la clase CSS para el badge de estado de un prospecto.
  */
 const getStatusBadgeClass = (status) => {
+    // Usar el flujo de estatus definido para obtener la clase
+    const statusInfo = STATUS_FLOW[status];
+    if (statusInfo) {
+        return `status-badge ${status.toLowerCase().replace(/\s+/g, '-')}`;
+    }
+    
+    // Fallback para estatus no definidos
     switch (status) {
         case 'Pendiente de Correo': return 'status-badge pending-email';
         case 'En Prospección': return 'status-badge in-prospecting';
@@ -993,12 +1067,14 @@ const createProspectCardHTML = (prospect, isAdminView = false, isArchiveView = f
         </div>
         ${prospect.contactPerson ? `<div class="card-encargado">${prospect.contactPerson}</div>` : ''}
         <div class="card-contact">
-          ${prospect.phone}
           <div class="flex items-center gap-2">
-            ${whatsappTag}
-            <button class="whatsapp-status-toggle" data-prospect-id="${prospect.id}" title="Cambiar estado de WhatsApp">
-              <i data-lucide="edit-3" class="w-3 h-3 text-gray-500 hover:text-blue-600"></i>
-            </button>
+            <span class="phone-number">${prospect.phone}</span>
+            <a href="tel:${prospect.phone}" class="call-btn" title="Llamar a ${prospect.phone}">
+              <i data-lucide="phone" class="w-4 h-4"></i>
+            </a>
+            <div class="flex items-center gap-2 ml-auto">
+              ${whatsappTag}
+            </div>
           </div>
         </div>
         <div class="card-date"><span class="label">${fechaLabel}</span> ${fecha}</div>
@@ -1308,14 +1384,17 @@ const updateProspectingResultsSummary = () => {
         total: allProspects.length,
         enProspeccion: allProspects.filter(p => p.status === 'En Prospección').length,
         interesado: allProspects.filter(p => p.status === 'Interesado').length,
+        seguimientoAgendado: allProspects.filter(p => p.status === 'Seguimiento agendado').length,
         pendienteValidacion: allProspects.filter(p => p.status === 'Pendiente de Validación').length
     };
 
-    const conversionRateValue = counts.total > 0 ? ((counts.interesado / counts.total) * 100).toFixed(1) : 0;
+    // Calcular tasa de conversión incluyendo "Seguimiento agendado" como equivalente a "Interesado"
+    const totalInteresados = counts.interesado + counts.seguimientoAgendado;
+    const conversionRateValue = counts.total > 0 ? ((totalInteresados / counts.total) * 100).toFixed(1) : 0;
 
     if (elements.totalProspectsCount) elements.totalProspectsCount.textContent = counts.total;
     if (elements.enProspeccionCount) elements.enProspeccionCount.textContent = counts.enProspeccion + counts.pendienteValidacion;
-    if (elements.interesadoCount) elements.interesadoCount.textContent = counts.interesado;
+    if (elements.interesadoCount) elements.interesadoCount.textContent = totalInteresados;
     if (elements.conversionRate) elements.conversionRate.textContent = `${conversionRateValue}%`;
 };
 
@@ -1323,17 +1402,19 @@ const updateProspectingResultsSummary = () => {
 const updateDashboard = () => {
     console.log("Actualizando gráficos del dashboard.");
 
+    // Crear el flujo visual de estatus
+    createStatusFlowVisualization();
+
     const statusCounts = {
         'Pendiente de Correo': allProspects.filter(p => p.status === 'Pendiente de Correo').length,
         'En Prospección': allProspects.filter(p => p.status === 'En Prospección').length,
         'Interesado': allProspects.filter(p => p.status === 'Interesado').length,
+        'Seguimiento agendado': allProspects.filter(p => p.status === 'Seguimiento agendado').length,
         'No contesta': allProspects.filter(p => p.status === 'No contesta').length,
         'Rechazado': allProspects.filter(p => p.status === 'Rechazado').length,
-        'Seguimiento agendado': allProspects.filter(p => p.status === 'Seguimiento agendado').length,
         'Reactivar Contacto': allProspects.filter(p => p.status === 'Reactivar Contacto').length,
-        'Completado': allProspects.filter(p => p.status === 'Completado').length,
-        'Cliente convertido': allProspects.filter(p => (p.status === 'Convertido a cliente' || p.contactResult === 'Convertido a cliente') && p.isClient).length,
-        'Ya es nuestro cliente': allProspects.filter(p => p.contactResult === 'Ya es nuestro cliente' && p.isClient).length
+        'Convertido a cliente': allProspects.filter(p => p.status === 'Convertido a cliente').length,
+        'Ya es nuestro cliente': allProspects.filter(p => p.status === 'Ya es nuestro cliente').length
     };
 
     // Solo intentar crear gráficos si Chart.js está disponible
@@ -1412,8 +1493,7 @@ const showProspectDetailsModal = (prospectId) => {
         // Intentar con followUpNotes primero, luego con internalNotes como fallback
         let notesText = formatFollowUpNotes(prospect.followUpNotes || prospect.internalNotes);
         
-        elements.detailFollowUpNotes.textContent = notesText;
-        console.log('🔍 DEBUG - Texto mostrado en modal:', notesText);
+        elements.detailFollowUpNotes.innerHTML = notesText;
     }
 
     // Mostrar días restantes
@@ -1431,8 +1511,27 @@ const showProspectDetailsModal = (prospectId) => {
         elements.detailReagendadoParaContainer.classList.add('hidden');
     }
 
+    // Configurar botón de llamada en el modal
+    const callButton = document.getElementById('call-button');
+    if (callButton && prospect.phone) {
+        callButton.href = `tel:${prospect.phone}`;
+        callButton.title = `Llamar a ${prospect.phone}`;
+        callButton.classList.remove('hidden');
+        
+        // Actualizar el texto del botón para mostrar el número
+        const callButtonText = callButton.querySelector('i');
+        if (callButtonText) {
+            callButtonText.nextSibling.textContent = ` Llamar a ${prospect.phone}`;
+        }
+    } else if (callButton) {
+        callButton.classList.add('hidden');
+    }
+
     // Mostrar áreas de acción según el rol y estado
     showModalActionAreas(prospect);
+    
+    // Actualizar opciones del selector de resultados según el estatus actual
+    updateContactResultOptions(prospect.status);
 
     // Mostrar el modal
     if (elements.detailModal) {
@@ -1450,14 +1549,18 @@ const showModalActionAreas = (prospect) => {
     if (elements.adminActionsArea) elements.adminActionsArea.classList.add('hidden');
     if (elements.editProspectActionArea) elements.editProspectActionArea.classList.add('hidden');
 
-    // Mostrar área de prospector si está en prospección
-    if ((prospect.status === 'En Prospección' || prospect.status === 'Seguimiento agendado') && 
+    // Obtener información del estatus actual
+    const statusInfo = STATUS_FLOW[prospect.status];
+    
+    // Mostrar área de prospector si el estatus permite acciones de seguimiento
+    if (isActiveStatus(prospect.status) && 
         (currentUserRole === 'prospector' || currentUserRole === 'admin')) {
         if (elements.prospectorActionArea) elements.prospectorActionArea.classList.remove('hidden');
     }
 
-    // Mostrar área de reagendamiento si el usuario puede reagendar
-    if (canUserReschedule(currentUserId, currentUserRole, currentUserName)) {
+    // Mostrar área de reagendamiento si el estatus permite reagendar y el usuario tiene permisos
+    if (allowsReschedule(prospect.status) && 
+        canUserReschedule(currentUserId, currentUserRole, currentUserName)) {
         if (elements.rescheduleActionArea) elements.rescheduleActionArea.classList.remove('hidden');
     }
 
@@ -1766,18 +1869,48 @@ const validateSingleWhatsAppNumber = async (prospectId) => {
 };
 
 /**
- * Función para convertir notas de seguimiento a texto legible
+ * Función para convertir notas de seguimiento a texto legible con formato de etiquetas
  */
 const formatFollowUpNotes = (notes) => {
-    if (!notes) return 'Sin notas de seguimiento previas';
+    if (!notes) return '<span class="text-gray-500 italic">Sin notas de seguimiento previas</span>';
     
     if (typeof notes === 'string') {
-        return notes;
+        // Si es una cadena simple, crear una etiqueta con fecha actual
+        const now = new Date();
+        const formattedDate = now.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        return `
+            <div class="note-tag">
+                <span class="note-date">${formattedDate}</span>
+                <span class="note-content">${notes}</span>
+            </div>
+        `;
     }
     
     if (Array.isArray(notes)) {
         return notes.map(note => {
-            if (typeof note === 'string') return note;
+            if (typeof note === 'string') {
+                // Para notas simples, usar fecha actual
+                const now = new Date();
+                const formattedDate = now.toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                return `
+                    <div class="note-tag">
+                        <span class="note-date">${formattedDate}</span>
+                        <span class="note-content">${note}</span>
+                    </div>
+                `;
+            }
             if (typeof note === 'object') {
                 // Formatear específicamente para el formato de notas del CRM
                 if (note.notes && note.timestamp && note.by) {
@@ -1789,30 +1922,63 @@ const formatFollowUpNotes = (notes) => {
                         hour: '2-digit',
                         minute: '2-digit'
                     });
-                    return `${formattedDate} - ${note.notes} (por ${note.by.name})`;
+                    return `
+                        <div class="note-tag">
+                            <span class="note-date">${formattedDate}</span>
+                            <span class="note-content">${note.notes}</span>
+                            <span class="note-author">por ${note.by.name}</span>
+                        </div>
+                    `;
                 }
                 // Fallback para otros formatos
-                return `${note.date || ''} - ${note.text || note.message || note.note || JSON.stringify(note)}`;
+                const date = note.date || new Date().toLocaleDateString('es-ES');
+                const content = note.text || note.message || note.note || JSON.stringify(note);
+                return `
+                    <div class="note-tag">
+                        <span class="note-date">${date}</span>
+                        <span class="note-content">${content}</span>
+                    </div>
+                `;
             }
-            return String(note);
-        }).join('\n\n');
+            return `
+                <div class="note-tag">
+                    <span class="note-date">${new Date().toLocaleDateString('es-ES')}</span>
+                    <span class="note-content">${String(note)}</span>
+                </div>
+            `;
+        }).join('');
     }
     
     if (typeof notes === 'object') {
         // Si es un objeto con propiedades como date, text, message, etc.
         if (notes.text || notes.message || notes.note) {
-            return `${notes.date || ''} - ${notes.text || notes.message || notes.note}`;
+            const date = notes.date || new Date().toLocaleDateString('es-ES');
+            const content = notes.text || notes.message || notes.note;
+            return `
+                <div class="note-tag">
+                    <span class="note-date">${date}</span>
+                    <span class="note-content">${content}</span>
+                </div>
+            `;
         }
         // Si es un objeto con múltiples entradas
         return Object.entries(notes).map(([key, value]) => {
-            if (typeof value === 'object') {
-                return `${key}: ${JSON.stringify(value)}`;
-            }
-            return `${key}: ${value}`;
-        }).join('\n');
+            const content = typeof value === 'object' ? JSON.stringify(value) : value;
+            return `
+                <div class="note-tag">
+                    <span class="note-date">${key}</span>
+                    <span class="note-content">${content}</span>
+                </div>
+            `;
+        }).join('');
     }
     
-    return JSON.stringify(notes);
+    return `
+        <div class="note-tag">
+            <span class="note-date">${new Date().toLocaleDateString('es-ES')}</span>
+            <span class="note-content">${JSON.stringify(notes)}</span>
+        </div>
+    `;
 };
 
 /**
@@ -2292,18 +2458,7 @@ const initModalEventListeners = () => {
         });
     }
     
-    // Event listeners para botones de cambio de estado de WhatsApp en las tarjetas
-    document.addEventListener('click', (e) => {
-        if (e.target.closest('.whatsapp-status-toggle')) {
-            const button = e.target.closest('.whatsapp-status-toggle');
-            const prospectId = button.getAttribute('data-prospect-id');
-            const prospect = allProspects.find(p => p.id === prospectId);
-            
-            if (prospect) {
-                showWhatsAppConfirmationModal(prospect);
-            }
-        }
-    });
+
 };
 
 const addHoverEffects = () => {
@@ -2976,6 +3131,13 @@ const handleSaveFollowUp = async () => {
             updateData.followUpNotes = followUpNotes;
         }
         
+        // Validar que la transición de estatus sea válida según el flujo definido
+        const validNextStatuses = getValidNextStatuses(prospect.status);
+        if (validNextStatuses.length > 0 && !validNextStatuses.includes(contactResult)) {
+            showToast(`Transición no válida: de "${prospect.status}" a "${contactResult}". Estatus válidos: ${validNextStatuses.join(', ')}`, 'error');
+            return;
+        }
+        
         // Si el resultado es "Seguimiento agendado", mantener la fecha de reagendamiento
         if (contactResult !== 'Seguimiento agendado') {
             updateData.reagendadoPara = null;
@@ -3141,5 +3303,163 @@ const handleEmailConfirm = async (prospectId) => {
     } catch (error) {
         console.error('Error al confirmar correo:', error);
         showToast('Error al confirmar correo: ' + error.message, 'error');
+    }
+};
+
+/**
+ * Crea y muestra el flujo visual de estatus en el dashboard
+ */
+const createStatusFlowVisualization = () => {
+    const container = document.getElementById('status-flow-container');
+    if (!container) return;
+
+    let html = `
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h3 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
+                <i data-lucide="git-branch" class="w-5 h-5 mr-2"></i>
+                Flujo de Estatus de Prospectos
+            </h3>
+            <div class="status-flow-grid">
+    `;
+
+    // Crear nodos para cada estatus
+    Object.entries(STATUS_FLOW).forEach(([status, info]) => {
+        html += `
+            <div class="status-node" data-status="${status}">
+                <div class="status-badge" style="background-color: ${info.color}; color: white;">
+                    ${info.name}
+                </div>
+                <p class="status-description text-xs text-slate-600 mt-1">${info.description}</p>
+            </div>
+        `;
+    });
+
+    html += `
+            </div>
+            <div class="status-connections">
+    `;
+
+    // Crear conexiones entre estatus
+    Object.entries(STATUS_FLOW).forEach(([status, info]) => {
+        info.nextStatuses.forEach(nextStatus => {
+            html += `
+                <div class="status-connection" data-from="${status}" data-to="${nextStatus}"></div>
+            `;
+        });
+    });
+
+    html += `
+            </div>
+        </div>
+    `;
+
+    container.innerHTML = html;
+    
+    // Agregar estilos CSS para el flujo visual
+    if (!document.getElementById('status-flow-styles')) {
+        const style = document.createElement('style');
+        style.id = 'status-flow-styles';
+        style.textContent = `
+            .status-flow-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1rem;
+                margin-bottom: 2rem;
+            }
+            
+            .status-node {
+                text-align: center;
+                padding: 1rem;
+                border-radius: 0.5rem;
+                background: #f8fafc;
+                border: 2px solid #e2e8f0;
+                transition: all 0.3s ease;
+            }
+            
+            .status-node:hover {
+                border-color: #3b82f6;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            }
+            
+            .status-badge {
+                padding: 0.5rem 1rem;
+                border-radius: 0.375rem;
+                font-weight: 600;
+                font-size: 0.875rem;
+                text-align: center;
+                display: inline-block;
+                min-width: 120px;
+            }
+            
+            .status-connections {
+                position: relative;
+                height: 200px;
+            }
+            
+            .status-connection {
+                position: absolute;
+                height: 2px;
+                background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+                opacity: 0.6;
+                transform-origin: left center;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+};
+
+/**
+ * Determina si un estatus es considerado activo (permite acciones de seguimiento)
+ */
+const isActiveStatus = (status) => {
+    const statusInfo = STATUS_FLOW[status];
+    return statusInfo && statusInfo.actions.includes('seguimiento');
+};
+
+/**
+ * Determina si un estatus permite reagendamiento
+ */
+const allowsReschedule = (status) => {
+    const statusInfo = STATUS_FLOW[status];
+    return statusInfo && statusInfo.actions.includes('reagendar');
+};
+
+/**
+ * Obtiene los estatus válidos a los que se puede transicionar desde un estatus actual
+ */
+const getValidNextStatuses = (currentStatus) => {
+    const statusInfo = STATUS_FLOW[currentStatus];
+    return statusInfo ? statusInfo.nextStatuses : [];
+};
+
+/**
+ * Actualiza las opciones del selector de resultados de contacto según el estatus actual
+ */
+const updateContactResultOptions = (currentStatus) => {
+    const contactResultSelect = document.getElementById('contactResult');
+    if (!contactResultSelect) return;
+
+    // Limpiar opciones existentes
+    contactResultSelect.innerHTML = '<option value="">Selecciona un resultado</option>';
+
+    // Obtener estatus válidos para la transición
+    const validNextStatuses = getValidNextStatuses(currentStatus);
+    
+    // Agregar opciones válidas
+    validNextStatuses.forEach(status => {
+        const option = document.createElement('option');
+        option.value = status;
+        option.textContent = status;
+        contactResultSelect.appendChild(option);
+    });
+
+    // Si no hay estatus válidos, mostrar mensaje
+    if (validNextStatuses.length === 0) {
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = 'No hay transiciones válidas disponibles';
+        option.disabled = true;
+        contactResultSelect.appendChild(option);
     }
 };

@@ -221,12 +221,10 @@ body {
 /* Estilos para el logo */
 #header-logo {
     transition: all var(--transition-normal);
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
 #header-logo:hover {
     transform: scale(1.05);
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
 }
 
 /* Estilos para el estado de autenticación */
@@ -824,6 +822,11 @@ body {
 .status-badge.admin-review-pending { background-color: var(--info-500); }
 .status-badge.completed { background-color: var(--success-500); }
 
+/* Nuevos estatus según el flujo definido */
+.status-badge.seguimiento-agendado { background-color: #8b5cf6; } /* Púrpura */
+.status-badge.convertido-a-cliente { background-color: #059669; } /* Verde oscuro */
+.status-badge.ya-es-nuestro-cliente { background-color: #047857; } /* Verde más oscuro */
+
 /* Indicadores de estado en el borde izquierdo de las tarjetas */
 .prospect-card .pending-email { background-color: var(--warning-500); }
 .prospect-card .in-prospecting { background-color: var(--info-500); }
@@ -836,6 +839,11 @@ body {
 .prospect-card .admin-review-pending { background-color: var(--info-500); }
 .prospect-card .completed { background-color: var(--success-500); }
 
+/* Nuevos indicadores de estado */
+.prospect-card .seguimiento-agendado { background-color: #8b5cf6; }
+.prospect-card .convertido-a-cliente { background-color: #059669; }
+.prospect-card .ya-es-nuestro-cliente { background-color: #047857; }
+
 /* ===== ESTILOS PARA CARD BORDER BASADOS EN STATUS (priorizando colores de marca) ===== */
 .prospect-card.status-pending-email::before { background: var(--warning-500); }
 .prospect-card.status-in-prospecting::before { background: var(--info-500); }
@@ -847,6 +855,11 @@ body {
 .prospect-card.status-reactivate::before { background: var(--primary-500); }
 .prospect-card.status-admin-review-pending::before { background: var(--info-500); }
 .prospect-card.status-completed::before { background: var(--success-500); }
+
+/* Nuevos bordes de tarjeta para estatus */
+.prospect-card.status-seguimiento-agendado::before { background: #8b5cf6; }
+.prospect-card.status-convertido-a-cliente::before { background: #059669; }
+.prospect-card.status-ya-es-nuestro-cliente::before { background: #047857; }
 
 
 /* ===== FORMULARIOS MEJORADOS (Fondo Blanco, Texto Negro, Fluent UI) ===== */
@@ -1500,28 +1513,63 @@ h2, h3 {
 .call-btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.25rem;
+    justify-content: center;
+    padding: 0.375rem;
     background-color: var(--success-500);
     color: white;
-    border-radius: var(--radius-lg);
-    font-size: 0.875rem; /* 14px */
-    font-weight: 600;
+    border-radius: var(--radius-md);
     text-decoration: none;
     transition: all var(--transition-fast);
     box-shadow: var(--shadow-sm);
     border: none;
     cursor: pointer;
+    min-width: 2rem;
+    height: 2rem;
+    margin-left: 0.5rem;
 }
 
 .call-btn:hover {
     background-color: #0c9e6e;
-    transform: translateY(-2px);
+    transform: scale(1.05);
     box-shadow: var(--shadow-md);
 }
 
 .call-btn i {
-    font-size: 1rem; /* 16px */
+    font-size: 0.875rem;
+}
+
+/* Estilos para el número de teléfono */
+.phone-number {
+    font-weight: 500;
+    color: var(--gray-800);
+}
+
+/* Estilos específicos para el botón de llamada en el modal de detalles */
+.detail-value .call-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    background-color: var(--success-500);
+    color: white;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-sm);
+    border: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.detail-value .call-btn:hover {
+    background-color: #0c9e6e;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.detail-value .call-btn i {
+    font-size: 0.875rem;
 }
 
 /* ===== ESTILOS ESPECÍFICOS PARA ELEMENTOS ESPECIALES ===== */
@@ -1790,18 +1838,7 @@ h2, h3 {
   border: 1px solid #fed7aa;
 }
 
-.whatsapp-status-toggle {
-  opacity: 0.6;
-  transition: opacity 0.2s ease;
-  cursor: pointer;
-  padding: 2px;
-  border-radius: 4px;
-}
 
-.whatsapp-status-toggle:hover {
-  opacity: 1;
-  background-color: rgba(59, 130, 246, 0.1);
-}
 
 @media (max-width: 480px) {
   .prospect-card {
@@ -1818,6 +1855,31 @@ h2, h3 {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.3rem;
+  }
+  
+  .prospect-card .card-contact .call-btn {
+    min-width: 1.75rem;
+    height: 1.75rem;
+    padding: 0.25rem;
+    margin-left: 0.25rem;
+  }
+  
+  .prospect-card .card-contact .call-btn i {
+    font-size: 0.75rem;
+  }
+  
+  .prospect-card .card-contact .phone-number {
+    font-size: 0.875rem;
+  }
+  
+  /* Estilos responsivos para el botón de llamada en el modal */
+  .detail-value .call-btn {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.75rem;
+  }
+  
+  .detail-value .call-btn i {
+    font-size: 0.75rem;
   }
   .whatsapp-tag {
     font-size: 0.65rem;
@@ -2981,4 +3043,144 @@ footer i[data-lucide="zap"] {
         font-size: 0.625rem;
         padding: 0.125rem 0.375rem;
     }
+}
+
+/* Logo responsivo - usar logo pequeño en móviles */
+@media (max-width: 768px) {
+    #header-logo {
+        content: url('./assets/images/logo pequeño.png');
+        height: 1.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    #header-logo {
+        content: url('./assets/images/logo pequeño.png');
+        height: 1.5rem;
+    }
+}
+
+/* Estilos para etiquetas de notas de seguimiento */
+.note-tag {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.note-tag::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.note-tag:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-color: #94a3b8;
+}
+
+.note-date {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #475569;
+    background: rgba(59, 130, 246, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    display: inline-block;
+    font-family: 'Courier New', monospace;
+}
+
+.note-content {
+    font-size: 0.875rem;
+    color: #1e293b;
+    line-height: 1.5;
+    margin-bottom: 4px;
+    word-wrap: break-word;
+}
+
+.note-author {
+    font-size: 0.75rem;
+    color: #64748b;
+    font-style: italic;
+    align-self: flex-end;
+}
+
+/* Estilos responsivos para etiquetas de notas */
+@media (max-width: 768px) {
+    .note-tag {
+        padding: 10px;
+        margin-bottom: 6px;
+    }
+    
+    .note-date {
+        font-size: 0.7rem;
+        padding: 3px 6px;
+    }
+    
+    .note-content {
+        font-size: 0.8rem;
+    }
+    
+    .note-author {
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .note-tag {
+        padding: 8px;
+        margin-bottom: 5px;
+    }
+    
+    .note-date {
+        font-size: 0.65rem;
+        padding: 2px 5px;
+    }
+    
+    .note-content {
+        font-size: 0.75rem;
+    }
+    
+    .note-author {
+        font-size: 0.65rem;
+    }
+}
+
+/* Animación de entrada para las etiquetas */
+.note-tag {
+    animation: noteTagSlideIn 0.3s ease-out;
+}
+
+@keyframes noteTagSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Estilo para cuando no hay notas */
+#detail-followUpNotes .text-gray-500 {
+    padding: 12px;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    text-align: center;
+    color: #64748b;
 }

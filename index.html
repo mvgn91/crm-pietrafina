@@ -31,8 +31,7 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3 sm:gap-4">
                     <div class="relative">
-                        <img id="header-logo" src="https://static.wixstatic.com/media/769a0c_8d5b9317c0a84f4f856798df627db1e2~mv2.jpg/v1/fill/w_104,h_96,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/LOGO%20NEGRO%20DEF_edited.jpg" alt="Logo de Pietra Fina" class="h-10 sm:h-12 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
-                        <div class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
+                        <img id="header-logo" src="./assets/images/logo grande.png" alt="Logo de Pietra Fina" class="h-10 sm:h-12">
                     </div>
                     <div class="min-w-0 flex-1">
                         <h1 id="header-title" class="text-xl sm:text-2xl lg:text-3xl font-fraunces font-bold flex items-center gap-3 truncate">
@@ -111,12 +110,6 @@
                     <h2 class="text-3xl font-fraunces text-slate-800 mb-4 sm:mb-0">Gestión de Base de Datos (Administrador)</h2>
                     <!-- Navegación del administrador -->
                     <div class="flex flex-wrap justify-center sm:justify-end gap-2 mobile-nav">
-                        <button id="validate-all-whatsapp-btn" class="py-2 px-4 bg-green-600 text-white font-poppins rounded-md hover:bg-green-700 transition duration-200 mobile-btn">
-                            <i data-lucide="check-circle" class="w-4 h-4 mr-2"></i> Validar WhatsApp
-                        </button>
-                        <button id="refresh-data-btn" class="py-2 px-4 bg-blue-600 text-white font-poppins rounded-md hover:bg-blue-700 transition duration-200 mobile-btn">
-                            <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i> Actualizar Datos
-                        </button>
                         <button id="nav-to-prospector-from-admin" class="py-2 px-4 bg-red-700 text-white font-poppins rounded-md hover:bg-red-800 transition duration-200 mobile-btn">
                             <i data-lucide="headphones" class="w-4 h-4 mr-2"></i> Ir a Prospección
                         </button>
@@ -187,6 +180,9 @@
                 <!-- Sección del Dashboard -->
                 <div class="mb-8 p-4 sm:p-6 bg-slate-50 rounded-xl border border-slate-200 shadow-sm">
                     <h3 class="text-xl sm:text-2xl font-fraunces text-slate-700 mb-4">Dashboard de Estadísticas</h3>
+                    
+                    <!-- Contenedor para el flujo visual de estatus -->
+                    <div id="status-flow-container" class="mb-6"></div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                         <div class="chart-container">
                             <canvas id="statusChart"></canvas>
