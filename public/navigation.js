@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const sidebarToggle = document.querySelector('.sidebar-toggle');
+    const menuToggleBtn = document.getElementById('menu-toggle-btn');
     const pageOverlay = document.querySelector('.page-overlay');
     const logoutBtn = document.getElementById('logout-btn');
     const body = document.body;
@@ -15,17 +16,30 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleSidebar();
         });
     }
+    if (menuToggleBtn) {
+        menuToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+    }
     if (pageOverlay) {
-        pageOverlay.addEventListener('click', toggleSidebar);
+        pageOverlay.addEventListener('click', () => {
+            if (body.classList.contains('sidebar-open')) toggleSidebar();
+        });
     }
 
     // --- Marcar Link Activo ---
     const currentPage = window.location.pathname.split('/').pop();
-    if (currentPage === 'admin-app.html' || currentPage === '') {
-        document.getElementById('nav-gestion')?.classList.add('active');
-    } else if (currentPage === 'prospeccion.html') {
-        document.getElementById('nav-prospeccion')?.classList.add('active');
-    }
+    document.querySelectorAll('.sidebar-nav a').forEach(link => {
+        const href = link.getAttribute('href') || '';
+        if (href === currentPage) {
+            link.classList.add('bg-gray-100', 'text-gray-900');
+            link.classList.remove('text-gray-600');
+        } else {
+            link.classList.add('text-gray-600');
+            link.classList.remove('bg-gray-100', 'text-gray-900');
+        }
+    });
 
     // --- Poblar Información de Usuario ---
     // Se asume que el nombre de usuario se guarda en sessionStorage al hacer login

@@ -326,14 +326,34 @@ function handleAdminScreenRender() {
   const searchTerm =
     document.getElementById("searchFilter")?.value?.toLowerCase() || "";
   const sortOrder = document.getElementById("sortFilter")?.value || "default";
+  const noFollowUpFilterChecked = document.getElementById("noFollowUpFilter")?.checked || false;
 
-  let filteredProspects = allProspects.filter(
-    (p) =>
-      (filterStatus === "all" || p.status === filterStatus) &&
-      (!searchTerm ||
-        p.businessName?.toLowerCase().includes(searchTerm) ||
-        p.contactPerson?.toLowerCase().includes(searchTerm)),
-  );
+  const statusFilterElement = document.getElementById("statusFilter");
+  if (statusFilterElement) {
+      statusFilterElement.disabled = noFollowUpFilterChecked;
+      if (noFollowUpFilterChecked) {
+        statusFilterElement.classList.add("bg-gray-200");
+      } else {
+        statusFilterElement.classList.remove("bg-gray-200");
+      }
+  }
+
+  let filteredProspects = allProspects.filter(p => {
+    const searchMatch = !searchTerm ||
+      p.businessName?.toLowerCase().includes(searchTerm) ||
+      p.contactPerson?.toLowerCase().includes(searchTerm);
+
+    if (noFollowUpFilterChecked) {
+      const noFollowUpMatch = p.status === "En Prospección" &&
+                              Array.isArray(p.followUpNotes) &&
+                              p.followUpNotes.length === 1;
+      return noFollowUpMatch && searchMatch;
+    }
+
+    const statusMatch = filterStatus === "all" || p.status === filterStatus;
+
+    return statusMatch && searchMatch;
+  });
 
   if (sortOrder !== "default") {
     filteredProspects.sort((a, b) => {
@@ -494,5 +514,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("sortFilter")
     ?.addEventListener("change", handleAdminScreenRender);
+  document
+    .getElementById("noFollowUpFilter")
+    ?.addEventListener("change", handleAdminScreenRender);
 });
-

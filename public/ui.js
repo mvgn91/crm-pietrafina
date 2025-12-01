@@ -504,6 +504,141 @@ const isSameDay = (date1, date2) => {
 
 // --- Fin Helper Functions ---
 
+// --- Dashboard helpers (Charts & Stats) ---
+let _statusChart = null;
+let _timeChart = null;
+
+export const renderStatsCards = (stats) => {
+  const container = document.getElementById("stats-cards-container");
+  if (!container) return;
+  const { totalProspects = 0, newThisMonth = 0, convertedProspects = 0, conversionRate = 0 } = stats || {};
+  container.innerHTML = `
+    <div class="rounded-lg bg-white border border-gray-200 p-4 shadow-sm">
+      <p class="text-xs text-gray-500 uppercase tracking-wide">Total</p>
+      <p class="mt-1 text-3xl font-bold text-gray-900">${totalProspects}</p>
+    </div>
+    <div class="rounded-lg bg-white border border-gray-200 p-4 shadow-sm">
+      <p class="text-xs text-gray-500 uppercase tracking-wide">Nuevos (Mes)</p>
+      <p class="mt-1 text-3xl font-bold text-gray-900">${newThisMonth}</p>
+    </div>
+    <div class="rounded-lg bg-white border border-gray-200 p-4 shadow-sm">
+      <p class="text-xs text-gray-500 uppercase tracking-wide">Convertidos</p>
+      <p class="mt-1 text-3xl font-bold text-gray-900">${convertedProspects}</p>
+    </div>
+    <div class="rounded-lg bg-white border border-gray-200 p-4 shadow-sm">
+      <p class="text-xs text-gray-500 uppercase tracking-wide">Tasa de Conversión</p>
+      <p class="mt-1 text-3xl font-bold text-gray-900">${conversionRate}%</p>
+    </div>
+  `;
+};
+
+export const renderProspectsByStatusChart = (prospects = []) => {
+  const ctx = document.getElementById("prospectsByStatusChart");
+  if (!ctx || typeof Chart === "undefined") return;
+
+  const labels = [
+    "Pendiente de Correo",
+    "En Prospección",
+    "Interesado",
+    "Seguimiento agendado",
+    "No contesta",
+    "Rechazado",
+    "Convertido a cliente",
+    "Ya es nuestro cliente",
+  ];
+  const colors = [
+    "#f59e0b", // amber
+    "#3b82f6", // blue
+    "#10b981", // green
+    "#06b6d4", // cyan
+    "#6b7280", // gray
+    "#ef4444", // red
+    "#8b5cf6", // violet
+    "#6366f1", // indigo
+  ];
+  const counts = labels.map((label) => prospects.filter((p) => (p.status || "").trim() === label).length);
+
+  if (_statusChart) {
+    _statusChart.data.labels = labels;
+    _statusChart.data.datasets[0].data = counts;
+    _statusChart.update();
+    return;
+  }
+  _statusChart = new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Prospectos",
+          data: counts,
+          backgroundColor: colors,
+          borderWidth: 0,
+        },
+      ],
+    },
+    options: {
+      plugins: {
+        legend: { position: "bottom" },
+      },
+      maintainAspectRatio: false,
+    },
+  });
+};
+
+export const renderProspectsOverTimeChart = (prospects = []) => {
+  const ctx = document.getElementById("prospectsOverTimeChart");
+  if (!ctx || typeof Chart === "undefined") return;
+
+  const now = new Date();
+  const months = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({ key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`, label: d.toLocaleString("es-MX", { month: "short" }) + " " + String(d.getFullYear()).slice(-2) });
+  }
+
+  const counts = months.map(({ key }) => {
+    return prospects.filter((p) => {
+      const raw = p.creationDate || p.createdAt || p.created_at || null;
+      if (!raw) return false;
+      const d = new Date(raw);
+      const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      return k === key;
+    }).length;
+  });
+
+  if (_timeChart) {
+    _timeChart.data.labels = months.map((m) => m.label);
+    _timeChart.data.datasets[0].data = counts;
+    _timeChart.update();
+    return;
+  }
+
+  _timeChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: months.map((m) => m.label),
+      datasets: [
+        {
+          label: "Nuevos Prospectos",
+          data: counts,
+          borderColor: "#ef4444",
+          backgroundColor: "rgba(239, 68, 68, 0.15)",
+          fill: true,
+          tension: 0.3,
+        },
+      ],
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { precision: 0 } },
+      },
+      maintainAspectRatio: false,
+    },
+  });
+};
+
 export const renderWeeklyPlanner = (prospects) => {
   const container = document.getElementById("weekly-planner-container");
   if (!container) return;

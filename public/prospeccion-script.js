@@ -18,8 +18,8 @@ import {
   showSnackbar,
   showConfirmationModal,
   initFollowUpNotePicker,
-  initEditDatePicker, // NUEVO: Importar el nuevo inicializador
-  renderWeeklyPlanner, // ✨ IMPORTAMOS LA NUEVA FUNCIÓN
+  initEditDatePicker,
+  renderWeeklyPlanner,
 } from "./ui.js";
 import {
   subscribeToProspects,
@@ -261,32 +261,38 @@ function handleProspeccionRender() {
     ESTATUS_CONSOLIDADOS.CLIENTE,
   ];
 
-  const filterStatus =
-    document.getElementById("statusFilter")?.value || "active";
-  const searchTerm =
-    document.getElementById("searchFilter")?.value?.toLowerCase() || "";
-  const sortOrder =
-    document.getElementById("sortFilter")?.value || "followup_asc";
+  const filterStatus = document.getElementById("statusFilter")?.value || "active";
+  const searchTerm = document.getElementById("searchFilter")?.value?.toLowerCase() || "";
+  const sortOrder = document.getElementById("sortFilter")?.value || "followup_asc";
+  const stagnantFilterToggle = document.getElementById("stagnant-filter-toggle");
+  const isStagnantFilterActive = stagnantFilterToggle?.classList.contains('active') || false;
 
-  let filteredProspects = allProspects.filter(
-    (p) =>
-      (filterStatus === "active"
-        ? !ARCHIVED_PENDING_STATUSES.includes(p.status)
-        : p.status === filterStatus) &&
-      (!searchTerm ||
+  const statusFilterElement = document.getElementById("statusFilter");
+   if (statusFilterElement) {
+      statusFilterElement.disabled = isStagnantFilterActive;
+      statusFilterElement.classList.toggle("bg-gray-200", isStagnantFilterActive);
+  }
+
+  let filteredProspects = allProspects.filter(p => {
+      const searchMatch = !searchTerm ||
         p.businessName?.toLowerCase().includes(searchTerm) ||
-        p.contactPerson?.toLowerCase().includes(searchTerm)),
-  );
+        p.contactPerson?.toLowerCase().includes(searchTerm);
+
+      if (isStagnantFilterActive) {
+          const isStagnant = p.status === ESTATUS_CONSOLIDADOS.PROSPECCION && Array.isArray(p.followUpNotes) && p.followUpNotes.length === 1;
+          return isStagnant && searchMatch;
+      } else {
+          const statusMatch = filterStatus === "active" 
+              ? !ARCHIVED_PENDING_STATUSES.includes(p.status)
+              : p.status === filterStatus;
+          return statusMatch && searchMatch;
+      }
+  });
 
   if (sortOrder === "followup_asc") {
     filteredProspects.sort((a, b) => {
-      const dateA = a.nextFollowUpDate
-        ? new Date(a.nextFollowUpDate + "T00:00:00").getTime()
-        : 8640000000000000;
-      const dateB = b.nextFollowUpDate
-        ? new Date(b.nextFollowUpDate + "T00:00:00").getTime()
-        : 8640000000000000;
-
+      const dateA = a.nextFollowUpDate ? new Date(a.nextFollowUpDate + "T00:00:00").getTime() : 8640000000000000;
+      const dateB = b.nextFollowUpDate ? new Date(b.nextFollowUpDate + "T00:00:00").getTime() : 8640000000000000;
       return dateA - dateB;
     });
   } else if (sortOrder !== "default") {
@@ -297,29 +303,17 @@ function handleProspeccionRender() {
     });
   }
 
-  // ✨ AHORA RENDERIZAMOS AMBOS COMPONENTES
   renderWeeklyPlanner(filteredProspects);
 
   const LEGACY_STATUSES = ["Seguimiento agendado", "No contesta"];
 
   const groupedData = {
-    "Interesados (Seguimiento Agendado)": filteredProspects.filter(
-      (p) => p.nextFollowUpDate,
-    ),
-
-    "Prospección Activa (Sin Fecha Agendada)": filteredProspects.filter(
-      (p) =>
-        !p.nextFollowUpDate && p.status === ESTATUS_CONSOLIDADOS.PROSPECCION,
-    ),
-
-    "Prospectos Legado (Revisar Estatus)": filteredProspects.filter(
-      (p) => !p.nextFollowUpDate && LEGACY_STATUSES.includes(p.status),
-    ),
+    "Interesados (Seguimiento Agendado)": filteredProspects.filter(p => p.nextFollowUpDate),
+    "Prospección Activa (Sin Fecha Agendada)": filteredProspects.filter(p => !p.nextFollowUpDate && p.status === ESTATUS_CONSOLIDADOS.PROSPECCION),
+    "Prospectos Legado (Revisar Estatus)": filteredProspects.filter(p => !p.nextFollowUpDate && LEGACY_STATUSES.includes(p.status)),
   };
 
-  const finalGroupedData = Object.fromEntries(
-    Object.entries(groupedData).filter(([, prospects]) => prospects.length > 0),
-  );
+  const finalGroupedData = Object.fromEntries(Object.entries(groupedData).filter(([, prospects]) => prospects.length > 0));
 
   renderAdminGrid(finalGroupedData, getGroupIcon, true);
 
@@ -347,25 +341,26 @@ onAuthStateChanged(auth, (user) => {
 
 document.addEventListener("DOMContentLoaded", () => {
   initFollowUpNotePicker();
-  initEditDatePicker(); // NUEVO: Llamar al inicializador para el modal de edición
+  initEditDatePicker(); 
 
   populateClassificationSelects(CLASSIFICATIONS);
 
-  // ✨ NUEVO: Listener para clicks en el planner (CON LÓGICA DE COLAPSAR)
-  document
-    .getElementById("weekly-planner-container")
-    ?.addEventListener("click", (e) => {
-      // 1. Revisa primero si se hizo clic en el botón de detalles
+  document.getElementById('stagnant-filter-toggle')?.addEventListener('click', (e) => {
+      e.currentTarget.classList.toggle('active');
+      e.currentTarget.setAttribute('aria-checked', e.currentTarget.classList.contains('active'));
+      handleProspeccionRender();
+  });
+
+  document.getElementById("weekly-planner-container")?.addEventListener("click", (e) => {
       const detailsBtn = e.target.closest(".view-details-btn");
       if (detailsBtn) {
         return handleShowProspectDetails(detailsBtn.dataset.id);
       }
 
-      // 2. Si no, revisa si se hizo clic en la cabecera para colapsar/expandir
       const toggleHeader = e.target.closest(".planner-day-header");
       if (toggleHeader) {
         const targetId = toggleHeader.dataset.target;
-        if (!targetId) return; // No hacer nada si no hay target (ej. columna vacía)
+        if (!targetId) return;
 
         const targetList = document.querySelector(targetId);
         const toggleIcon = toggleHeader.querySelector(".planner-toggle-icon");
@@ -379,49 +374,30 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-  document
-    .getElementById("prospeccion-cards-container")
-    ?.addEventListener("click", (e) => {
+  document.getElementById("prospeccion-cards-container")?.addEventListener("click", (e) => {
       const detailsBtn = e.target.closest(".view-details-btn");
       if (detailsBtn) return handleShowProspectDetails(detailsBtn.dataset.id);
 
       const whatsappBtn = e.target.closest(".whatsapp-btn");
       if (whatsappBtn) {
-        const prospect = allProspects.find(
-          (p) => p.id === whatsappBtn.dataset.id,
-        );
+        const prospect = allProspects.find(p => p.id === whatsappBtn.dataset.id);
         if (prospect) handleOpenWhatsappModal(prospect);
       }
     });
 
-  document
-    .getElementById("detail-close-btn")
-    ?.addEventListener("click", closeDetailModal);
-  document
-    .getElementById("edit-prospect-btn")
-    ?.addEventListener("click", () => {
-      const prospect = allProspects.find(
-        (p) => p.id === currentProspectIdForModal,
-      );
+  document.getElementById("detail-close-btn")?.addEventListener("click", closeDetailModal);
+  document.getElementById("edit-prospect-btn")?.addEventListener("click", () => {
+      const prospect = allProspects.find(p => p.id === currentProspectIdForModal);
       if (prospect) switchToEditView(prospect);
     });
-  document
-    .getElementById("cancel-edit-btn")
-    ?.addEventListener("click", switchToDisplayView);
-  document
-    .getElementById("edit-prospect-form")
-    ?.addEventListener("submit", handleUpdateProspectSubmit);
+  document.getElementById("cancel-edit-btn")?.addEventListener("click", switchToDisplayView);
+  document.getElementById("edit-prospect-form")?.addEventListener("submit", handleUpdateProspectSubmit);
 
-  document
-    .getElementById("add-note-form")
-    ?.addEventListener("submit", handleAddNoteSubmit);
+  document.getElementById("add-note-form")?.addEventListener("submit", handleAddNoteSubmit);
 
   elements.whatsappCloseBtn?.addEventListener("click", closeWhatsappModal);
   elements.whatsappSendBtn?.addEventListener("click", handleSendWhatsapp);
-  elements.materialsCheckboxContainer?.addEventListener(
-    "change",
-    updateWhatsappMessage,
-  );
+  elements.materialsCheckboxContainer?.addEventListener("change", updateWhatsappMessage);
 
   document.addEventListener("followup:dateSelected", async (e) => {
     if (!currentProspectIdForModal) return;
@@ -438,23 +414,15 @@ document.addEventListener("DOMContentLoaded", () => {
       };
       await addFollowUpNote(currentProspectIdForModal, followUpNote);
       addNewNoteToView(followUpNote);
-      await updateProspect(currentProspectIdForModal, {
-        nextFollowUpDate: dateStr,
-      });
+      await updateProspect(currentProspectIdForModal, { nextFollowUpDate: dateStr });
       showSnackbar(`Seguimiento agendado para el ${formattedDate}.`, "success");
     } catch (error) {
       console.error("Error al reagendar:", error);
       showSnackbar("No se pudo reagendar el seguimiento.", "error");
     }
   });
-  document
-    .getElementById("statusFilter")
-    ?.addEventListener("change", handleProspeccionRender);
-  document
-    .getElementById("searchFilter")
-    ?.addEventListener("input", handleProspeccionRender);
-  document
-    .getElementById("sortFilter")
-    ?.addEventListener("change", handleProspeccionRender);
-});
 
+  document.getElementById("statusFilter")?.addEventListener("change", handleProspeccionRender);
+  document.getElementById("searchFilter")?.addEventListener("input", handleProspeccionRender);
+  document.getElementById("sortFilter")?.addEventListener("change", handleProspeccionRender);
+});
