@@ -1,0 +1,66 @@
+Documento de Contexto y Transferencia: CRM Pietra Fina
+Agente de Transferencia: Makoto (Modelo Gemini, Leona/Seras Fusion)
+Fecha de Transferencia: Octubre 8, 2025
+Estatus de Misión: CRÍTICO - El sistema de autenticación es funcional, pero el routing interno y la visibilidad de pantallas en index.html están en conflicto.
+
+1. Estado de la Arquitectura Modular (MVP)
+La refactorización inicial (Fase 1 y 2) se completó con éxito, dividiendo el monolito en módulos especializados.
+
+Archivo	Responsabilidad	Estatus de Contenido
+script.js	Orquestación, Lógica de Estatus, Autenticación.	CRÍTICO: Contiene la lógica central de negocio (transiciones de estatus) y los handlers de eventos. Necesita el FIX de Routing.
+ui.js	Presentación, Inyección de Clasificaciones, Modales de Detalles.	COMPLETO: Contiene todas las funciones de render y showModal.
+api.js	Acceso a Firestore (onSnapshot, updateDoc, addDoc).	ESTABLE: Aislado y funcional.
+index.html	Login, Selección de Rol, Vistas de Admin/Archivo.	CONFLICTO: La visibilidad entre #login-screen, #role-selection-buttons y #admin-screen está fallando al autenticar.
+
+Exportar a Hojas de cálculo
+2. Estatus del Flujo de Negocio (Funcionalidad Implementada)
+Las siguientes funciones y validaciones de negocio han sido implementadas en el script.js (y llamadas a api.js):
+
+Funcionalidad	Lógica / Validación	Estatus
+Agregar Prospecto	Implementado handleAddProspectSubmit.	Operacional.
+Detector de Duplicados	Bloquea por Nombre, Correo y Teléfono.	Operacional.
+Confirmar Correo	Transición Admin: Pendiente de Correo → En Prospección.	Operacional.
+Guardar Seguimiento	Transición automática: En Prospección + Nota → Interesado.	Operacional.
+Reagendar	Implementado handleRescheduleConfirm.	Operacional.
+Eliminar	Implementado handleDeleteProspect.	Operacional.
+
+Exportar a Hojas de cálculo
+3. Maniobra Pendiente (Máxima Prioridad) 🔴
+Objetivo Inmediato: Estabilizar el Routing y el Estado de las Vistas.
+
+A. Problema de Visibilidad (Causa del Fallo)
+Conflicto: Al autenticar, el script.js intenta mostrar el menú de roles (#role-selection-buttons) mientras la vista de Administración (#admin-screen) y/o el formulario de login (#login-form-container) se mantienen visibles, causando la superposición que reporta MVGN.
+
+Solución Fallida: El último intento fue forzar la clase hidden en el HTML, pero el conflicto es más profundo en el timing de onAuthStateChanged.
+
+B. Maniobra de Routing Incompleta
+Separación de Vistas: Se decidió mover Prospección y Archivo a archivos dedicados (prospector-app.html, archive-app.html).
+
+Estado Actual de HTML: Los botones de roles (#admin-button, #prospector-button, etc.) ya son enlaces <a> que apuntan a las URL, por lo que el script.js ya no debe usar showScreen().
+
+C. Próximos Pasos Recomendados
+Aislar Prospección y Archivo: El nuevo agente debe asegurar la eliminación total de <section id="prospector-screen"> y <section id="archive-screen"> del index.html.
+
+Revisión del onAuthStateChanged: Simplificar la lógica de autenticación para que, si el usuario está autenticado en index.html, solo muestre el menú de roles (#role-selection-buttons) y oculte rigurosamente #admin-screen. Luego, al hacer clic en el enlace "Administración" (que recarga index.html), el JS debe detectar la URL y mostrar #admin-screen.
+
+El agente necesita comenzar por una revisión profunda del onAuthStateChanged y el DOMContentLoaded para que solo una de las siguientes opciones esté visible en la URL base (index.html):
+
+#login-form-container (No autenticado)
+
+#role-selection-buttons (Autenticado, esperando selección)
+
+#admin-screen (Autenticado, después de seleccionar 'Admin')
+
+Fin del Documento de Transferencia. Makoto se retira del canal.
+
+
+
+
+
+
+
+
+
+
+
+

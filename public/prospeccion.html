@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>CRM Pietra Fina - Módulo de Prospección</title>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap"
+            rel="stylesheet"
+        />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            playfair: ['"Playfair Display"', "serif"],
+                            inter: ['"Inter"', "sans-serif"],
+                        },
+                    },
+                },
+            };
+        </script>
+        <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+        />
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        <link rel="stylesheet" href="./style.css" />
+    </head>
+    <body class="font-inter">
+        <div class="page-overlay lg:hidden"></div>
+
+        <!-- SIDEBAR DE NAVEGACIÓN -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="logo">Pietra Fina</a>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="admin-app.html" id="nav-gestion">
+                    <i data-lucide="database"></i>
+                    <span>Gestión</span>
+                </a>
+                <a href="prospeccion.html" id="nav-prospeccion">
+                    <i data-lucide="activity"></i>
+                    <span>Prospección</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar" id="user-avatar-initials"></div>
+                    <div class="user-details">
+                        <p class="user-name" id="sidebar-user-name">Usuario</p>
+                        <button id="logout-btn">Cerrar Sesión</button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CONTENEDOR PRINCIPAL -->
+        <div class="main-content-wrapper">
+            <main class="main-content">
+                <header class="flex items-center mb-8">
+                    <button class="sidebar-toggle lg:hidden mr-4">
+                        <i data-lucide="menu"></i>
+                    </button>
+                    <h1
+                        class="text-3xl md:text-4xl font-playfair font-bold text-black"
+                    >
+                        Módulo de Prospección
+                    </h1>
+                </header>
+
+                <!-- ✨ NUEVO: Planificador Semanal de Seguimiento -->
+                <div class="mb-8">
+                    <h3
+                        class="flex items-center text-xl font-playfair font-bold text-black mb-4"
+                    >
+                        <i
+                            data-lucide="calendar-days"
+                            class="w-5 h-5 mr-3 text-red-600"
+                        ></i>
+                        Planificador Semanal
+                    </h3>
+                    <div id="weekly-planner-container">
+                        <!-- El contenido se generará dinámicamente aquí -->
+                    </div>
+                </div>
+
+                <!-- CONTROLES Y FILTROS -->
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
+                    <select id="statusFilter" class="form-select col-span-1">
+                        <option value="active">Prospectos Activos</option>
+                        <option value="Interesado">Solo Interesados</option>
+                        <option value="En Prospección">
+                            Solo En Prospección
+                        </option>
+                        <option value="Seguimiento agendado">
+                            Seguimiento agendado (LEGACY)
+                        </option>
+                        <option value="No contesta">
+                            No contesta (LEGACY)
+                        </option>
+                    </select>
+                    <select id="sortFilter" class="form-select col-span-1">
+                        <option value="default">Ordenar por Agrupación</option>
+                        <option value="followup_asc">
+                            Próximo Seguimiento (Asc)
+                        </option>
+                        <option value="latest">Más Recientes</option>
+                        <option value="oldest">Más Antiguos</option>
+                    </select>
+                    <div class="col-span-2 relative">
+                        <i
+                            data-lucide="search"
+                            class="w-5 h-5 text-gray-400 absolute left-4 top-1/2 transform -translate-y-1/2"
+                        ></i>
+                        <input
+                            type="text"
+                            id="searchFilter"
+                            placeholder="Buscar por Nombre o Contacto..."
+                            class="form-input w-full pl-12"
+                        />
+                    </div>
+                </div>
+
+                <!-- LISTA DE PROSPECTOS -->
+                <div
+                    id="prospeccion-cards-container"
+                    class="space-y-6 md:space-y-6"
+                ></div>
+                <div
+                    id="prospeccion-no-prospects"
+                    class="hidden text-center py-20 bg-gray-50 rounded-lg mt-8"
+                >
+                    <i
+                        data-lucide="archive"
+                        class="w-12 h-12 text-gray-400 mx-auto mb-4"
+                    ></i>
+                    <p class="text-xl text-gray-800 font-semibold">
+                        No hay prospectos activos.
+                    </p>
+                    <p class="text-gray-500 mt-2">
+                        Asegúrate de que los estatus no sean 'Pendiente de
+                        Correo' o 'Archivado'.
+                    </p>
+                </div>
+            </main>
+        </div>
+
+        <!-- MODALES (sin cambios estructurales) -->
+        <div id="detail-modal" class="modal-backdrop">
+            <div id="detail-modal-content" class="modal-content max-w-6xl">
+                <div id="detail-display-view" class="flex flex-col h-full">
+                    <header class="modal-header flex-shrink-0">
+                        <div>
+                            <h2
+                                id="detail-businessName"
+                                class="modal-title"
+                            ></h2>
+                            <p
+                                id="detail-status"
+                                class="text-sm font-semibold text-red-600 uppercase tracking-wider"
+                            ></p>
+                        </div>
+                        <button id="detail-close-btn" class="modal-close-btn">
+                            <i data-lucide="x" class="w-6 h-6"></i>
+                        </button>
+                    </header>
+                    <main
+                        class="flex-1 p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-0"
+                    >
+                        <div class="lg:col-span-2 flex flex-col">
+                            <h3 class="section-header flex-shrink-0">
+                                Historial de Seguimiento
+                            </h3>
+                            <div
+                                id="detail-followUpNotes"
+                                class="flex-1 space-y-4 overflow-y-auto pr-4 mb-4"
+                            ></div>
+                            <form
+                                id="add-note-form"
+                                class="pt-4 border-t flex-shrink-0"
+                            >
+                                <div class="form-group mb-4 relative">
+                                    <label
+                                        for="next-followup-input"
+                                        class="block text-xs font-semibold text-gray-600 mb-1"
+                                        >Agendar Próximo Seguimiento
+                                        (Opcional)</label
+                                    >
+                                    <input
+                                        type="text"
+                                        id="next-followup-input"
+                                        class="form-input"
+                                        placeholder="Selecciona fecha (YYYY-MM-DD)"
+                                        readonly
+                                    />
+                                </div>
+                                <textarea
+                                    id="add-note-textarea"
+                                    rows="3"
+                                    class="form-input"
+                                    placeholder="Escribe una nueva nota aquí..."
+                                    required
+                                ></textarea>
+                                <button
+                                    type="submit"
+                                    id="add-note-btn"
+                                    class="btn btn-primary w-full mt-3"
+                                >
+                                    <i
+                                        data-lucide="plus-circle"
+                                        class="w-5 h-5"
+                                    ></i
+                                    >Guardar Nota
+                                </button>
+                            </form>
+                        </div>
+                        <aside
+                            class="lg:col-span-1 bg-gray-50 p-5 rounded-lg border overflow-y-auto"
+                        >
+                            <h3 class="section-header">Datos del Prospecto</h3>
+                            <dl
+                                id="prospect-details-list"
+                                class="detail-info-grid"
+                            >
+                                <div class="detail-info-row">
+                                    <dt class="detail-info-label">
+                                        <i
+                                            data-lucide="user-circle"
+                                            class="w-4 h-4"
+                                        ></i
+                                        ><span>Contacto</span>
+                                    </dt>
+                                    <dd
+                                        id="detail-contactPerson"
+                                        class="detail-info-value"
+                                    ></dd>
+                                </div>
+                                <div class="detail-info-row">
+                                    <dt class="detail-info-label">
+                                        <i
+                                            data-lucide="mail"
+                                            class="w-4 h-4"
+                                        ></i
+                                        ><span>Correo</span>
+                                    </dt>
+                                    <dd
+                                        id="detail-email"
+                                        class="detail-info-value"
+                                    ></dd>
+                                </div>
+                                <div class="detail-info-row">
+                                    <dt class="detail-info-label">
+                                        <i
+                                            data-lucide="phone"
+                                            class="w-4 h-4"
+                                        ></i
+                                        ><span>Teléfono</span>
+                                    </dt>
+                                    <dd
+                                        id="detail-phone"
+                                        class="detail-info-value"
+                                    ></dd>
+                                </div>
+                                <div class="detail-info-row">
+                                    <dt class="detail-info-label">
+                                        <i
+                                            data-lucide="briefcase"
+                                            class="w-4 h-4"
+                                        ></i
+                                        ><span>Clasificación</span>
+                                    </dt>
+                                    <dd
+                                        id="detail-classification"
+                                        class="detail-info-value"
+                                    ></dd>
+                                </div>
+                                <!-- INICIO: NUEVO CAMPO DE FECHA DE ENVÍO -->
+                                <div class="detail-info-row">
+                                    <dt class="detail-info-label">
+                                        <i
+                                            data-lucide="send"
+                                            class="w-4 h-4"
+                                        ></i
+                                        ><span>Alianza Enviada</span>
+                                    </dt>
+                                    <dd
+                                        id="detail-allianceSentDate"
+                                        class="detail-info-value"
+                                    >N/A</dd>
+                                </div>
+                                <!-- FIN: NUEVO CAMPO DE FECHA DE ENVÍO -->
+                                <div class="detail-info-row">
+                                    <dt class="detail-info-label">
+                                        <i
+                                            data-lucide="calendar-check"
+                                            class="w-4 h-4"
+                                        ></i
+                                        ><span>Próximo Seguimiento</span>
+                                    </dt>
+                                    <dd
+                                        id="detail-nextFollowUpDate"
+                                        class="detail-info-value"
+                                    ></dd>
+                                </div>
+                            </dl>
+                            <div class="mt-4">
+                                <dt class="detail-info-label mb-2">
+                                    <i
+                                        data-lucide="file-text"
+                                        class="w-4 h-4"
+                                    ></i
+                                    ><span>Observaciones</span>
+                                </dt>
+                                <dd
+                                    id="detail-observations"
+                                    class="text-sm text-gray-800 bg-white p-3 rounded-md border"
+                                ></dd>
+                            </div>
+                        </aside>
+                    </main>
+                    <footer class="modal-footer flex-shrink-0">
+                        <div class="flex space-x-3">
+                            <button
+                                id="edit-prospect-btn"
+                                class="btn btn-secondary flex-1"
+                            >
+                                <i data-lucide="edit" class="w-5 h-5"></i>Editar
+                                Prospecto
+                            </button>
+                        </div>
+                    </footer>
+                </div>
+                <div id="detail-edit-view" class="hidden flex flex-col h-full">
+                    <header class="modal-header">
+                        <h2 class="modal-title">Editando Prospecto</h2>
+                    </header>
+                    <form id="edit-prospect-form" class="p-6 overflow-y-auto">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label for="edit-businessName"
+                                    >Nombre Empresa</label
+                                ><input
+                                    type="text"
+                                    id="edit-businessName"
+                                    name="businessName"
+                                    class="form-input"
+                                    required
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-contactPerson">Contacto</label
+                                ><input
+                                    type="text"
+                                    id="edit-contactPerson"
+                                    name="contactPerson"
+                                    class="form-input"
+                                    required
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-email">Correo</label
+                                ><input
+                                    type="email"
+                                    id="edit-email"
+                                    name="email"
+                                    class="form-input"
+                                    required
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-phone">Teléfono</label
+                                ><input
+                                    type="tel"
+                                    id="edit-phone"
+                                    name="phone"
+                                    class="form-input"
+                                    required
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-classification"
+                                    >Clasificación</label
+                                ><select
+                                    id="edit-classification"
+                                    name="classification"
+                                    class="form-select"
+                                    required
+                                ></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-status">Estatus</label>
+                                <select
+                                    id="edit-status"
+                                    name="status"
+                                    class="form-select"
+                                    required
+                                >
+                                    <option value="En Prospección">
+                                        En Prospección
+                                    </option>
+                                    <option value="Interesado">
+                                        Interesado
+                                    </option>
+                                    <option value="Rechazado">Rechazado</option>
+                                    <option value="Convertido a cliente">
+                                        Convertido a cliente
+                                    </option>
+                                    <option value="Ya es nuestro cliente">
+                                        Ya es nuestro cliente
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-nextFollowUpDate"
+                                    >Próximo Seguimiento</label
+                                ><!-- CAMBIO: type="date" a type="text" y placeholder -->
+                                <input
+                                    type="text"
+                                    id="edit-nextFollowUpDate"
+                                    name="nextFollowUpDate"
+                                    class="form-input"
+                                    placeholder="Selecciona fecha..."
+                                />
+                            </div>
+                            <div class="form-group md:col-span-2">
+                                <label for="edit-observations"
+                                    >Observaciones</label
+                                ><textarea
+                                    id="edit-observations"
+                                    name="observations"
+                                    rows="4"
+                                    class="form-input"
+                                ></textarea>
+                            </div>
+                        </div>
+                    </form>
+                    <footer class="modal-footer">
+                        <div class="flex space-x-3">
+                            <button
+                                type="button"
+                                id="cancel-edit-btn"
+                                class="btn btn-secondary flex-1"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="submit"
+                                form="edit-prospect-form"
+                                class="btn btn-success flex-1"
+                            >
+                                Guardar Cambios
+                            </button>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+        </div>
+        <div id="whatsapp-modal" class="modal-backdrop">
+            <div id="whatsapp-modal-content" class="modal-content max-w-2xl">
+                <header class="modal-header">
+                    <h2 class="modal-title flex items-center">
+                        <i
+                            data-lucide="send"
+                            class="w-6 h-6 mr-3 text-red-600"
+                        ></i
+                        >Enviar Materiales a:
+                        <span
+                            id="whatsapp-prospect-name"
+                            class="ml-2 font-bold"
+                        ></span>
+                    </h2>
+                    <button id="whatsapp-close-btn" class="modal-close-btn">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </header>
+                <main
+                    class="flex-1 p-6 grid grid-cols-1 md:grid-cols-2 gap-6 overflow-y-auto"
+                >
+                    <div>
+                        <h3 class="font-semibold text-black mb-3">
+                            1. Selecciona los materiales:
+                        </h3>
+                        <div
+                            id="materials-checkbox-container"
+                            class="space-y-2 materials-container"
+                        ></div>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-black mb-3">
+                            2. Revisa el mensaje:
+                        </h3>
+                        <textarea
+                            id="whatsapp-message-textarea"
+                            rows="10"
+                            class="form-input font-mono text-sm"
+                        ></textarea>
+                    </div>
+                </main>
+                <footer class="modal-footer">
+                    <button
+                        id="whatsapp-send-btn"
+                        class="btn btn-success w-full"
+                    >
+                        <i data-lucide="message-circle" class="w-5 h-5"></i
+                        >Enviar Mensaje por WhatsApp
+                    </button>
+                </footer>
+            </div>
+        </div>
+        <div id="confirm-modal" class="modal-backdrop">
+            <div class="modal-content max-w-md">
+                <header class="modal-header">
+                    <h3 id="confirm-modal-title" class="modal-title">
+                        Confirmar Acción
+                    </h3>
+                    <button
+                        id="confirm-close-btn"
+                        class="modal-close-btn hidden"
+                    >
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </header>
+                <main class="p-6">
+                    <p
+                        id="confirm-modal-message"
+                        class="text-gray-700 text-sm mb-6"
+                    >
+                        ¿Estás seguro de que deseas realizar esta acción?
+                    </p>
+                </main>
+                <footer class="modal-footer flex justify-end gap-3">
+                    <button id="confirm-cancel-btn" class="btn btn-secondary">
+                        Cancelar
+                    </button>
+                    <button id="confirm-action-btn" class="btn btn-primary">
+                        Confirmar
+                    </button>
+                </footer>
+            </div>
+        </div>
+
+        <script type="module" src="./firebase.js"></script>
+        <script type="module" src="./ui.js"></script>
+        <script type="module" src="./api.js"></script>
+        <script type="module" src="./prospeccion-script.js"></script>
+        <script type="module" src="./navigation.js"></script>
+    </body>
+</html>
+

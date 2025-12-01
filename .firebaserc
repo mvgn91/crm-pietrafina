@@ -1,0 +1,18 @@
+{
+  "projects": {
+    "default": "crm-pietrafina"
+  },
+  "targets": {
+    "crm-pietrafina": {
+      "hosting": {
+        "crm-nuevo": [
+          "crm-pietrafina-123"
+        ],
+        "crm-produccion": [
+          "crm-pietrafina"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

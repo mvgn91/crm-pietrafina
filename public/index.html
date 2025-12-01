@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>CRM Pietra Fina</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fraunces:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+        />
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        <link rel="stylesheet" href="./style.css" />
+    </head>
+    <body
+        class="antialiased font-poppins text-slate-800"
+        style="background: linear-gradient(135deg, #f4f7f9 0%, #e0e6ed 100%)"
+    >
+        <!-- Contenedor de notificaciones 'toast' (Necesario para showSnackbar) -->
+        <div
+            id="toast-container"
+            class="fixed top-4 right-4 z-50 space-y-2"
+        ></div>
+
+        <main class="min-h-screen">
+            <section
+                id="login-screen"
+                class="min-h-screen flex items-center justify-center p-4 bg-red-700"
+            >
+                <div
+                    class="w-full max-w-sm p-8 bg-white rounded-2xl shadow-2xl z-10"
+                >
+                    <h1
+                        class="text-4xl font-fraunces font-bold text-red-700 text-center mb-6"
+                    >
+                        Acceso CRM
+                    </h1>
+
+                    <!-- Contenedor de Login -->
+                    <div id="login-form-container">
+                        <form id="login-form" class="space-y-4">
+                            <div>
+                                <label
+                                    for="login-email"
+                                    class="block text-sm font-medium text-gray-700"
+                                    >Correo Electrónico</label
+                                >
+                                <input
+                                    type="email"
+                                    id="login-email"
+                                    required
+                                    class="mt-1 w-full p-3 border border-gray-300 rounded-xl shadow-sm focus:ring-red-500 focus:border-red-500"
+                                />
+                            </div>
+                            <div>
+                                <label
+                                    for="login-password"
+                                    class="block text-sm font-medium text-gray-700"
+                                    >Contraseña</label
+                                >
+                                <input
+                                    type="password"
+                                    id="login-password"
+                                    required
+                                    class="mt-1 w-full p-3 border border-gray-300 rounded-xl shadow-sm focus:ring-red-500 focus:border-red-500"
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                id="login-submit-btn"
+                                class="w-full bg-red-600 text-white p-3 rounded-xl font-semibold hover:bg-red-700 transition duration-150 shadow-lg"
+                            >
+                                Entrar
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Botones de Selección de Rol (Muestra después del login) -->
+                    <div
+                        id="role-selection-buttons"
+                        class="space-y-4 hidden mt-6"
+                    >
+                        <h2
+                            class="text-center text-lg font-semibold text-gray-700 mb-4"
+                        >
+                            Selecciona tu Rol
+                        </h2>
+
+                        <a
+                            href="admin-app.html"
+                            id="admin-button"
+                            class="flex items-center justify-between p-4 bg-red-50 rounded-xl shadow-md hover:shadow-lg transition duration-150 border border-red-200"
+                        >
+                            <div class="flex items-center space-x-3">
+                                <i
+                                    data-lucide="database"
+                                    class="w-6 h-6 text-red-700"
+                                ></i>
+                                <span class="font-semibold text-slate-800"
+                                    >Gestión de Base de Datos</span
+                                >
+                            </div>
+                            <i
+                                data-lucide="chevron-right"
+                                class="w-5 h-5 text-red-700"
+                            ></i>
+                        </a>
+
+                        <a
+                            href="prospeccion.html"
+                            id="prospector-button"
+                            class="flex items-center justify-between p-4 bg-red-50 rounded-xl shadow-md hover:shadow-lg transition duration-150 border border-red-200"
+                        >
+                            <div class="flex items-center space-x-3">
+                                <i
+                                    data-lucide="headphones"
+                                    class="w-6 h-6 text-red-700"
+                                ></i>
+                                <span class="font-semibold text-slate-800"
+                                    >Módulo de Prospección</span
+                                >
+                            </div>
+                            <i
+                                data-lucide="chevron-right"
+                                class="w-5 h-5 text-red-700"
+                            ></i>
+                        </a>
+
+                        <button
+                            id="logout-button"
+                            class="w-full mt-4 text-red-600 hover:text-red-800 font-medium py-2 rounded-xl transition duration-150 flex items-center justify-center"
+                        >
+                            <i data-lucide="log-out" class="w-4 h-4 mr-2"></i>
+                            Cerrar Sesión
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer
+            class="w-full text-center py-4 bg-white border-t border-gray-200 mt-8 hidden"
+        >
+            <span
+                class="text-xs text-gray-500 font-poppins tracking-wide flex items-center justify-center gap-2"
+            >
+                <i data-lucide="zap" class="w-3 h-3 text-yellow-500"></i>
+                POWERED BY MVGN LABS 2025
+            </span>
+        </footer>
+
+        <script type="module" src="./firebase.js"></script>
+        <script type="module" src="./ui.js"></script>
+        <!-- Eliminamos api.js y script.js que solo son necesarios para la administración -->
+
+        <script type="module">
+            import { auth } from "./firebase.js";
+            import {
+                signInWithEmailAndPassword,
+                signOut,
+                onAuthStateChanged,
+            } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+            import { showSnackbar } from "./ui.js";
+
+            const loginForm = document.getElementById("login-form");
+            const loginContainer = document.getElementById(
+                "login-form-container",
+            );
+            const roleSelection = document.getElementById(
+                "role-selection-buttons",
+            );
+            const logoutButton = document.getElementById("logout-button");
+            const loginScreen = document.getElementById("login-screen");
+            const loginSubmitBtn = document.getElementById("login-submit-btn");
+
+            // Función para mostrar/ocultar contenedores
+            function showRoleSelection(user) {
+                loginContainer.classList.add("hidden");
+                roleSelection.classList.remove("hidden");
+                // Puedes usar el displayName del usuario si lo configuraste, o el email
+                const userName = user.displayName || user.email.split("@")[0];
+                document
+                    .getElementById("role-selection-buttons")
+                    .querySelector("h2").textContent =
+                    `Bienvenido, ${userName}`;
+                loginScreen.classList.remove("bg-red-700");
+                loginScreen.classList.add("bg-white");
+            }
+
+            function showLoginForm() {
+                loginContainer.classList.remove("hidden");
+                roleSelection.classList.add("hidden");
+                loginScreen.classList.add("bg-red-700");
+                loginScreen.classList.remove("bg-white");
+            }
+
+            // 1. Manejo del Login
+            if (loginForm) {
+                loginForm.addEventListener("submit", async (e) => {
+                    e.preventDefault();
+                    const email = document.getElementById("login-email").value;
+                    const password =
+                        document.getElementById("login-password").value;
+
+                    loginSubmitBtn.textContent = "Cargando...";
+                    loginSubmitBtn.disabled = true;
+
+                    try {
+                        const userCredential = await signInWithEmailAndPassword(
+                            auth,
+                            email,
+                            password,
+                        );
+                        // El onAuthStateChanged se encargará de mostrar la selección de rol
+                        showSnackbar("¡Sesión iniciada con éxito!", "success");
+                    } catch (error) {
+                        console.error("Error de login:", error);
+                        let message =
+                            "Error de autenticación. Verifica tus credenciales.";
+                        if (error.code === "auth/user-not-found") {
+                            message = "Usuario no encontrado.";
+                        } else if (
+                            error.code === "auth/wrong-password" ||
+                            error.code === "auth/invalid-credential"
+                        ) {
+                            message = "Contraseña incorrecta.";
+                        }
+                        showSnackbar(message, "error");
+                        showLoginForm(); // Asegurarse de que el formulario de login es visible tras el error
+                    } finally {
+                        loginSubmitBtn.textContent = "Entrar";
+                        loginSubmitBtn.disabled = false;
+                    }
+                });
+            }
+
+            // 2. Manejo de Logout
+            if (logoutButton) {
+                logoutButton.addEventListener("click", async () => {
+                    try {
+                        await signOut(auth);
+                        showSnackbar("Sesión cerrada.", "info");
+                        showLoginForm();
+                    } catch (error) {
+                        console.error("Error al cerrar sesión:", error);
+                        showSnackbar("Error al cerrar sesión.", "error");
+                    }
+                });
+            }
+
+            // 3. Listener del Estado de Autenticación
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    showRoleSelection(user);
+                } else {
+                    showLoginForm();
+                }
+                // Asegurarse de que los iconos de Lucide se rendericen en el botón de logout
+                if (typeof lucide !== "undefined") lucide.createIcons();
+            });
+        </script>
+    </body>
+</html>

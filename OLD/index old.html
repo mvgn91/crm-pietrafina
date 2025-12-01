@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Pietra Fina</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fraunces:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons - Librería moderna y consistente -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <!-- Chart.js para el dashboard -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Flatpickr para el selector de fechas -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body class="antialiased font-poppins text-slate-800" style="background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%);">
+    <!-- LEGACY NOTICE: Esta vista es LEGACY (solo referencia). No es parte del flujo activo. -->
+    <div style="position: fixed; top: 0; left: 0; right: 0; z-index: 10000;">
+        <div style="margin: 8px auto; max-width: 1200px;">
+            <div style="background:#111827; color:#fff; border:2px solid #dc2626; border-radius:12px; padding:10px 16px; display:flex; align-items:center; gap:10px; box-shadow:0 6px 16px rgba(0,0,0,.25);">
+                <span style="display:inline-flex; width:18px; height:18px; background:#dc2626; border-radius:9999px;"></span>
+                <strong>LEGACY</strong>
+                <span style="opacity:.9">Este archivo pertenece a la versión anterior y se conserva únicamente como referencia histórica. Usa las vistas actuales: <code>index.html</code>, <code>admin-app.html</code> y <code>prospeccion.html</code>.</span>
+            </div>
+        </div>
+    </div>
+    <!-- Fondo coherente con Pietra Fina: rojo sobre blanco -->
+    <div class="fixed inset-0 bg-gradient-to-br from-white via-red-50 to-red-100"></div>
+    <div class="fixed inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23000000" fill-opacity="0.03"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-60"></div>
+    <!-- Splash Screen - Minimalista como Sistema Operativo -->
+    <div id="splash-screen" class="fixed inset-0 bg-black flex flex-col items-center justify-center z-[9999] transition-all duration-1000">
+        <!-- Contenido principal centrado -->
+        <div class="text-center">
+            <!-- Logo simple y elegante -->
+            <div class="mb-12">
+                <div class="w-24 h-24 bg-white rounded-2xl shadow-lg flex items-center justify-center mx-auto mb-6">
+                    <img src="./assets/images/logo grande.png" alt="Logo de Pietra Fina" class="h-16 w-auto">
+                </div>
+                
+                <!-- Título principal -->
+                <h1 class="text-4xl font-fraunces font-bold text-white mb-2">
+                    CRM Pietra Fina
+                </h1>
+                
+                <!-- Versión minimalista -->
+                <p class="text-white/60 font-mono text-sm">v3.3</p>
+            </div>
+            
+            <!-- Indicador de progreso simple -->
+            <div class="flex justify-center mb-8">
+                <div class="w-32 h-1 bg-white/20 rounded-full overflow-hidden">
+                    <div id="loading-bar" class="h-full bg-white rounded-full transition-all duration-3000 ease-out" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <!-- Mensaje de estado -->
+            <p class="text-white/70 font-poppins text-sm mb-8">Inicializando sistema...</p>
+            
+            <!-- Créditos discretos -->
+            <div class="text-white/40 font-poppins text-xs">
+                DESIGNED BY MVGN LABS 2025
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed inset-0 bg-gradient-to-t from-red-50/30 via-transparent to-transparent"></div>
+
+    <!-- Contenedor principal de la aplicación -->
+    <div id="app-container" class="min-h-screen flex flex-col relative z-10">
+        <!-- Header Minimalista y Elegante -->
+        <header id="app-header" class="header-clean">
+            <div class="header-wrapper">
+                <!-- Barra superior con información del sistema -->
+                <div class="header-top">
+                    <div class="system-info">
+                        <div id="online-status-indicator" class="status-badge">
+                            <div class="status-dot"></div>
+                            <span class="status-text">Online</span>
+                        </div>
+                        <div id="app-version-indicator" class="version-badge">v3.3</div>
+                    </div>
+                    <div id="auth-status" class="user-status">
+                        <!-- El estado de autenticación del usuario se mostrará aquí -->
+                    </div>
+                </div>
+                
+                <!-- Barra principal con logo y navegación -->
+                <div class="header-main">
+                    <div class="header-left">
+                        <div class="logo-section">
+                            <img id="header-logo" src="./assets/images/logo grande.png" alt="Logo de Pietra Fina" class="logo-image">
+                            <h1 id="header-title" class="app-title">CRM Pietra Fina</h1>
+                        </div>
+                    </div>
+                    
+                    <!-- Navegación desktop -->
+                    <nav id="main-navigation" class="header-nav hidden">
+                        <div class="nav-menu">
+                            <a href="#" id="nav-admin" class="nav-link">
+                                <span>Administración</span>
+                            </a>
+                            
+                            <a href="#" id="nav-prospector" class="nav-link">
+                                <span>Prospección</span>
+                            </a>
+                            
+                            <a href="#" id="nav-archive" class="nav-link">
+                                <span>Archivo</span>
+                            </a>
+                            
+                            <a href="#" id="nav-whatsapp" class="nav-link">
+                                <span>WhatsApp</span>
+                            </a>
+                            
+                            <a href="#" id="nav-logout" class="nav-link logout-link">
+                                <span>Cerrar Sesión</span>
+                            </a>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+        </header>
+
+        <!-- Contenedor de notificación diario -->
+        <div id="daily-notification-container"></div>
+
+        <!-- Área de contenido principal -->
+        <main class="flex-grow flex items-center justify-center p-0">
+            <!-- Pantalla de inicio de sesión / Selección de rol -->
+            <section id="login-screen" class="w-full bg-gradient-to-br from-red-100 via-red-200 to-red-300 shadow-xl p-12 text-center animate-fadeIn relative overflow-hidden">
+                <!-- Fondo dinámico del login screen -->
+                <div class="absolute inset-0 bg-gradient-to-br from-red-200 via-red-300 to-red-400"></div>
+                <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23dc2626" fill-opacity="0.1"%3E%3Ccircle cx="20" cy="20" r="3"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-80"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-red-300/50 via-transparent to-transparent"></div>
+                <div class="pattern-overlay"></div>
+                                        <div class="relative z-10 flex flex-col items-center justify-center py-20">
+                            <h2 class="text-6xl font-fraunces font-bold text-white mb-12 flex items-center justify-center drop-shadow-lg">
+                                Selecciona tu rol
+                            </h2>
+                        
+                        <!-- Formulario de inicio de sesión -->
+                        <div id="login-form-container" class="mb-8 p-6 bg-slate-50/90 backdrop-blur-sm rounded-xl border border-slate-200 shadow-sm relative z-10">
+                    <h3 class="text-2xl font-fraunces text-slate-700 mb-4">Iniciar Sesión</h3>
+                    <form id="login-form" class="grid grid-cols-1 gap-4">
+                        <div>
+                            <label for="login-email" class="sr-only">Correo Electrónico</label>
+                            <input type="email" id="login-email" placeholder="Correo Electrónico" required class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:border-red-600 focus:ring-red-600 p-2 font-poppins mobile-btn">
+                        </div>
+                        <div>
+                            <label for="login-password" class="sr-only">Contraseña</label>
+                            <input type="password" id="login-password" placeholder="Contraseña" required class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:border-red-600 focus:ring-red-600 p-2 font-poppins mobile-btn">
+                        </div>
+                        <button type="submit" id="login-button" class="w-full bg-red-700 hover:bg-red-800 text-white font-poppins py-3 px-6 btn-primary mobile-btn">
+                            <i data-lucide="log-in" class="w-4 h-4 mr-2"></i> Iniciar Sesión
+                        </button>
+                    </form>
+                    <p id="login-error-message" class="text-red-500 text-sm mt-4 hidden font-poppins">Mensaje de error.</p>
+                </div>
+
+                <!-- Menú de Selección de Roles - Rediseño Completo -->
+                <div id="role-selection-buttons" class="role-selection-section hidden">
+                    <!-- Fondo con gradiente sutil -->
+                    <div class="role-selection-background">
+                        <div class="background-pattern"></div>
+                    </div>
+                    
+                    <!-- Contenido principal -->
+                    <div class="role-selection-content">
+                        <div class="role-selection-header">
+                            <div class="header-icon-large">
+                                <i data-lucide="settings" class="w-16 h-16"></i>
+                            </div>
+                            <h2 class="role-selection-title">Selecciona tu Rol</h2>
+                            <p class="role-selection-subtitle">Elige la función que deseas realizar en el sistema CRM</p>
+                        </div>
+                        
+                        <div class="role-buttons-grid">
+                            <button id="admin-button" class="role-button role-button-primary">
+                                <div class="role-button-icon">
+                                    <i data-lucide="database" class="w-8 h-8"></i>
+                                </div>
+                                <div class="role-button-content">
+                                    <h3 class="role-button-title">Gestión de Base de Datos</h3>
+                                    <p class="role-button-description">Administración completa de prospectos y estadísticas</p>
+                                </div>
+                                <div class="role-button-arrow">
+                                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                                </div>
+                            </button>
+                            
+                            <button id="prospector-button" class="role-button role-button-primary">
+                                <div class="role-button-icon">
+                                    <i data-lucide="headphones" class="w-8 h-8"></i>
+                                </div>
+                                <div class="role-button-content">
+                                    <h3 class="role-button-title">Prospección de Clientes</h3>
+                                    <p class="role-button-description">Seguimiento activo y gestión de prospectos</p>
+                                </div>
+                                <div class="role-button-arrow">
+                                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                                </div>
+                            </button>
+                            
+                            <button id="archive-button" class="role-button role-button-primary">
+                                <div class="role-button-icon">
+                                    <i data-lucide="archive" class="w-8 h-8"></i>
+                                </div>
+                                <div class="role-button-content">
+                                    <h3 class="role-button-title">Archivo de Prospección</h3>
+                                    <p class="role-button-description">Historial completo y análisis de resultados</p>
+                                </div>
+                                <div class="role-button-arrow">
+                                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                                </div>
+                            </button>
+                            
+                            <button id="whatsapp-massive-button" class="role-button role-button-primary">
+                                <div class="role-button-icon">
+                                    <i data-lucide="message-circle" class="w-8 h-8"></i>
+                                </div>
+                                <div class="role-button-content">
+                                    <h3 class="role-button-title">Enviar Material por WhatsApp</h3>
+                                    <p class="role-button-description">Comunicación masiva y envío de materiales</p>
+                                </div>
+                                <div class="role-button-arrow">
+                                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                                </div>
+                            </button>
+                            
+                            <button id="logout-button" class="role-button role-button-secondary">
+                                <div class="role-button-icon">
+                                    <i data-lucide="log-out" class="w-8 h-8"></i>
+                                </div>
+                                <div class="role-button-content">
+                                    <h3 class="role-button-title">Cerrar Sesión</h3>
+                                    <p class="role-button-description">Salir del sistema de forma segura</p>
+                                </div>
+                                <div class="role-button-arrow">
+                                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección de administración -->
+            <section id="admin-screen" class="w-full max-w-7xl bg-white rounded-xl shadow-xl p-8 hidden animate-fadeIn">
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-6 border-b border-slate-200 pb-4">
+                    <h2 class="text-3xl font-fraunces text-slate-800 mb-4 sm:mb-0">Gestión de Base de Datos (Administrador)</h2>
+                    <!-- Navegación simplificada - Los accesos principales están ahora en el header -->
+                    <div class="flex flex-wrap justify-center sm:justify-end gap-2">
+                        <button id="back-to-role-selection-admin" class="py-2 px-4 bg-slate-200 text-slate-700 font-poppins rounded-md hover:bg-slate-300 transition duration-200 mobile-btn">
+                            <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i> Volver a Selección de Rol
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Formulario para añadir nuevo prospecto -->
+                <div class="mb-8 p-4 sm:p-6 bg-slate-50 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 class="text-xl sm:text-2xl font-fraunces text-slate-700 mb-4">Agregar Nuevo Cliente/Prospecto</h3>
+                    <form id="add-prospect-form" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mobile-form">
+                        <div>
+                            <label for="businessName" class="block text-sm font-poppins font-medium text-slate-700 mb-1">Nombre del Negocio o Empresa <span class="text-red-500">*</span></label>
+                            <input type="text" id="businessName" name="businessName" required class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:border-red-600 focus:ring-red-600 p-2 font-poppins mobile-btn">
+                        </div>
+                        <div>
+                            <label for="contactPerson" class="block text-sm font-poppins font-medium text-slate-700 mb-1">Encargado o Persona Objetivo al Llamar (Opcional)</label>
+                            <input type="text" id="contactPerson" name="contactPerson" class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:border-red-600 focus:ring-red-600 p-2 font-poppins mobile-btn">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-poppins font-medium text-slate-700 mb-1">Correo Electrónico <span class="text-red-500">*</span></label>
+                            <input type="email" id="email" name="email" required class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:border-red-600 focus:ring-red-600 p-2 font-poppins mobile-btn">
+                        </div>
+                        <div>
+                            <label for="phone" class="block text-sm font-poppins font-medium text-slate-700 mb-1">Teléfono de Contacto <span class="text-red-500">*</span></label>
+                            <input type="tel" id="phone" name="phone" required class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:border-red-600 focus:ring-red-600 p-2 font-poppins mobile-btn">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="classification" class="block text-sm font-poppins font-medium text-slate-700 mb-1">Clasificación del Cliente <span class="text-red-500">*</span></label>
+                            <select id="classification" name="classification" required class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:border-red-600 focus:ring-red-600 p-2 font-poppins mobile-btn">
+                                <option value="">Selecciona una opción</option>
+                                <option value="Despacho de Arquitectos">Despacho de Arquitectos</option>
+                                <option value="Diseño de Interiores">Diseño de Interiores</option>
+                                <option value="Constructoras">Constructoras</option>
+                                <option value="Distribuidores de acabados">Distribuidores de acabados</option>
+                                <option value="Mueblerías">Mueblerías</option>
+                                <option value="Showrooms de Baños / Cocinas">Showrooms de Baños / Cocinas</option>
+                                <option value="Hoteles / Desarrolladores de Hospitalidad">Hoteles / Desarrolladores de Hospitalidad</option>
+                                <option value="Cruceros / Espacios Comerciales de Lujo">Cruceros / Espacios Comerciales de Lujo</option>
+                                <option value="Pisos y Recubrimientos">Pisos y Recubrimientos</option>
+                                <option value="Corporativos / Oficinas">Corporativos / Oficinas</option>
+                                <option value="Proyectos Holísticos / Wellness">Proyectos Holísticos / Wellness</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div id="otherClassificationContainer" class="hidden md:col-span-2">
+                            <label for="otherClassification" class="block text-sm font-poppins font-medium text-slate-700 mb-1">Especificar Otra Clasificación <span class="text-red-500">*</span></label>
+                            <input type="text" id="otherClassification" name="otherClassification" class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:border-red-600 focus:ring-red-600 p-2 font-poppins mobile-btn">
+                        </div>
+                        <!-- Campo de observaciones -->
+                        <div class="md:col-span-2">
+                            <label for="observations" class="block text-sm font-poppins font-medium text-slate-700 mb-1">Observaciones (Opcional)</label>
+                            <textarea id="observations" name="observations" rows="3" class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:border-red-600 focus:ring-red-600 p-2 font-poppins mobile-btn" placeholder="Notas adicionales sobre el prospecto..."></textarea>
+                        </div>
+                        <div class="md:col-span-2">
+                            <button type="submit" class="w-full bg-red-700 hover:bg-red-800 text-white font-poppins py-3 px-6 btn-primary mobile-btn">
+                                <i data-lucide="plus-circle" class="w-4 h-4 mr-2"></i> Añadir Prospecto
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Sección de Administración de Base de Datos - Material Design 3 -->
+                <div class="admin-section">
+                    <!-- Header de la sección -->
+                    <div class="section-header">
+                        <div class="header-content">
+                            <div class="header-icon">
+                                <i data-lucide="database" class="w-8 h-8"></i>
+                            </div>
+                            <div class="header-text">
+                                <h2 class="section-title">Administración de Base de Datos</h2>
+                                <p class="section-subtitle">Gestión completa de prospectos y estadísticas</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard de Métricas - Rediseñado -->
+                    <div class="metrics-dashboard">
+                        <div class="dashboard-header">
+                            <h3 class="dashboard-title">
+                                <i data-lucide="bar-chart-3" class="w-6 h-6 mr-2"></i>
+                                Resumen Ejecutivo
+                            </h3>
+                            <p class="dashboard-subtitle">Métricas clave en tiempo real</p>
+                        </div>
+                        
+                        <div class="metrics-grid">
+                            <!-- Métricas principales -->
+                            <div class="metric-card metric-primary">
+                                <div class="metric-icon">
+                                    <i data-lucide="users" class="w-8 h-8"></i>
+                                </div>
+                                <div class="metric-content">
+                                    <div class="metric-value" id="totalProspectsCount">0</div>
+                                    <div class="metric-label">Total Prospectos</div>
+                                    <div class="metric-change positive">
+                                        <i data-lucide="trending-up" class="w-4 h-4"></i>
+                                        <span id="totalProspectsChange">+0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="metric-card metric-success">
+                                <div class="metric-icon">
+                                    <i data-lucide="phone" class="w-8 h-8"></i>
+                                </div>
+                                <div class="metric-content">
+                                    <div class="metric-value" id="enProspeccionCount">0</div>
+                                    <div class="metric-label">En Prospección</div>
+                                    <div class="metric-change positive">
+                                        <i data-lucide="trending-up" class="w-4 h-4"></i>
+                                        <span id="enProspeccionChange">+0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="metric-card metric-warning">
+                                <div class="metric-icon">
+                                    <i data-lucide="star" class="w-8 h-8"></i>
+                                </div>
+                                <div class="metric-content">
+                                    <div class="metric-value" id="interesadoCount">0</div>
+                                    <div class="metric-label">Interesados</div>
+                                    <div class="metric-change positive">
+                                        <i data-lucide="trending-up" class="w-4 h-4"></i>
+                                        <span id="interesadoChange">+0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="metric-card metric-info">
+                                <div class="metric-icon">
+                                    <i data-lucide="check-circle" class="w-8 h-8"></i>
+                                </div>
+                                <div class="metric-content">
+                                    <div class="metric-value" id="clienteConvertidoCount">0</div>
+                                    <div class="metric-label">Clientes Convertidos</div>
+                                    <div class="metric-change positive">
+                                        <i data-lucide="trending-up" class="w-4 h-4"></i>
+                                        <span id="clienteConvertidoChange">+0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="metric-card metric-primary">
+                                <div class="metric-icon">
+                                    <i data-lucide="award" class="w-8 h-8"></i>
+                                </div>
+                                <div class="metric-content">
+                                    <div class="metric-value" id="yaEsClienteCount">0</div>
+                                    <div class="metric-label">Ya son Clientes</div>
+                                    <div class="metric-change positive">
+                                        <i data-lucide="trending-up" class="w-4 h-4"></i>
+                                        <span id="yaEsClienteChange">+0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="metric-card metric-success">
+                                <div class="metric-icon">
+                                    <i data-lucide="trending-up" class="w-8 h-8"></i>
+                                </div>
+                                <div class="metric-content">
+                                    <div class="metric-value" id="conversionRate">0%</div>
+                                    <div class="metric-label">Tasa de Conversión</div>
+                                    <div class="metric-change positive">
+                                        <i data-lucide="trending-up" class="w-4 h-4"></i>
+                                        <span id="conversionRateChange">+0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Análisis Visual - Rediseñado -->
+                    <div class="analytics-section">
+                        <div class="analytics-header">
+                            <h3 class="analytics-title">
+                                <i data-lucide="activity" class="w-6 h-6 mr-2"></i>
+                                Análisis Visual
+                            </h3>
+                            <p class="analytics-subtitle">Gráficos interactivos y estadísticas detalladas</p>
+                        </div>
+                        
+                        <div class="analytics-grid">
+                            <!-- Gráfico de distribución por estatus -->
+                            <div class="analytics-card analytics-chart">
+                                <div class="analytics-card-header">
+                                    <h4 class="analytics-card-title">Distribución por Estatus</h4>
+                                    <div class="analytics-card-actions">
+                                        <button class="chart-filter-btn active" data-filter="all">Todos</button>
+                                        <button class="chart-filter-btn" data-filter="active">Activos</button>
+                                        <button class="chart-filter-btn" data-filter="converted">Convertidos</button>
+                                    </div>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="statusChart"></canvas>
+                                </div>
+                                <div class="chart-legend">
+                                    <div class="legend-item">
+                                        <span class="legend-color" style="background: #dc2626;"></span>
+                                        <span>En Prospección</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color" style="background: #f59e0b;"></span>
+                                        <span>Interesados</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color" style="background: #10b981;"></span>
+                                        <span>Convertidos</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Métricas de rendimiento -->
+                            <div class="analytics-card analytics-metrics">
+                                <div class="analytics-card-header">
+                                    <h4 class="analytics-card-title">Rendimiento del Mes</h4>
+                                    <div class="period-selector">
+                                        <select id="periodSelector" class="period-select">
+                                            <option value="current">Mes Actual</option>
+                                            <option value="previous">Mes Anterior</option>
+                                            <option value="quarter">Último Trimestre</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="performance-metrics">
+                                    <div class="performance-item">
+                                        <div class="performance-label">Nuevos Prospectos</div>
+                                        <div class="performance-value" id="newProspectsMonth">0</div>
+                                        <div class="performance-change positive">+12%</div>
+                                    </div>
+                                    <div class="performance-item">
+                                        <div class="performance-label">Conversiones</div>
+                                        <div class="performance-value" id="conversionsMonth">0</div>
+                                        <div class="performance-change positive">+8%</div>
+                                    </div>
+                                    <div class="performance-item">
+                                        <div class="performance-label">Tiempo Promedio</div>
+                                        <div class="performance-value" id="avgConversionTime">0 días</div>
+                                        <div class="performance-change negative">-2 días</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flujo de prospección simplificado -->
+                    <div class="flow-section">
+                        <div class="flow-header">
+                            <h3 class="flow-title">Flujo de Prospección CRM</h3>
+                            <p class="flow-description">Proceso optimizado para conversión de prospectos</p>
+                        </div>
+                        
+                        <div class="flow-steps">
+                            <div class="flow-step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h4 class="step-title">Pendiente de Correo</h4>
+                                    <p class="step-description">Prospecto recién agregado, esperando confirmación de envío</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flow-step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h4 class="step-title">En Prospección</h4>
+                                    <p class="step-description">Seguimiento activo durante 7 días hábiles</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flow-step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h4 class="step-title">Interesado</h4>
+                                    <p class="step-description">Prospecto que ha mostrado interés activo</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flow-step">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <h4 class="step-title">Cliente Convertido</h4>
+                                    <p class="step-description">Prospecto exitosamente convertido a cliente</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Listado de Prospectos - Material Design 3 -->
+                <div class="prospects-section">
+                    <!-- Header de la sección -->
+                    <div class="section-header">
+                        <div class="header-content">
+                            <div class="header-icon">
+                                <i data-lucide="users" class="w-8 h-8"></i>
+                            </div>
+                            <div class="header-text">
+                                <h2 class="section-title">Listado de Prospectos</h2>
+                                <p class="section-subtitle">Gestión y seguimiento de todos los prospectos</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filtros y búsqueda -->
+                    <div class="filters-section">
+                        <div class="filters-grid">
+                            <div class="filter-group">
+                                <label for="statusFilter" class="filter-label">
+                                    <i data-lucide="filter" class="w-4 h-4 mr-2"></i>
+                                    Filtrar por Estatus
+                                </label>
+                                <select id="statusFilter" class="filter-select">
+                                    <option value="all">Todos los prospectos</option>
+                                    <option value="Pendiente de Correo">Pendiente de Correo</option>
+                                    <option value="En Prospección">En Prospección</option>
+                                    <option value="Pendiente de Validación">Pendiente de Validación</option>
+                                    <option value="Interesado">Interesado</option>
+                                    <option value="No contesta">No contesta</option>
+                                    <option value="Rechazado">Rechazado</option>
+                                    <option value="Seguimiento agendado">Seguimiento agendado</option>
+                                    <option value="Completado">Completado</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="dateFilter" class="filter-label">
+                                    <i data-lucide="calendar" class="w-4 h-4 mr-2"></i>
+                                    Fecha de Correo
+                                </label>
+                                <input type="date" id="dateFilter" class="filter-input">
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="searchFilter" class="filter-label">
+                                    <i data-lucide="search" class="w-4 h-4 mr-2"></i>
+                                    Buscar Prospecto
+                                </label>
+                                <input type="text" id="searchFilter" placeholder="Nombre del negocio o contacto" class="filter-input">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contenedor de tarjetas -->
+                    <div class="prospects-container">
+                        <div id="admin-prospects-cards-container" class="prospects-grid">
+                            <!-- Las tarjetas de prospectos se llenarán con JavaScript -->
+                        </div>
+                        
+                        <div id="admin-no-prospects" class="empty-state hidden">
+                            <div class="empty-icon">
+                                <i data-lucide="inbox" class="w-16 h-16"></i>
+                            </div>
+                            <h3 class="empty-title">No hay prospectos</h3>
+                            <p class="empty-description">Comienza agregando tu primer prospecto desde el formulario de arriba</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección de Prospección - Material Design 3 -->
+            <section id="prospector-screen" class="prospector-section hidden animate-fadeIn">
+                <!-- Header de la sección -->
+                <div class="section-header">
+                    <div class="header-content">
+                        <div class="header-icon">
+                            <i data-lucide="headphones" class="w-8 h-8"></i>
+                        </div>
+                        <div class="header-text">
+                            <h2 class="section-title">Prospección de Clientes</h2>
+                            <p class="section-subtitle">Seguimiento activo y gestión de prospectos</p>
+                        </div>
+                        <div class="header-actions">
+                            <button id="back-to-role-selection-prospector" class="back-button">
+                                <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+                                Volver
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calendario Semanal de Prospección -->
+                <div class="calendar-section">
+                    <div class="calendar-header">
+                        <div class="calendar-title">
+                            <i data-lucide="calendar-days" class="w-8 h-8 text-red-600"></i>
+                            <h3 class="calendar-title-text">Calendario Semanal de Prospección</h3>
+                        </div>
+                        
+                        <!-- Controles del calendario -->
+                        <div class="calendar-controls">
+                            <div class="calendar-navigation">
+                                <button id="prev-week-btn" class="nav-button">
+                                    <i data-lucide="chevron-left" class="w-6 h-6"></i>
+                                </button>
+                                <h4 id="current-week-display" class="week-display"></h4>
+                                <button id="next-week-btn" class="nav-button">
+                                    <i data-lucide="chevron-right" class="w-6 h-6"></i>
+                                </button>
+                            </div>
+                            <button id="today-btn" class="today-button">
+                                <i data-lucide="target" class="w-5 h-5"></i>
+                                Hoy
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Calendario semanal -->
+                    <div id="weekly-calendar" class="weekly-calendar-grid">
+                        <!-- Los días se generarán dinámicamente -->
+                    </div>
+                    
+                    <!-- Resumen de la semana -->
+                    <div id="week-summary" class="week-summary-grid">
+                        <div class="summary-card">
+                            <div class="summary-icon">
+                                <i data-lucide="calendar" class="w-6 h-6"></i>
+                            </div>
+                            <div class="summary-content">
+                                <div class="summary-value" id="total-followups">0</div>
+                                <div class="summary-label">Total Seguimientos</div>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-card">
+                            <div class="summary-icon">
+                                <i data-lucide="clock" class="w-6 h-6"></i>
+                            </div>
+                            <div class="summary-content">
+                                <div class="summary-value" id="pending-today">0</div>
+                                <div class="summary-label">Pendientes Hoy</div>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-card">
+                            <div class="summary-icon">
+                                <i data-lucide="check-circle" class="w-6 h-6"></i>
+                            </div>
+                            <div class="summary-content">
+                                <div class="summary-value" id="completed-week">0</div>
+                                <div class="summary-label">Completados</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prospectos Asignados -->
+                <div class="prospects-assigned-section">
+                    <div class="prospects-header">
+                        <div class="prospects-title">
+                            <h3 class="prospects-title-text">Mis Prospectos Asignados</h3>
+                            <p class="prospects-subtitle">Prospectos disponibles para seguimiento y prospección</p>
+                        </div>
+                        
+                        <div class="prospects-filters">
+                            <span id="filter-indicator" class="filter-badge hidden">
+                                <i data-lucide="filter" class="w-4 h-4"></i>
+                                <span class="filter-text">Filtrado por fecha</span>
+                            </span>
+                            <button id="clear-filter-btn" class="clear-filter-button hidden">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                                Limpiar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Contenedor de prospectos -->
+                    <div class="prospects-container">
+                        <div id="prospector-prospects-cards-container" class="prospects-grid">
+                            <!-- Las tarjetas de prospectos se llenarán con JavaScript -->
+                        </div>
+                        
+                        <div id="prospector-no-prospects" class="empty-state hidden">
+                            <div class="empty-icon">
+                                <i data-lucide="inbox" class="w-16 h-16"></i>
+                            </div>
+                            <h3 class="empty-title">No hay prospectos disponibles</h3>
+                            <p class="empty-description">No tienes prospectos asignados para prospección en este momento</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección de Archivo de Prospección -->
+            <section id="archive-screen" class="w-full max-w-7xl bg-white rounded-xl shadow-xl p-8 hidden animate-fadeIn">
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-6 border-b border-slate-200 pb-4">
+                    <h2 class="text-3xl font-fraunces text-slate-800 mb-4 sm:mb-0">Archivo de Prospección</h2>
+                    <!-- Navegación simplificada - Los accesos principales están ahora en el header -->
+                    <div class="flex flex-wrap justify-center sm:justify-end gap-2">
+                        <button id="back-to-role-selection-archive" class="py-2 px-4 bg-slate-200 text-slate-700 font-poppins rounded-md hover:bg-slate-300 transition duration-200 mobile-btn">
+                            <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i> Volver a Selección de Rol
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mb-4 flex flex-col sm:flex-row gap-4 font-poppins">
+                    <div class="flex-grow">
+                        <label for="archiveStatusFilter" class="block text-sm font-medium text-slate-700 mb-1">Filtrar por Estatus Final:</label>
+                        <select id="archiveStatusFilter" class="mt-1 block w-full border-slate-300 rounded-lg shadow-sm focus:border-slate-800 focus:ring-slate-800 p-2 mobile-btn">
+                            <option value="all">Todos los Finalizados</option>
+                            <option value="Interesado">Interesado</option>
+                            <option value="No contesta">No contesta</option>
+                            <option value="Rechazado">Rechazado</option>
+                            <option value="Completado">Completado</option>
+                            
+                        </select>
+                    </div>
+                    <div class="flex-grow">
+                        <label for="archiveSearchFilter" class="block text-sm font-medium text-slate-700 mb-1">Buscar en Archivo:</label>
+                        <input type="text" id="archiveSearchFilter" placeholder="Nombre del negocio o contacto" class="mt-1 block w-full border-slate-300 rounded-lg shadow-sm focus:border-slate-800 focus:ring-slate-800 p-2 mobile-btn">
+                    </div>
+                </div>
+
+                <div id="archive-prospects-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Cards de prospectos archivados se llenarán aquí -->
+                </div>
+                <div id="archive-no-prospects" class="text-center py-8 text-slate-400 font-poppins hidden">
+                    <i class="fas fa-archive text-4xl mb-4"></i>
+                    <p>No hay prospectos archivados para mostrar.</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Modal de confirmación -->
+        <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+            <div class="bg-white rounded-lg p-6 shadow-xl w-full max-w-md mobile-modal">
+                <h3 id="confirm-modal-title" class="text-lg font-fraunces text-slate-800 mb-4">Confirmar Acción</h3>
+                <p id="confirm-modal-message" class="text-slate-600 font-poppins mb-6">¿Estás seguro de que deseas realizar esta acción?</p>
+                <div class="flex justify-end gap-3">
+                    <button id="confirm-cancel-btn" class="px-4 py-2 bg-slate-200 text-slate-700 font-poppins rounded-lg hover:bg-slate-300 transition duration-200 mobile-btn">Cancelar</button>
+                    <button id="confirm-action-btn" class="px-4 py-2 bg-red-700 text-white font-poppins rounded-lg hover:bg-red-800 transition duration-200 mobile-btn">Confirmar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de confirmación de correo -->
+        <div id="email-confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+            <div class="bg-white rounded-lg p-6 shadow-xl w-full max-w-lg mobile-modal">
+                <div class="flex items-center gap-3 mb-4">
+                    <i data-lucide="mail" class="w-6 h-6 text-blue-600"></i>
+                    <h3 class="text-lg font-fraunces text-slate-800">Confirmar Envío de Correo</h3>
+                </div>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <p class="text-sm text-blue-800 font-poppins mb-2">
+                        <strong>Prospecto:</strong> <span id="email-confirm-business-name">-</span>
+                    </p>
+                    <p class="text-sm text-blue-800 font-poppins mb-2">
+                        <strong>Email:</strong> <span id="email-confirm-email">-</span>
+                    </p>
+                    <p class="text-sm text-blue-800 font-poppins">
+                        <strong>Contacto:</strong> <span id="email-confirm-contact">-</span>
+                    </p>
+                </div>
+                <p class="text-slate-600 font-poppins mb-6">
+                    ¿Confirmas que has enviado el correo de presentación a este prospecto? 
+                    Esto cambiará el estado a "En Prospección" y lo hará disponible para seguimiento.
+                </p>
+                <div class="flex justify-end gap-3">
+                    <button id="email-confirm-cancel-btn" class="px-4 py-2 bg-slate-200 text-slate-700 font-poppins rounded-lg hover:bg-slate-300 transition duration-200 mobile-btn">Cancelar</button>
+                    <button id="email-confirm-action-btn" class="px-4 py-2 bg-blue-600 text-white font-poppins rounded-lg hover:bg-blue-700 transition duration-200 mobile-btn">
+                        <i data-lucide="check" class="w-4 h-4 mr-2"></i>
+                        Confirmar Correo Enviado
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de detalles/seguimiento de prospecto - OPTIMIZADO -->
+        <div id="detail-modal" class="modal-overlay hidden">
+            <div class="modal-container animate-modalIn">
+                <!-- Header del modal -->
+                <div class="modal-header">
+                    <h3>Detalles del Prospecto</h3>
+                    <button id="detail-close-btn" class="modal-close-btn">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                
+                <!-- Contenido principal del modal -->
+                <div class="modal-content">
+                    <!-- Grid de detalles optimizado -->
+                    <div class="details-grid">
+                        <div class="detail-card">
+                            <div class="detail-label">
+                                <i data-lucide="building" class="w-4 h-4"></i>
+                                Nombre
+                            </div>
+                            <div class="detail-value" id="detail-businessName">-</div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-label">
+                                <i data-lucide="user" class="w-4 h-4"></i>
+                                Contacto
+                            </div>
+                            <div class="detail-value" id="detail-contactPerson">-</div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-label">
+                                <i data-lucide="mail" class="w-4 h-4"></i>
+                                Email
+                            </div>
+                            <div class="detail-value" id="detail-email">-</div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-label">
+                                <i data-lucide="phone" class="w-4 h-4"></i>
+                                Teléfono
+                            </div>
+                            <div class="detail-value">
+                                <span id="detail-phone">-</span>
+                                <a id="call-button" class="call-btn ml-2 hidden" href="#" style="text-decoration: none;">
+                                    <i data-lucide="phone" class="w-4 h-4"></i> Llamar
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-label">
+                                <i data-lucide="tag" class="w-4 h-4"></i>
+                                Clasificación
+                            </div>
+                            <div class="detail-value" id="detail-classification">-</div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-label">
+                                <i data-lucide="calendar" class="w-4 h-4"></i>
+                                Seguimiento Agendado
+                            </div>
+                            <div class="detail-value" id="detail-prospectingDueDate">-</div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-label">
+                                <i data-lucide="send" class="w-4 h-4"></i>
+                                Fecha de Envío de Correo
+                            </div>
+                            <div class="detail-value" id="detail-sentEmailDate">-</div>
+                        </div>
+                        
+                        <div class="detail-card" id="detail-reagendadoPara-container" style="display: none;">
+                            <div class="detail-label">
+                                <i data-lucide="calendar-check" class="w-4 h-4"></i>
+                                Reagendado para
+                            </div>
+                            <div class="detail-value" id="detail-reagendadoPara">-</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Observaciones -->
+                    <div class="details-grid">
+                        <div class="detail-card" style="grid-column: 1 / -1;">
+                            <div class="detail-label">
+                                <i data-lucide="file-text" class="w-4 h-4"></i>
+                                Observaciones
+                            </div>
+                            <div class="detail-value" id="detail-observations">-</div>
+                        </div>
+                    </div>
+
+                    <!-- Notas de Seguimiento Previas -->
+                    <div class="details-grid">
+                        <div class="detail-card" style="grid-column: 1 / -1;">
+                            <div class="detail-label">
+                                <i data-lucide="message-square" class="w-4 h-4"></i>
+                                Notas de Seguimiento Previas
+                            </div>
+                            <div class="detail-value" id="detail-followUpNotes">-</div>
+                        </div>
+                    </div>
+
+                    <!-- Área de actualización de contacto para prospector -->
+                    <div id="prospector-action-area" class="action-section hidden">
+                        <h4><i data-lucide="edit" class="w-4 h-4"></i> Actualizar Contacto</h4>
+                        
+                        <!-- Información sobre la funcionalidad -->
+                        <div class="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                            <div class="text-sm text-blue-800 mb-2">
+                                <i data-lucide="info" class="w-4 h-4 inline mr-2"></i>
+                                <strong>Nueva funcionalidad:</strong> Ahora puedes guardar solo notas de seguimiento sin cambiar el estatus del prospecto.
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="followUpNotesInput" class="form-label">
+                                <i data-lucide="file-text" class="w-4 h-4 inline mr-2"></i>
+                                Notas de Seguimiento: <span class="text-red-500">*</span>
+                            </label>
+                            <textarea id="followUpNotesInput" rows="3" class="form-textarea" placeholder="Describe el resultado del contacto, observaciones, o cualquier información relevante..."></textarea>
+                            <small class="text-gray-600">Este campo es obligatorio para guardar el seguimiento.</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contactResult" class="form-label">
+                                <i data-lucide="arrow-right" class="w-4 h-4 inline mr-2"></i>
+                                Cambiar Estatus (Opcional):
+                            </label>
+                            <select id="contactResult" class="form-select">
+                                <option value="">Selecciona un resultado (opcional)</option>
+                                <option value="Interesado">Interesado</option>
+                                <option value="No contesta">No contesta</option>
+                                <option value="Rechazado">Rechazado</option>
+                                <option value="Seguimiento agendado">Seguimiento agendado</option>
+                                <option value="Ya es nuestro cliente">Ya es nuestro cliente</option>
+                                <option value="Convertido a cliente">Convertido a cliente</option>
+                            </select>
+                            <small class="text-gray-600">Puedes dejar esto vacío si solo quieres agregar notas.</small>
+                        </div>
+                        <div id="whatsappMessageArea" class="hidden mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                            <div class="mb-4">
+                                <p class="text-sm text-green-800 mb-3">
+                                    <i class="fas fa-lightbulb mr-2"></i>
+                                    <strong>Tip:</strong> El mensaje está personalizado con el nombre del prospecto. 
+                                    Puedes editarlo antes de enviar.
+                                </p>
+                            </div>
+                            
+                            <label for="whatsappMessage" class="form-label mb-2 block">
+                                <i class="fas fa-edit mr-2"></i>
+                                Mensaje personalizado para WhatsApp:
+                            </label>
+                            <textarea 
+                                id="whatsappMessage" 
+                                rows="8" 
+                                class="form-textarea w-full resize-vertical font-mono text-sm"
+                                placeholder="El mensaje se generará automáticamente con los datos del prospecto..."
+                            ></textarea>
+                            
+                            <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                <div class="text-xs text-blue-700">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    <strong>Información:</strong>
+                                </div>
+                                <ul class="text-xs text-blue-600 mt-1 space-y-1">
+                                    <li>• El mensaje se abrirá en la aplicación móvil de WhatsApp</li>
+                                    <li>• El envío se registrará en el sistema para seguimiento</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="mt-4 flex justify-end gap-3">
+                                <button id="whatsappConfirmSendBtn" type="button" class="action-btn bg-green-600 hover:bg-green-700 text-white">
+                                    <i class="fab fa-whatsapp mr-2"></i>
+                                    Enviar por WhatsApp
+                                </button>
+                                <button id="whatsappCancelBtn" type="button" class="action-btn bg-slate-200 hover:bg-slate-300 text-slate-700">
+                                    <i class="fas fa-times mr-2"></i>
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
+                        <button id="saveFollowUpBtn" class="action-btn bg-slate-800 hover:bg-slate-900 text-white w-full">
+                            <i data-lucide="save" class="w-4 h-4"></i> Guardar Seguimiento
+                        </button>
+                        
+
+                        
+                        <small class="text-gray-600 text-center block mt-2">
+                            💡 <strong>Tip:</strong> Puedes guardar solo notas sin cambiar el estatus
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Botones de acción del modal - ESTILO OPTIMIZADO -->
+                <div class="modal-actions">
+                    <!-- Botón de reagendar seguimiento -->
+                    <div id="reschedule-action-area" class="hidden">
+                        <button id="rescheduleFollowUpBtn" class="action-btn bg-black hover:bg-white text-white hover:text-black border border-black hover:border-black transition-all duration-200">
+                            <i data-lucide="calendar" class="w-4 h-4"></i>
+                            Reagendar
+                        </button>
+                    </div>
+
+                    <!-- Botón de edición para administradores -->
+                    <div id="edit-prospect-action-area" class="hidden">
+                        <button id="editProspectBtn" class="action-btn bg-black hover:bg-white text-white hover:text-black border border-black hover:border-black transition-all duration-200">
+                            <i data-lucide="edit" class="w-4 h-4"></i>
+                            Editar
+                        </button>
+                    </div>
+
+                    <!-- Botón de eliminación para administradores -->
+                    <div id="admin-actions-area" class="hidden">
+                        <button id="deleteProspectBtn" class="action-btn bg-black hover:bg-white text-white hover:text-black border border-black hover:border-black transition-all duration-200">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de reagendación (Selector de fechas) -->
+        <div id="reschedule-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+            <div class="bg-white rounded-lg p-6 shadow-xl w-full max-w-md mobile-modal">
+                <h3 class="text-lg font-fraunces text-slate-800 mb-4">Reagendar Seguimiento</h3>
+                <div class="mb-4">
+                    <label for="reschedule-date" class="block text-sm font-medium text-slate-700 mb-1">Selecciona nueva fecha de seguimiento:</label>
+                    <input type="text" id="reschedule-date" class="mt-1 block w-full border-slate-300 rounded-lg shadow-sm focus:border-slate-800 focus:ring-slate-800 p-2 font-poppins" readonly>
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button id="reschedule-cancel-btn" class="px-4 py-2 bg-slate-200 text-slate-700 font-poppins rounded-lg hover:bg-slate-300 transition duration-200 mobile-btn">Cancelar</button>
+                    <button id="reschedule-confirm-btn" class="px-4 py-2 bg-orange-600 text-white font-poppins rounded-lg hover:bg-orange-700 transition duration-200 mobile-btn">Confirmar Reagendación</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de WhatsApp para envío de mensajes -->
+        <div id="whatsapp-modal" class="modal-overlay hidden">
+            <div class="modal-container">
+                <div class="modal-header">
+                    <h3>
+                        <i class="fab fa-whatsapp mr-2 text-green-600"></i>
+                        Enviar Material por WhatsApp
+                    </h3>
+                    <button id="whatsapp-modal-close" class="modal-close-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="modal-content">
+                    <div class="mb-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                        <p class="text-sm text-green-800">
+                            <i class="fas fa-lightbulb mr-2"></i>
+                            <strong>Tip:</strong> El mensaje está personalizado con el nombre del prospecto y incluye todos los materiales. 
+                            Puedes editarlo antes de enviar.
+                        </p>
+                    </div>
+                    
+                    <!-- Sección de validación de WhatsApp -->
+                    <div class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="text-sm font-semibold text-blue-800 mb-2">
+                                    <i class="fas fa-check-circle mr-2"></i>
+                                    Verificación de WhatsApp
+                                </h4>
+                                <p class="text-xs text-blue-600">
+                                    Confirma manualmente si este número tiene WhatsApp disponible
+                                </p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button id="whatsapp-validated-btn" class="px-3 py-1 text-xs font-medium rounded-md bg-blue-100 text-blue-800 border border-blue-300 hover:bg-blue-200 transition-colors">
+                                    <i class="fas fa-search mr-1"></i>
+                                    VALIDAR NÚMERO
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label mb-2 block">
+                            <i class="fas fa-check-square mr-2"></i>
+                            Seleccionar materiales a enviar:
+                        </label>
+                        <div id="materials-checkbox-container" class="space-y-2">
+                            <!-- Checkboxes will be inserted here by JS -->
+                        </div>
+                    </div>
+
+                    <label for="whatsapp-modal-message" class="form-label mb-2 block">
+                        <i class="fas fa-edit mr-2"></i>
+                        Mensaje personalizado para WhatsApp:
+                    </label>
+                    <textarea
+                        id="whatsapp-modal-message"
+                        rows="12"
+                        class="form-textarea w-full resize-vertical font-mono text-sm"
+                        placeholder="El mensaje se generará automáticamente con los datos del prospecto..."
+                    ></textarea>
+                    
+                    <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <div class="text-xs text-blue-700">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            <strong>Información:</strong>
+                        </div>
+                        <ul class="text-xs text-blue-600 mt-1 space-y-1">
+                            <li>• El mensaje se abrirá en la aplicación móvil de WhatsApp</li>
+                            <li>• Los enlaces a los materiales están incluidos automáticamente</li>
+                            <li>• El envío se registrará en el sistema para seguimiento</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button id="whatsapp-modal-send-btn" class="action-btn bg-green-600 hover:bg-green-700 text-white">
+                        <i class="fab fa-whatsapp mr-2"></i>
+                        Enviar por WhatsApp
+                    </button>
+                    <button id="whatsapp-modal-cancel-btn" class="action-btn bg-slate-200 hover:bg-slate-300 text-slate-700">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nuevo Modal de Edición de Prospecto -->
+        <div id="edit-prospect-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+            <div class="bg-white rounded-lg p-6 shadow-xl w-full max-w-md md:max-w-lg mobile-modal">
+                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <h3 class="text-xl font-fraunces text-slate-800">Editar Prospecto</h3>
+                    <button id="edit-prospect-close-btn" class="text-slate-500 hover:text-slate-700">
+                        <i class="fas fa-times-circle text-2xl"></i>
+                    </button>
+                </div>
+                <form id="edit-prospect-form" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-700 font-poppins text-sm mb-6">
+                    <div>
+                        <label for="edit-businessName" class="block text-sm font-medium text-slate-700 mb-1">Nombre del Negocio:</label>
+                        <input type="text" id="edit-businessName" name="businessName" required class="mt-1 block w-full border-slate-300 rounded-lg shadow-sm focus:border-slate-800 focus:ring-slate-800 p-2 font-poppins">
+                    </div>
+                    <div>
+                        <label for="edit-contactPerson" class="block text-sm font-medium text-slate-700 mb-1">Contacto:</label>
+                        <input type="text" id="edit-contactPerson" name="contactPerson" class="mt-1 block w-full border-slate-300 rounded-lg shadow-sm focus:border-slate-800 focus:ring-slate-800 p-2 font-poppins">
+                    </div>
+                    <div>
+                        <label for="edit-email" class="block text-sm font-medium text-slate-700 mb-1">Email:</label>
+                        <input type="email" id="edit-email" name="email" required class="mt-1 block w-full border-slate-300 rounded-lg shadow-sm focus:border-slate-800 focus:ring-slate-800 p-2 font-poppins">
+                    </div>
+                    <div>
+                        <label for="edit-phone" class="block text-sm font-medium text-slate-700 mb-1">Teléfono:</label>
+                        <input type="tel" id="edit-phone" name="phone" required class="mt-1 block w-full border-slate-300 rounded-lg shadow-sm focus:border-slate-800 focus:ring-slate-800 p-2 font-poppins">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="edit-classification" class="block text-sm font-medium text-slate-700 mb-1">Clasificación:</label>
+                        <select id="edit-classification" name="classification" required class="mt-1 block w-full border-slate-300 rounded-lg shadow-sm focus:border-slate-800 focus:ring-slate-800 p-2 font-poppins">
+                            <option value="">Selecciona una opción</option>
+                            <option value="Despacho de Arquitectos">Despacho de Arquitectos</option>
+                            <option value="Diseño de Interiores">Diseño de Interiores</option>
+                            <option value="Constructoras">Constructoras</option>
+                            <option value="Distribuidores de acabados">Distribuidores de acabados</option>
+                            <option value="Mueblerías">Mueblerías</option>
+                            <option value="Showrooms de Baños / Cocinas">Showrooms de Baños / Cocinas</option>
+                            <option value="Hoteles / Desarrolladores de Hospitalidad">Hoteles / Desarrolladores de Hospitalidad</option>
+                            <option value="Cruceros / Espacios Comerciales de Lujo">Cruceros / Espacios Comerciales de Lujo</option>
+                            <option value="Pisos y Recubrimientos">Pisos y Recubrimientos</option>
+                            <option value="Corporativos / Oficinas">Corporativos / Oficinas</option>
+                            <option value="Proyectos Holísticos / Wellness">Proyectos Holísticos / Wellness</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div id="editOtherClassificationContainer" class="hidden md:col-span-2">
+                        <label for="edit-otherClassification" class="block text-sm font-medium text-slate-700 mb-1">Especificar Otra Clasificación:</label>
+                        <input type="text" id="edit-otherClassification" name="otherClassification" class="mt-1 block w-full border-slate-300 rounded-lg shadow-sm focus:border-slate-800 focus:ring-slate-800 p-2 font-poppins">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="edit-observations" class="block text-sm font-medium text-slate-700 mb-1">Observaciones:</label>
+                        <textarea id="edit-observations" name="observations" rows="3" class="mt-1 block w-full border-slate-300 rounded-lg shadow-sm focus:border-slate-800 focus:ring-slate-800 p-2 font-poppins"></textarea>
+                    </div>
+                    <div class="md:col-span-2 flex justify-end gap-3 pt-4">
+                        <button type="button" id="edit-prospect-cancel-btn" class="px-4 py-2 bg-slate-200 text-slate-700 font-poppins rounded-lg hover:bg-slate-300 transition duration-200 mobile-btn">Cancelar</button>
+                        <button type="submit" id="edit-prospect-save-btn" class="px-4 py-2 bg-green-600 text-white font-poppins rounded-lg hover:bg-green-700 transition duration-200 mobile-btn">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Contenedor de notificaciones 'toast' -->
+        <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+    </div>
+
+    <!-- Bottom Navigation para Móviles -->
+    <nav id="bottom-navigation" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40 md:hidden">
+        <div class="flex justify-around items-center h-16">
+            <!-- Administración -->
+            <button id="bottom-nav-admin" class="bottom-nav-item">
+                <i data-lucide="database" class="w-6 h-6"></i>
+                <span class="bottom-nav-label">Admin</span>
+            </button>
+            
+            <!-- Prospección -->
+            <button id="bottom-nav-prospector" class="bottom-nav-item">
+                <i data-lucide="headphones" class="w-6 h-6"></i>
+                <span class="bottom-nav-label">Prospección</span>
+            </button>
+            
+            <!-- Archivo -->
+            <button id="bottom-nav-archive" class="bottom-nav-item">
+                <i data-lucide="archive" class="w-6 h-6"></i>
+                <span class="bottom-nav-label">Archivo</span>
+            </button>
+            
+            <!-- WhatsApp -->
+            <button id="bottom-nav-whatsapp" class="bottom-nav-item">
+                <i data-lucide="message-circle" class="w-6 h-6"></i>
+                <span class="bottom-nav-label">WhatsApp</span>
+            </button>
+            
+            <!-- Cerrar Sesión -->
+            <button id="bottom-nav-logout" class="bottom-nav-item text-red-600">
+                <i data-lucide="log-out" class="w-6 h-6"></i>
+                <span class="bottom-nav-label">Salir</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer class="w-full text-center py-4 bg-white border-t border-gray-200 mt-8">
+        <span class="text-xs text-gray-500 font-poppins tracking-wide flex items-center justify-center gap-2">
+            <i data-lucide="zap" class="w-3 h-3 text-yellow-500"></i>
+            POWERED BY MVGN LABS 2025
+        </span>
+    </footer>
+
+    <!-- Fondo Matrix para selección de roles -->
+    <script src="./matrix-bg.js"></script>
+    <!-- JavaScript personalizado -->
+    <script type="module" src="./script.js"></script>
+</body>
+</html>
