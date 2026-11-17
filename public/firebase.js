@@ -39,5 +39,5 @@ export const getAppDisplayName = (user) => {
     return "Usuario Desconocido";
   }
   // 2. Usamos user.uid (el texto) para buscar en el mapa
-  return USER_UID_TO_NAME[user.uid] || "Usuario Desconocido";
+  return USER_UID_TO_NAME[user.uid] || user.displayName || user.email || "Usuario";
 };

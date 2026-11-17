@@ -1,0 +1,20 @@
+rules_version = '2';
+// PROPUESTA LOCAL, NO APLICADA. Reglas actuales NO verificadas.
+// Revisar roles/UIDs con el operador y probar en Emulator antes de publicar.
+// Los botones y roles de la interfaz NO constituyen autorización.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isCrmMember() {
+      // Lista intencionalmente vacía: completar con UIDs verificados del equipo.
+      return request.auth != null && request.auth.uid in [];
+    }
+    match /prospects/{prospectId} {
+      allow read, create, update: if isCrmMember();
+      // El borrado requiere una decisión explícita de autorización.
+      allow delete: if false;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

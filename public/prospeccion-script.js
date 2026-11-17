@@ -1,3 +1,4 @@
+import { groupProspects, populateStatusFilter } from "./status-model.js";
 // prospeccion-script.js (Módulo de Prospección)
 
 import { auth, getAppDisplayName } from "./firebase.js";
@@ -261,7 +262,7 @@ function handleProspeccionRender() {
     ESTATUS_CONSOLIDADOS.CLIENTE,
   ];
 
-  const filterStatus = document.getElementById("statusFilter")?.value || "active";
+  const filterStatus = document.getElementById("statusFilter")?.value || "all";
   const searchTerm = document.getElementById("searchFilter")?.value?.toLowerCase() || "";
   const sortOrder = document.getElementById("sortFilter")?.value || "followup_asc";
   const stagnantFilterToggle = document.getElementById("stagnant-filter-toggle");
@@ -282,9 +283,9 @@ function handleProspeccionRender() {
           const isStagnant = p.status === ESTATUS_CONSOLIDADOS.PROSPECCION && Array.isArray(p.followUpNotes) && p.followUpNotes.length === 1;
           return isStagnant && searchMatch;
       } else {
-          const statusMatch = filterStatus === "active" 
+          const statusMatch = filterStatus === "all" || (filterStatus === "active"
               ? !ARCHIVED_PENDING_STATUSES.includes(p.status)
-              : p.status === filterStatus;
+              : p.status === filterStatus);
           return statusMatch && searchMatch;
       }
   });
@@ -305,13 +306,7 @@ function handleProspeccionRender() {
 
   renderWeeklyPlanner(filteredProspects);
 
-  const LEGACY_STATUSES = ["Seguimiento agendado", "No contesta"];
-
-  const groupedData = {
-    "Interesados (Seguimiento Agendado)": filteredProspects.filter(p => p.nextFollowUpDate),
-    "Prospección Activa (Sin Fecha Agendada)": filteredProspects.filter(p => !p.nextFollowUpDate && p.status === ESTATUS_CONSOLIDADOS.PROSPECCION),
-    "Prospectos Legado (Revisar Estatus)": filteredProspects.filter(p => !p.nextFollowUpDate && LEGACY_STATUSES.includes(p.status)),
-  };
+  const groupedData = groupProspects(filteredProspects, "prospecting");
 
   const finalGroupedData = Object.fromEntries(Object.entries(groupedData).filter(([, prospects]) => prospects.length > 0));
 
@@ -340,6 +335,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+  populateStatusFilter(document.getElementById("statusFilter"), { active: true });
   initFollowUpNotePicker();
   initEditDatePicker(); 
 

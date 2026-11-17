@@ -1,3 +1,4 @@
+import { groupProspects, populateStatusFilter } from "./status-model.js";
 // script.js (Módulo de Administración/Gestión)
 
 import { auth, getAppDisplayName } from "./firebase.js";
@@ -363,29 +364,7 @@ function handleAdminScreenRender() {
     });
     renderAdminGrid(filteredProspects, getGroupIcon, false);
   } else {
-    const groups = {
-      "Pendientes de Correo": [ESTATUS_CONSOLIDADOS.PENDIENTE],
-      Activos: [
-        ESTATUS_CONSOLIDADOS.PROSPECCION,
-        ESTATUS_CONSOLIDADOS.INTERESADO,
-        "Seguimiento agendado",
-        "No contesta",
-      ],
-      Archivo: [
-        ESTATUS_CONSOLIDADOS.RECHAZADO,
-        ESTATUS_CONSOLIDADOS.CONVERTIDO,
-        ESTATUS_CONSOLIDADOS.CLIENTE,
-      ],
-    };
-
-    const groupedData = Object.fromEntries(
-      Object.entries(groups).map(([name, statuses]) => {
-        return [
-          name,
-          filteredProspects.filter((p) => statuses.includes(p.status)),
-        ];
-      }),
-    );
+    const groupedData = groupProspects(filteredProspects);
 
     renderAdminGrid(groupedData, getGroupIcon, true);
   }
@@ -417,6 +396,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+  populateStatusFilter(document.getElementById("statusFilter"));
   populateClassificationSelects(CLASSIFICATIONS);
   initFollowUpNotePicker();
   initEditDatePicker(); // NUEVO: Llamar al inicializador para el modal de edición
