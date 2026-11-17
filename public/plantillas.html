@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>CRM Pietra Fina - Plantillas</title>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap"
+            rel="stylesheet"
+        />
+
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            playfair: ['"Playfair Display"', "serif"],
+                            inter: ['"Inter"', "sans-serif"],
+                        },
+                         colors: {
+                            'brand-red': '#DC2626',
+                            'brand-dark': '#111827',
+                            'brand-light': '#F9FAFB',
+                        }
+                    },
+                },
+            };
+        </script>
+
+        <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+        <!-- Librería para Gráficas -->
+        
+        <link rel="stylesheet" href="./style.css" /><link rel="stylesheet" href="./phase2.css" />
+    </head>
+    <body class="bg-brand-light font-inter"><div class="page-overlay"></div>
+        <div class="flex h-screen bg-gray-100">
+            <!-- Sidebar -->
+            <aside
+                id="sidebar"
+                class="fixed inset-y-0 left-0 z-[100] flex h-full w-64 -translate-x-full flex-col border-r border-gray-200 bg-white transition-transform duration-300 md:relative md:translate-x-0"
+            >
+                <div class="sidebar-header p-4">
+                    <a href="./dashboard.html" class="flex items-center justify-center">
+                        <img
+                            src="./assets/logo.png"
+                            alt="Logo Pietra Fina"
+                            class="h-16 md:h-20 w-auto object-contain"
+                            loading="lazy"
+                        />
+                    </a>
+                </div>
+                <nav class="flex-1 p-4">
+                    <ul class="space-y-2">
+                        <li>
+                            <a
+                                href="./dashboard.html"
+                                class="flex items-center gap-3 rounded-lg bg-gray-100 px-3 py-2 text-gray-900"
+                            >
+                                <i data-lucide="layout-dashboard"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                href="./admin-app.html"
+                                class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-50"
+                            >
+                                <i data-lucide="users"></i>
+                                <span>Gestión</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                href="./prospeccion.html"
+                                class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-50"
+                            >
+                                <i data-lucide="target"></i>
+                                <span>Prospección</span>
+                            </a>
+                        </li>
+                    <li><a data-phase2 href="./reactivacion.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-50">Reactivación</a></li>
+<li><a data-phase2 href="./cadencia.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-50">Cadencia</a></li>
+<li><a data-phase2 href="./plantillas.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-50">Plantillas</a></li>
+<li><a data-phase2 href="./campanas.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-50">Campañas y respaldo</a></li></ul>
+                </nav>
+                <div class="mt-auto border-t p-4">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 font-bold text-gray-700"
+                            id="user-initials"
+                        ></div>
+                        <div>
+                            <p class="font-semibold" id="user-name-display">
+                                Cargando...
+                            </p>
+                            <p class="text-xs text-gray-500" id="user-role-display"></p>
+                        </div>
+                        <button
+                            id="logout-btn"
+                            class="ml-auto rounded-md p-2 text-gray-500 hover:bg-gray-100"
+                            aria-label="Cerrar sesión"
+                        >
+                            <i data-lucide="log-out" class="h-5 w-5"></i>
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Contenido Principal -->
+            <div class="flex flex-1 flex-col">
+                <header
+                    class="sticky top-0 z-50 flex h-16 items-center justify-between border-b bg-white px-4 md:justify-end"
+                >
+                    <button
+                        id="menu-toggle-btn"
+                        class="rounded-md p-2 text-gray-600 hover:bg-gray-100 md:hidden"
+                        aria-label="Abrir menú"
+                    >
+                        <i data-lucide="menu" class="h-6 w-6"></i>
+                    </button>
+                    <h1 class="font-playfair text-xl font-bold md:hidden">
+                        Plantillas
+                    </h1>
+                    <div></div>
+                </header>
+
+                <main class="flex-1 overflow-y-auto p-4 md:p-8"><div class="mx-auto max-w-7xl pf-phase2"><h1 class="font-playfair text-3xl font-bold">Plantillas</h1><p class="pf-local-banner">Espacio local de Fase 2 · las acciones guardan borradores en este navegador y no modifican Firestore.</p><p id="phase2-notice" role="status" aria-live="polite"></p><p>Textos en voz de Nico. Los cambios se guardan en este navegador y se pueden respaldar en JSON. Revisa cada mensaje antes de abrir WhatsApp.</p><div class="pf-fields"><label>Escenario<select id="template-key"></select></label><label>Prospecto<select id="template-prospect"></select></label></div><p id="template-origin"></p><form id="template-form" class="pf-panel"><label>Título<input id="template-title" required></label><label>Texto<textarea id="template-text" rows="7" required></textarea></label><div class="pf-actions"><button type="submit" class="btn btn-primary">Guardar plantilla local</button><button type="button" id="template-export" class="btn btn-secondary">Respaldar plantillas JSON</button><label class="btn btn-secondary">Restaurar plantillas<input id="template-import" type="file" accept="application/json" hidden></label></div></form><h2>Vista previa</h2><pre id="message-preview" class="pf-panel"></pre><div class="pf-actions"><button id="template-copy" class="btn btn-secondary">Copiar mensaje</button><button id="template-open" class="btn btn-primary">Preparar WhatsApp</button><a data-phase2 href="./reactivacion.html">Registrar resultado e historial</a></div></div></main>
+            </div>
+        </div>
+        
+        <div id="sidebar-overlay" class="fixed inset-0 z-[99] bg-black bg-opacity-50 transition-opacity duration-300 ease-in-out md:hidden hidden"></div>
+
+        
+        
+        
+        
+        <script>
+            lucide.createIcons();
+        </script>
+    <script type="module" src="./plantillas-script.js"></script></body>
+</html>

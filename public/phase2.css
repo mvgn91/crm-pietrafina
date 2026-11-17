@@ -1,0 +1,27 @@
+/* Scoped to the ported screens; existing PF fonts, palette and page chrome. */
+.pf-phase2 {min-width:0;line-height:1.6;}
+.pf-phase2 h1 {margin-bottom:1rem;}
+.pf-phase2 h2 {font-size:1.4rem;font-weight:700;margin:1.3rem 0 .65rem;}
+.pf-phase2 h3 {font-weight:700;font-size:1.1rem;}
+.pf-phase2 .pf-panel {padding:1.25rem;border:1px solid #e5e7eb;border-radius:.75rem;background:white;margin:1rem 0;overflow-wrap:anywhere;}
+.pf-phase2 .pf-fields {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:1rem;margin:1rem 0;}
+.pf-phase2 label {display:block;font-size:.95rem;font-weight:600;}
+.pf-phase2 input:not([type=checkbox]),.pf-phase2 select,.pf-phase2 textarea {box-sizing:border-box;width:100%;border:1px solid #d1d5db;border-radius:.5rem;background:white;padding:.6rem;margin:.3rem 0;font:inherit;}
+.pf-phase2 input[hidden] {display:none;}
+.pf-phase2 .pf-check {margin:.8rem 0;}
+.pf-phase2 .pf-check input {margin-right:.5rem;}
+.pf-phase2 .pf-actions {display:flex;gap:.65rem;flex-wrap:wrap;align-items:center;margin:1rem 0;}
+.pf-phase2 .btn {display:inline-flex;align-items:center;justify-content:center;border:1px solid #d1d5db;border-radius:.5rem;padding:.6rem .9rem;background:white;color:#374151;font:inherit;font-weight:600;cursor:pointer;}
+.pf-phase2 .btn-primary {background:#dc2626;color:white;border-color:#dc2626;}
+.pf-phase2 .btn:hover {filter:brightness(.95);}
+.pf-phase2 .btn:disabled {opacity:.5;cursor:not-allowed;}
+.pf-phase2 .btn:focus-visible,.pf-phase2 input:focus-visible,.pf-phase2 select:focus-visible,.pf-phase2 textarea:focus-visible {outline:2px solid #dc2626;outline-offset:2px;}
+.pf-phase2 pre {white-space:pre-wrap;font:inherit;}
+.pf-local-banner {background:#fff7ed;border-left:4px solid #ea580c;padding:.8rem;margin:1rem 0;}
+#phase2-notice {color:#991b1b;min-height:1.5rem;}
+.pf-summary {font-weight:600;padding:1rem 0;}
+.pf-phase2 .pf-metrics {overflow-x:auto;}
+.pf-phase2 table {border-collapse:collapse;min-width:620px;width:100%;}
+.pf-phase2 th,.pf-phase2 td {text-align:left;border-bottom:1px solid #e5e7eb;padding:.7rem;}
+.pf-phase2 [hidden] {display:none!important;}
+@media(max-width:767px){body.sidebar-open #sidebar{transform:translateX(0);}body.sidebar-open .page-overlay{display:block;position:fixed;inset:0;background:#0006;z-index:99;}}

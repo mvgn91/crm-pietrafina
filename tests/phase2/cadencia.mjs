@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import { buildCadenceTouch, cadenceState, agruparCadencia, clasificarFecha } from '../../public/campania-model.js';
+let p={id:'1',status:'En Prospección',followUpNotes:[]};
+const touch=(p,date,extra={})=>buildCadenceTouch(p,{note:'Intento sin respuesta',outcome:'sin_respuesta',now:new Date(`${date}T12:00:00`),...extra});
+p=touch(p,'2026-11-17');assert.equal(p.followUpNotes.length,1);assert.equal(p.sequence.nextAt,'2026-11-20');assert.equal(cadenceState(p).step.channel,'llamada');
+assert.throws(()=>touch(p,'2026-11-19'),/Todavía/);
+p=touch(p,'2026-11-20');assert.equal(p.sequence.nextAt,'2026-11-24');assert.equal(cadenceState(p).step.channel,'whatsapp');
+p=touch(p,'2026-11-24');assert.equal(p.followUpNotes.length,3);assert.equal(p.nextFollowUpDate,'2026-12-24');assert.equal(p.status,'Seguimiento agendado');assert.equal(p.sequence.completed,true);
+assert.throws(()=>touch(p,'2026-12-24'),/cerrada/);
+assert.throws(()=>touch({status:'En Prospección'},'2026-11-17',{note:''}),/nota/);
+assert.throws(()=>touch({status:'En Prospección'},'2026-11-17',{outcome:'respondido'}),/fecha/);
+const answered=touch({status:'En Prospección'},'2026-11-17',{outcome:'reunion',followUpDate:'2026-11-20'});
+assert.equal(answered.status,'Interesado');assert.equal(answered.sequence.completed,true);assert.equal(answered.followUpNotes[0].outcome,'reunion');
+assert.equal(agruparCadencia([p]).total,0);
+assert.ok(!cadenceState({status:'Interesado',nextFollowUpDate:'2026-12-01'},new Date(2026,10,17)).due);
+assert.equal(clasificarFecha('2026-11-20',new Date(2026,10,17)).dias,3);
+console.log('cadencia: PASS day 1/4/8, early-touch guard, 3 notes, +30 days, response closure');
