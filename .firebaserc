@@ -12,6 +12,13 @@
           "crm-pietrafina"
         ]
       }
+    },
+    "crm-pietrafina-v2": {
+      "hosting": {
+        "crm-produccion": [
+          "crm-pietrafina-v2"
+        ]
+      }
     }
   },
   "etags": {}
