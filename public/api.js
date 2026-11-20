@@ -65,19 +65,73 @@ export const checkIfProspectExists = async (prospectData) => {
   }
 };
 
+const RETRY_BASE_DELAY_MS = 2000;
+const RETRY_MAX_DELAY_MS = 30000;
+
+/**
+ * Suscribe a la colección de prospectos con recuperación ante fallos.
+ * - Reintenta con backoff exponencial si el listener falla (el SDK lo cierra).
+ * - Ignora el snapshot vacío que viene de caché: no es dato real, es "cargando".
+ * - Devuelve una función que cancela tanto el listener como los reintentos.
+ * @param {(prospects: Array) => void} callback - Se llama con datos reales (o con [] si el servidor confirma que no hay documentos).
+ * @param {(error: Error, info: {attempt: number, retryInMs: number}) => void} [onError] - Se llama ante cada fallo, antes de reintentar.
+ * @returns {() => void} unsubscribe
+ */
 export const subscribeToProspects = (callback, onError) => {
   const prospectsCollectionRef = collection(db, PROSPECTS_COLLECTION);
-  return onSnapshot(
-    prospectsCollectionRef,
-    (snapshot) => {
-      const allProspects = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      callback(allProspects);
-    },
-    onError,
-  );
+  let unsubscribeSnapshot = null;
+  let retryTimer = null;
+  let retryAttempt = 0;
+  let cancelled = false;
+
+  const startListener = () => {
+    if (cancelled) return;
+
+    unsubscribeSnapshot = onSnapshot(
+      prospectsCollectionRef,
+      { includeMetadataChanges: true },
+      (snapshot) => {
+        // Snapshot inicial desde caché vacía: todavía no hay dato del servidor.
+        // NO notificar al llamador para que la UI no dibuje "0 prospectos".
+        if (snapshot.metadata.fromCache && snapshot.docs.length === 0) return;
+
+        retryAttempt = 0;
+        const allProspects = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        callback(allProspects);
+      },
+      (error) => {
+        // Firestore ya cerró el listener al emitir error.
+        unsubscribeSnapshot = null;
+        if (cancelled) return;
+
+        console.error("Error en la suscripción a prospectos:", error);
+        const attempt = ++retryAttempt;
+        const retryInMs = Math.min(
+          RETRY_BASE_DELAY_MS * 2 ** (attempt - 1),
+          RETRY_MAX_DELAY_MS,
+        );
+        if (typeof onError === "function") onError(error, { attempt, retryInMs });
+
+        retryTimer = setTimeout(() => {
+          retryTimer = null;
+          startListener();
+        }, retryInMs);
+      },
+    );
+  };
+
+  startListener();
+
+  return () => {
+    cancelled = true;
+    if (retryTimer) clearTimeout(retryTimer);
+    if (unsubscribeSnapshot) unsubscribeSnapshot();
+    unsubscribeSnapshot = null;
+    retryTimer = null;
+  };
 };
 
 export const addProspect = async (prospectData) => {

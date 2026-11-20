@@ -5,6 +5,7 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/fi
 import {
   elements,
   renderAdminGrid,
+  renderProspectsStatus,
   showProspectDetailsModal,
   populateClassificationSelects,
   switchToEditView,
@@ -60,6 +61,9 @@ const WHATSAPP_CONFIG = {
 
 let allProspects = [];
 let prospectsUnsubscribe = null;
+let prospectsListenerAlive = false;
+let hasLoadedProspects = false;
+let connectionProblem = false;
 let currentProspectIdForModal = null;
 let currentUserName = "Admin";
 
@@ -321,7 +325,56 @@ function attachToggleEventListeners() {
     });
 }
 
+function showProspectsLoading() {
+  renderProspectsStatus("Cargando prospectos…");
+}
+
+function handleProspectsError(error, info) {
+  prospectsListenerAlive = false;
+  connectionProblem = true;
+  const segundos = info?.retryInMs ? Math.ceil(info.retryInMs / 1000) : null;
+  renderProspectsStatus(
+    segundos
+      ? `Sin conexión con el servidor. Reintentando en ${segundos} s…`
+      : "Sin conexión con el servidor. Reintentando…",
+    { isError: true },
+  );
+}
+
+function startProspectsSubscription() {
+  if (prospectsUnsubscribe) prospectsUnsubscribe();
+  prospectsListenerAlive = true;
+  connectionProblem = false;
+  if (!hasLoadedProspects) showProspectsLoading();
+
+  prospectsUnsubscribe = subscribeToProspects((prospects) => {
+    prospectsListenerAlive = true;
+    connectionProblem = false;
+    hasLoadedProspects = true;
+    allProspects = prospects;
+    handleAdminScreenRender();
+  }, handleProspectsError);
+}
+
+function reconnectProspectsIfNeeded() {
+  if (!auth.currentUser) return;
+  if (allProspects.length === 0 || !prospectsListenerAlive) {
+    startProspectsSubscription();
+  }
+}
+
 function handleAdminScreenRender() {
+  if (connectionProblem) {
+    renderProspectsStatus("Sin conexión con el servidor. Reintentando…", {
+      isError: true,
+    });
+    return;
+  }
+  if (!hasLoadedProspects) {
+    showProspectsLoading();
+    return;
+  }
+
   const filterStatus = document.getElementById("statusFilter")?.value || "all";
   const searchTerm =
     document.getElementById("searchFilter")?.value?.toLowerCase() || "";
@@ -404,17 +457,21 @@ onAuthStateChanged(auth, (user) => {
     } catch {}
 
     // 2. Inicia la suscripción a los datos de prospectos
-    if (prospectsUnsubscribe) prospectsUnsubscribe();
-    prospectsUnsubscribe = subscribeToProspects((prospects) => {
-      allProspects = prospects;
-      handleAdminScreenRender(); // Renderiza los datos cuando lleguen
-    });
+    startProspectsSubscription();
   } else {
     // Si no hay usuario, redirige al login
     if (prospectsUnsubscribe) prospectsUnsubscribe();
+    prospectsUnsubscribe = null;
+    prospectsListenerAlive = false;
     window.location.href = "index.html";
   }
 });
+
+// Retomar la pestaña tras suspensión / pérdida de red: reconectar si hace falta.
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") reconnectProspectsIfNeeded();
+});
+window.addEventListener("online", reconnectProspectsIfNeeded);
 
 document.addEventListener("DOMContentLoaded", () => {
   populateClassificationSelects(CLASSIFICATIONS);

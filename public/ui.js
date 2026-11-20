@@ -206,6 +206,45 @@ export const renderAdminGrid = (data, getGroupIcon, isGrouped) => {
   if (typeof lucide !== "undefined") lucide.createIcons();
 };
 
+/**
+ * Dibuja un estado de espera/error en lugar del estado vacío real.
+ * Se usa mientras no llega el primer snapshot del servidor y cuando el
+ * listener se cae, para que "0 prospectos" nunca sea un estado fingido.
+ * @param {string} message
+ * @param {{isError?: boolean}} [options]
+ */
+export const renderProspectsStatus = (message, { isError = false } = {}) => {
+  const listContainer =
+    document.getElementById("admin-prospects-cards-container") ||
+    document.getElementById("prospeccion-cards-container");
+  const noProspectsDiv =
+    document.getElementById("admin-no-prospects") ||
+    document.getElementById("prospeccion-no-prospects");
+  const statsContainer = document.getElementById("stats-cards-container");
+
+  const statusHTML = `
+    <div class="${isError ? "bg-red-50 border-red-200" : "bg-white border-gray-200"} rounded-lg border p-10 text-center shadow-sm">
+      <div class="flex items-center justify-center gap-3 ${isError ? "text-red-600" : "text-gray-500"}">
+        ${
+          isError
+            ? '<i data-lucide="wifi-off" class="w-6 h-6"></i>'
+            : '<span class="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-red-600"></span>'
+        }
+        <p class="text-lg font-semibold">${message}</p>
+      </div>
+    </div>
+  `;
+
+  if (listContainer) {
+    listContainer.innerHTML = statusHTML;
+    noProspectsDiv?.classList.add("hidden");
+  }
+  if (statsContainer) {
+    statsContainer.innerHTML = `<div class="sm:col-span-2 lg:col-span-4">${statusHTML}</div>`;
+  }
+  if (typeof lucide !== "undefined") lucide.createIcons();
+};
+
 export const showProspectDetailsModal = (prospect) => {
   if (!elements.detailModal) return;
 
