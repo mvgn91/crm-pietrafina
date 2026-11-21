@@ -397,7 +397,30 @@ document.addEventListener("DOMContentLoaded", () => {
       if (typeof lucide !== "undefined") lucide.createIcons();
   });
 
-  document.getElementById("weekly-planner-container")?.addEventListener("click", (e) => {
+  const plannerContainer = document.getElementById("weekly-planner-container");
+  // Planificador compacto: cambia de pestaña sin recargar ni re-renderizar.
+  // Los paneles ya están en el DOM, así que ningún prospecto ni acción se pierde.
+  const selectPlannerTab = (tab) => {
+      if (!tab || !plannerContainer) return;
+      const key = tab.dataset.day;
+      plannerContainer.querySelectorAll(".pf-planner-tab").forEach((t) => {
+          const active = t === tab;
+          t.classList.toggle("is-selected", active);
+          t.setAttribute("aria-selected", active ? "true" : "false");
+          t.tabIndex = active ? 0 : -1;
+      });
+      plannerContainer.querySelectorAll(".pf-planner-panel").forEach((panel) => {
+          panel.hidden = panel.dataset.panel !== key;
+      });
+  };
+
+  plannerContainer?.addEventListener("click", (e) => {
+      const tab = e.target.closest(".pf-planner-tab");
+      if (tab) {
+        selectPlannerTab(tab);
+        return;
+      }
+
       const detailsBtn = e.target.closest(".view-details-btn");
       if (detailsBtn) {
         return handleShowProspectDetails(detailsBtn.dataset.id);
@@ -419,6 +442,23 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     });
+
+  plannerContainer?.addEventListener("keydown", (e) => {
+      const tab = e.target.closest?.(".pf-planner-tab");
+      if (!tab) return;
+      const tabs = [...plannerContainer.querySelectorAll(".pf-planner-tab")];
+      const i = tabs.indexOf(tab);
+      let next = null;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") next = tabs[(i + 1) % tabs.length];
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") next = tabs[(i - 1 + tabs.length) % tabs.length];
+      else if (e.key === "Home") next = tabs[0];
+      else if (e.key === "End") next = tabs[tabs.length - 1];
+      if (next) {
+        e.preventDefault();
+        selectPlannerTab(next);
+        next.focus();
+      }
+  });
 
   document.getElementById("prospeccion-cards-container")?.addEventListener("click", (e) => {
       const detailsBtn = e.target.closest(".view-details-btn");

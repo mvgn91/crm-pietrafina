@@ -896,6 +896,35 @@ export const renderWeeklyPlanner = (prospects) => {
         </div>
     `;
 
+  // Planificador compacto (solo móvil): misma tarjeta del rebuild con las
+  // acciones que ya existían en la lista. El nombre completo se conserva y
+  // las etiquetas visibles son cortas; el nombre largo va en title/aria-label.
+  const createMobileProspectCard = (prospect) => {
+    const name = displayValue(prospect.businessName, "Sin nombre");
+    const contact = displayValue(prospect.contactPerson);
+    const callName = contact || name;
+    const callLabel = escapeHtml(`Llamar a ${callName}`);
+    const phone = normalizePhone(prospect.phone);
+    const id = escapeHtml(prospect.id);
+    const callButton = phone
+      ? `<a class="btn btn-success pf-action call-btn" href="tel:+${phone}" title="${callLabel}" aria-label="${callLabel}"><i data-lucide="phone" class="pf-action__icon"></i><span class="pf-action__label">Llamar</span></a>`
+      : `<button type="button" class="btn btn-secondary pf-action call-btn" disabled title="Sin teléfono registrado" aria-label="${callLabel}"><i data-lucide="phone" class="pf-action__icon"></i><span class="pf-action__label">Llamar</span></button>`;
+
+    return `
+        <div class="pf-card pf-planner-prospect" data-id="${id}">
+          <div class="pf-card__head">
+            <h4 class="pf-card__name">${escapeHtml(name)}</h4>
+            ${contact ? `<p class="pf-card__contact">${escapeHtml(contact)}</p>` : ""}
+          </div>
+          <div class="pf-card__actions pf-planner-actions">
+            ${callButton}
+            <button type="button" class="btn btn-secondary pf-action whatsapp-btn" data-id="${id}" title="Enviar WhatsApp" aria-label="Enviar WhatsApp a ${escapeHtml(callName)}"><i data-lucide="message-circle" class="pf-action__icon"></i><span class="pf-action__label">WhatsApp</span></button>
+            <button type="button" class="btn btn-primary pf-action view-details-btn" data-id="${id}" title="Ver detalles" aria-label="Ver detalles de ${escapeHtml(name)}"><i data-lucide="eye" class="pf-action__icon"></i><span class="pf-action__label">Detalles</span></button>
+          </div>
+        </div>
+    `;
+  };
+
   // Función interna para crear columnas (simplificada de la versión anterior)
   const createDayColumn = (
     title,
@@ -978,7 +1007,76 @@ export const renderWeeklyPlanner = (prospects) => {
   });
 
   html += "</div>";
-  container.innerHTML = html;
+
+  // --- Planificador compacto móvil: mismos datos, una sola lista visible ---
+  const shortDayNames = ["Lun", "Mar", "Mié", "Jue", "Vie"];
+  const groups = [
+    {
+      key: "overdue",
+      label: "Atrasados",
+      title: "Atrasados",
+      sub: "Requieren atención",
+      prospects: plannerData.overdue,
+      isOverdue: true,
+    },
+    ...weekDates.map((date, i) => {
+      const longDay = date.toLocaleDateString("es-ES", { weekday: "long" });
+      return {
+        key: `d${i}`,
+        label: shortDayNames[i],
+        title: longDay.charAt(0).toUpperCase() + longDay.slice(1),
+        sub: date.toLocaleDateString("es-ES", { month: "short", day: "numeric" }),
+        prospects: plannerData.days[i],
+        isToday: isSameDay(date, today),
+      };
+    }),
+  ];
+
+  // Hoy abierto por defecto. Si hoy no está en la semana (fin de semana),
+  // se abre Atrasados cuando hay, y si no, el lunes.
+  const defaultGroup =
+    groups.find((g) => g.isToday) ||
+    (groups[0].prospects.length > 0 ? groups[0] : groups[1]);
+
+  const tabsHtml = groups
+    .map((g) => {
+      const active = g.key === defaultGroup.key;
+      return `
+        <button type="button" class="pf-planner-tab ${active ? "is-selected" : ""} ${g.isToday ? "is-today" : ""} ${g.isOverdue ? "is-overdue" : ""}"
+          role="tab" id="pf-planner-tab-${g.key}" data-day="${g.key}"
+          aria-controls="pf-planner-panel-${g.key}" aria-selected="${active}" tabindex="${active ? 0 : -1}"
+          aria-label="${escapeHtml(g.title)}, ${g.prospects.length} ${g.prospects.length === 1 ? "seguimiento" : "seguimientos"}"
+          title="${escapeHtml(g.title + (g.isToday ? " (hoy)" : ""))}">
+          <span class="pf-planner-tab__label">${escapeHtml(g.label)}</span>
+          <span class="pf-planner-tab__count">${g.prospects.length}</span>
+        </button>`;
+    })
+    .join("");
+
+  const panelsHtml = groups
+    .map((g) => {
+      const active = g.key === defaultGroup.key;
+      return `
+        <div class="pf-planner-panel" role="tabpanel" id="pf-planner-panel-${g.key}"
+          aria-labelledby="pf-planner-tab-${g.key}" data-panel="${g.key}" ${active ? "" : "hidden"}>
+          <div class="pf-planner-panel__head">
+            <h4 class="pf-planner-panel__title">${escapeHtml(g.title)}${g.isToday ? `<span class="pf-planner-panel__today">Hoy</span>` : ""}</h4>
+            <span class="pf-planner-panel__count">${g.sub} · ${g.prospects.length} ${g.prospects.length === 1 ? "seguimiento" : "seguimientos"}</span>
+          </div>
+          ${g.prospects.length
+            ? `<div class="pf-card-list pf-planner-list">${g.prospects.map(createMobileProspectCard).join("")}</div>`
+            : `<p class="pf-planner-empty">Sin seguimientos para este día.</p>`}
+        </div>`;
+    })
+    .join("");
+
+  // El HTML de escritorio queda intacto: solo se antepone la versión móvil
+  // y el CSS elige cuál mostrar según el ancho.
+  const mobileHtml = `<div class="pf-planner-mobile">
+      <div class="pf-planner-tabs" role="tablist" aria-label="Días del Planificador Semanal">${tabsHtml}</div>
+      ${panelsHtml}
+    </div>`;
+  container.innerHTML = mobileHtml + html;
 
   if (typeof lucide !== "undefined") lucide.createIcons();
 };
