@@ -1,0 +1,264 @@
+/* movil.css — responsividad móvil del CRM Pietra Fina (rama movil-responsivo).
+   Solo presentación. No modifica lógica, datos ni el listener de sesión.
+   Los selectores compuestos ganan sobre las utilidades inyectadas por Tailwind CDN. */
+
+/* ---------- Base ---------- */
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip; /* recorta el sidebar cerrado sin crear contenedor de scroll (sticky sigue funcionando) */
+}
+
+/* ---------- Objetivos táctiles ---------- */
+@media (max-width: 767px) {
+  #menu-toggle-btn,
+  #logout-btn,
+  #logout-button,
+  .modal-close-btn,
+  .prospect-actions-cell .btn,
+  .stagnant-prospect-card-actions .btn,
+  .btn-sm,
+  .material-checkbox-label span,
+  .planner-day-header,
+  .prospect-section-header-toggle {
+    min-height: 44px;
+  }
+
+  #menu-toggle-btn,
+  #logout-btn,
+  .modal-close-btn,
+  .prospect-actions-cell .btn,
+  .stagnant-prospect-card-actions .btn {
+    min-width: 44px;
+  }
+
+  .sidebar-nav a,
+  #sidebar nav a {
+    min-height: 48px;
+  }
+
+  .toggle-switch-container .toggle-switch {
+    width: 52px;
+    height: 32px;
+  }
+  .toggle-switch-container .toggle-slider {
+    width: 26px;
+    height: 26px;
+  }
+  .toggle-switch-container .toggle-switch.active .toggle-slider {
+    transform: translateX(1.25rem);
+  }
+  /* El pill mide 52x32 pero su área táctil efectiva pasa a 68x44 */
+  .toggle-switch-container .toggle-switch::after {
+    content: "";
+    position: absolute;
+    inset: -6px -8px;
+  }
+  .toggle-switch-container {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  #add-prospect-btn,
+  .modal-backdrop .btn {
+    min-height: 44px;
+  }
+}
+
+/* ---------- Lista de prospectos: de filas de 5 columnas a tarjetas ---------- */
+@media (max-width: 767px) {
+  .prospect-list-container .prospect-list-header {
+    display: none;
+  }
+
+  .prospect-list-container .prospect-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+    padding: 0.875rem 1rem;
+  }
+
+  .prospect-list-container .prospect-cell {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    min-width: 0;
+    overflow: visible;
+    white-space: normal;
+    text-overflow: clip;
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+
+  .prospect-list-container .prospect-cell::before {
+    content: attr(data-label);
+    flex: 0 0 5.75rem;
+    padding-top: 0.0625rem;
+    color: #6b7280;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .prospect-list-container .prospect-actions-cell::before {
+    content: "Acciones";
+  }
+
+  .prospect-list-container .prospect-cell p,
+  .prospect-list-container .prospect-cell span {
+    min-width: 0;
+    overflow: visible;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .prospect-list-container .prospect-cell > div {
+    flex: 1 1 auto;
+    min-width: 0;
+    justify-content: flex-start;
+  }
+
+  .prospect-list-container .prospect-actions-cell {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #f3f4f6;
+  }
+}
+
+/* ---------- Modales ---------- */
+@media (max-width: 767px) {
+  .modal-backdrop {
+    padding: 0.5rem;
+  }
+
+  .modal-backdrop .modal-content {
+    width: 100%;
+    max-width: none;
+    height: auto;
+    max-height: calc(100dvh - 1rem);
+    border-radius: 0.75rem;
+  }
+
+  .modal-backdrop .modal-content > .p-5,
+  .modal-backdrop .modal-content > form.p-5 {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .modal-backdrop .modal-header,
+  .modal-backdrop .modal-footer {
+    padding: 0.875rem 1rem;
+  }
+
+  .modal-backdrop .modal-header > div:first-child {
+    min-width: 0;
+  }
+
+  .modal-backdrop .modal-title {
+    font-size: 1.25rem;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+  }
+
+  .modal-backdrop .modal-footer .flex {
+    flex-wrap: wrap;
+  }
+
+  .modal-backdrop .modal-footer .btn {
+    min-height: 44px;
+  }
+
+  #whatsapp-message-textarea {
+    height: 9rem;
+    min-height: 9rem;
+  }
+
+  #materials-checkbox-container {
+    max-height: 12rem;
+  }
+}
+
+/* ---------- Dashboard: sidebar, tarjetas y gráficas ---------- */
+@media (max-width: 767px) {
+  body.sidebar-open #sidebar {
+    transform: translateX(0);
+  }
+
+  body.sidebar-open #sidebar-overlay {
+    display: block;
+  }
+}
+
+.dashboard-widget {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
+}
+
+.widget-title {
+  margin: 0;
+  color: #111827;
+  font-family: "Playfair Display", serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+#prospects-by-status-chart-container,
+#prospects-over-time-chart-container {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.dashboard-widget canvas {
+  max-width: 100%;
+}
+
+@media (max-width: 480px) {
+  #prospects-by-status-chart-container {
+    height: 340px;
+  }
+  #prospects-over-time-chart-container {
+    height: 240px;
+  }
+}
+
+@media (min-width: 481px) {
+  #prospects-by-status-chart-container {
+    height: 300px;
+  }
+  #prospects-over-time-chart-container {
+    height: 260px;
+  }
+}
+
+/* ---------- Notificaciones y selector de fechas ---------- */
+.snackbar {
+  max-width: calc(100vw - 2rem);
+  overflow-wrap: anywhere;
+}
+
+#toast-container {
+  max-width: calc(100vw - 2rem);
+}
+
+@media (max-width: 480px) {
+  .flatpickr-calendar.static {
+    width: calc(100vw - 2rem);
+    max-width: 20rem;
+  }
+  .flatpickr-calendar .flatpickr-day {
+    height: 2.5rem;
+    line-height: 2.5rem;
+  }
+}
