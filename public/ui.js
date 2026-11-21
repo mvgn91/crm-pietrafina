@@ -1,4 +1,4 @@
-import { STATUS_META, getStatusBadgeClass } from "./status-model.js";
+import { STATUS_META, getStatusBadgeClass, groupProspects } from "./status-model.js";
 // ui.js
 
 // Nota Importante: Las funciones de control de UI (modales, snackbar, etc.) se definen aquí
@@ -106,19 +106,53 @@ const formatFollowUpDate = (dateString) => {
   }
 };
 
+// Ronda 4: "null", "undefined" y vacío son dato faltante en la UI.
+// No se escribe nada en Firestore; solo se decide qué se muestra.
+const MISSING_DATA = new Set(["", "null", "undefined", "n/a", "na", "-"]);
+export const displayValue = (value, fallback = "") => {
+  const text = value === null || value === undefined ? "" : String(value).trim();
+  return MISSING_DATA.has(text.toLowerCase()) ? fallback : text;
+};
+
+const escapeHtml = (value) =>
+  String(value).replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  })[character]);
+
 export const createProspectRowHTML = (prospect) => {
   const statusBadgeClass = getStatusBadgeClass(prospect.status);
+  const businessName = escapeHtml(displayValue(prospect.businessName, "Sin nombre"));
+  const contactPerson = displayValue(prospect.contactPerson);
+  const classification = escapeHtml(displayValue(prospect.classification, "Sin clasificación"));
+  const status = escapeHtml(displayValue(prospect.status, "Sin estatus"));
+  const phone = normalizePhone(prospect.phone);
+  const callName =
+    displayValue(prospect.contactPerson) ||
+    displayValue(prospect.businessName, "el negocio");
+  const callLabel = escapeHtml(`Llamar a ${callName}`);
+
+  const callButton = phone
+    ? `<a class="btn btn-success btn-sm call-btn" href="tel:+${phone}" title="${callLabel}" aria-label="${callLabel}"><i data-lucide="phone" class="w-4 h-4 flex-shrink-0"></i><span class="action-label">${callLabel}</span></a>`
+    : `<button type="button" class="btn btn-secondary btn-sm call-btn" disabled title="Sin teléfono registrado" aria-label="${callLabel}"><i data-lucide="phone" class="w-4 h-4 flex-shrink-0"></i><span class="action-label">${callLabel}</span></button>`;
+
+  const canMarkSent = prospect.status === "Pendiente de Correo";
+  const markSentButton = `<button type="button" class="btn btn-secondary btn-sm mark-as-sent-btn" data-id="${escapeHtml(prospect.id)}" title="Marcar como enviado" ${canMarkSent ? "" : "disabled"}><i data-lucide="send" class="w-4 h-4 flex-shrink-0"></i><span class="action-label">Marcar enviado</span></button>`;
+
   return `
     <div class="prospect-row">
         <div class="prospect-cell" data-label="Prospecto">
-            <p class="font-bold text-gray-900 truncate">${prospect.businessName}</p>
-            <p class="text-xs text-gray-500 truncate">${prospect.contactPerson}</p>
+            <p class="font-bold text-gray-900 truncate">${businessName}</p>
+            ${contactPerson ? `<p class="text-xs text-gray-500 truncate">${escapeHtml(contactPerson)}</p>` : ""}
         </div>
-        <div class="prospect-cell" data-label="Clasificación">
-            <span class="truncate">${prospect.classification}</span>
+        <div class="prospect-cell" data-label="Clase">
+            <span class="truncate">${classification}</span>
         </div>
         <div class="prospect-cell" data-label="Estatus">
-            <span class="text-xs font-semibold px-2.5 py-1 rounded-full ${statusBadgeClass}">${prospect.status}</span>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full ${statusBadgeClass}">${status}</span>
         </div>
         <div class="prospect-cell" data-label="Seguimiento">
             <div class="flex items-center justify-end md:justify-start">
@@ -126,86 +160,137 @@ export const createProspectRowHTML = (prospect) => {
                 <span class="truncate ${prospect.nextFollowUpDate ? "font-semibold text-gray-800" : "text-gray-500"}">${formatFollowUpDate(prospect.nextFollowUpDate)}</span>
             </div>
         </div>
-        <div class="prospect-cell prospect-actions-cell">
-            ${normalizePhone(prospect.phone) ? `<a class="btn btn-success btn-sm call-btn" href="tel:+${normalizePhone(prospect.phone)}" title="Llamar" aria-label="Llamar a ${prospect.contactPerson || prospect.businessName}"><i data-lucide="phone" class="w-4 h-4"></i></a>` : ""}
-            ${prospect.status === "Pendiente de Correo" ? `<button class="btn btn-secondary btn-sm mark-as-sent-btn" data-id="${prospect.id}" title="Marcar Enviado"><i data-lucide="send" class="w-4 h-4"></i></button>` : ""}
-            <button class="btn btn-secondary btn-sm whatsapp-btn" data-id="${prospect.id}" title="Enviar WhatsApp"><i data-lucide="message-circle" class="w-4 h-4"></i></button>
-            <button class="btn btn-primary btn-sm view-details-btn" data-id="${prospect.id}" title="Ver Detalles"><i data-lucide="eye" class="w-4 h-4"></i></button>
+        <div class="prospect-cell prospect-actions-cell" data-label="Acciones">
+            <div class="prospect-actions-grid">
+                ${callButton}
+                ${markSentButton}
+                <button type="button" class="btn btn-secondary btn-sm whatsapp-btn" data-id="${escapeHtml(prospect.id)}" title="Enviar WhatsApp"><i data-lucide="message-circle" class="w-4 h-4 flex-shrink-0"></i><span class="action-label">WhatsApp</span></button>
+                <button type="button" class="btn btn-primary btn-sm view-details-btn" data-id="${escapeHtml(prospect.id)}" title="Ver detalles"><i data-lucide="eye" class="w-4 h-4 flex-shrink-0"></i><span class="action-label">Detalles</span></button>
+            </div>
         </div>
     </div>
   `;
 };
 
-export const renderAdminGrid = (data, getGroupIcon, isGrouped) => {
+const GRID_PAGE_SIZE = 10;
+let gridState = null;
+let paginationBound = false;
+
+// Los manejadores de filtros llaman a resetGridPage antes de volver a renderizar.
+export const resetGridPage = () => {
+  if (gridState) gridState.page = 1;
+};
+
+const getPaginationElement = (container) =>
+  document.getElementById(
+    container.id === "prospeccion-cards-container"
+      ? "prospeccion-pagination"
+      : "admin-pagination",
+  ) || container;
+
+const bindPagination = (paginationEl) => {
+  if (!paginationEl || paginationBound) return;
+  paginationBound = true;
+  paginationEl.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-page-action]");
+    if (!button || button.disabled || !gridState) return;
+    gridState.page += button.dataset.pageAction === "next" ? 1 : -1;
+    renderGridPage();
+  });
+};
+
+const renderGridPage = () => {
+  if (!gridState) return;
   const container =
     document.getElementById("admin-prospects-cards-container") ||
     document.getElementById("prospeccion-cards-container");
   const noProspectsDiv =
     document.getElementById("admin-no-prospects") ||
     document.getElementById("prospeccion-no-prospects");
-
   if (!container || !noProspectsDiv) return;
-  container.innerHTML = "";
 
-  const renderList = (prospects) => {
-    if (prospects.length === 0) return "";
-    return `
-        <div class="prospect-list-container">
-            <div class="prospect-list-header">
-                <div class="prospect-header-cell">Prospecto</div>
-                <div class="prospect-header-cell">Clasificación</div>
-                <div class="prospect-header-cell">Estatus</div>
-                <div class="prospect-header-cell">Seguimiento</div>
-                <div class="prospect-header-cell text-right">Acciones</div>
-            </div>
-            <div class="prospect-list-body">
-                ${prospects.map(createProspectRowHTML).join("")}
-            </div>
-        </div>
-      `;
-  };
+  const { data, getGroupIcon, isGrouped, view, pageSize } = gridState;
+  const allProspects = isGrouped ? Object.values(data).flat() : data;
+  const total = allProspects.length;
+  const paginationEl = getPaginationElement(container);
+  bindPagination(paginationEl);
+
+  if (!total) {
+    container.innerHTML = "";
+    if (paginationEl) paginationEl.innerHTML = "";
+    noProspectsDiv.classList.remove("hidden");
+    return;
+  }
+  noProspectsDiv.classList.add("hidden");
+
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  if (gridState.page > totalPages) gridState.page = totalPages;
+  if (gridState.page < 1) gridState.page = 1;
+  const start = (gridState.page - 1) * pageSize;
+  const pageProspects = allProspects.slice(start, start + pageSize);
+
+  const renderList = (prospects) => `
+      <div class="prospect-list-container">
+          <div class="prospect-list-header">
+              <div class="prospect-header-cell">Prospecto</div>
+              <div class="prospect-header-cell">Clasificación</div>
+              <div class="prospect-header-cell">Estatus</div>
+              <div class="prospect-header-cell">Seguimiento</div>
+              <div class="prospect-header-cell text-right">Acciones</div>
+          </div>
+          <div class="prospect-list-body">
+              ${prospects.map(createProspectRowHTML).join("")}
+          </div>
+      </div>`;
 
   if (isGrouped) {
-    const hasProspects = Object.values(data).some((group) => group.length > 0);
-    if (!hasProspects) {
-      noProspectsDiv.classList.remove("hidden");
-      return;
-    }
-
-    noProspectsDiv.classList.add("hidden");
-
-    for (const groupName in data) {
-      if (data[groupName].length > 0) {
-        const iconName = getGroupIcon(groupName);
-        const section = document.createElement("section");
-        section.className = "mb-8";
-        // ✨ CORRECCIÓN: Sanitizar el nombre del grupo para crear un ID de CSS válido
+    const groupedPage = groupProspects(pageProspects, view);
+    container.innerHTML = Object.entries(groupedPage)
+      .filter(([, prospects]) => prospects.length > 0)
+      .map(([groupName, prospects]) => {
         const safeGroupId = groupName.replace(/[\s()\/]/g, "-");
-
-        section.innerHTML = `
-          <div class="prospect-section-header-toggle flex justify-between items-center cursor-pointer p-2 mb-2" data-target="#group-${safeGroupId}">
-            <h2 class="flex items-center text-xl font-playfair font-bold text-black">
-              <i data-lucide="${iconName}" class="w-5 h-5 mr-3 text-red-600"></i>
-              ${groupName} (${data[groupName].length})
-            </h2>
-            <i data-lucide="chevron-down" class="toggle-icon transition-transform"></i>
-          </div>
-          <div id="group-${safeGroupId}">
-            ${renderList(data[groupName])}
-          </div>`;
-        container.appendChild(section);
-      }
-    }
+        return `
+          <section class="mb-4 md:mb-8">
+            <div class="prospect-section-header-toggle flex justify-between items-center cursor-pointer p-2 mb-2" data-target="#group-${safeGroupId}">
+              <h2 class="flex items-center text-lg font-playfair font-bold text-black md:text-xl">
+                <i data-lucide="${escapeHtml(getGroupIcon(groupName))}" class="w-5 h-5 mr-3 text-red-600"></i>
+                ${escapeHtml(groupName)} (${prospects.length})
+              </h2>
+              <i data-lucide="chevron-down" class="toggle-icon transition-transform"></i>
+            </div>
+            <div id="group-${safeGroupId}">${renderList(prospects)}</div>
+          </section>`;
+      })
+      .join("");
   } else {
-    if (data.length === 0) {
-      noProspectsDiv.classList.remove("hidden");
-      return;
-    }
-    noProspectsDiv.classList.add("hidden");
-    container.innerHTML = renderList(data);
+    container.innerHTML = renderList(pageProspects);
+  }
+
+  if (paginationEl) {
+    const buttons = totalPages > 1
+      ? `<button type="button" class="btn btn-secondary btn-sm" data-page-action="prev" ${gridState.page === 1 ? "disabled" : ""}>Anterior</button>`
+        + `<button type="button" class="btn btn-secondary btn-sm" data-page-action="next" ${gridState.page === totalPages ? "disabled" : ""}>Siguiente</button>`
+      : "";
+    const status = `<span class="page-status">Página ${gridState.page} de ${totalPages} · ${total} prospectos</span>`;
+    paginationEl.innerHTML = `<nav class="grid-pagination" aria-label="Paginación de prospectos">${buttons}${status}</nav>`;
   }
 
   if (typeof lucide !== "undefined") lucide.createIcons();
+  document.dispatchEvent(new CustomEvent("pf:grid-pagechange", {
+    detail: { page: gridState.page, totalPages },
+  }));
+};
+
+export const renderAdminGrid = (data, getGroupIcon, isGrouped, options = {}) => {
+  gridState = {
+    data,
+    getGroupIcon,
+    isGrouped,
+    view: options.view || "management",
+    pageSize: options.pageSize || GRID_PAGE_SIZE,
+    page: options.resetPage ? 1 : gridState?.page || 1,
+  };
+  renderGridPage();
 };
 
 /**
@@ -250,14 +335,21 @@ export const renderProspectsStatus = (message, { isError = false } = {}) => {
 export const showProspectDetailsModal = (prospect) => {
   if (!elements.detailModal) return;
 
-  elements.detailBusinessName.textContent = prospect.businessName;
-  elements.detailStatus.textContent = prospect.status;
+  elements.detailBusinessName.textContent = displayValue(prospect.businessName, "Sin nombre");
+  elements.detailStatus.textContent = displayValue(prospect.status, "Sin estatus");
   elements.detailStatus.className = `text-xs font-semibold px-2.5 py-1 rounded-full inline-block ${getStatusBadgeClass(prospect.status)}`;
-  elements.detailContactPerson.textContent = prospect.contactPerson;
-  elements.detailEmail.textContent = prospect.email;
-  elements.detailPhone.textContent = prospect.phone;
+  elements.detailContactPerson.textContent = displayValue(prospect.contactPerson, "Sin contacto");
+  elements.detailEmail.textContent = displayValue(prospect.email, "Sin correo");
+  elements.detailPhone.textContent = displayValue(prospect.phone, "Sin teléfono");
   const phone = normalizePhone(prospect.phone);
   if (elements.detailCallBtn) {
+    const callLabel = `Llamar a ${displayValue(prospect.contactPerson) || displayValue(prospect.businessName, "el negocio")}`;
+    const detailCallLabel = document.getElementById("detail-call-label");
+    if (detailCallLabel) detailCallLabel.textContent = callLabel;
+    if (typeof elements.detailCallBtn.setAttribute === "function") {
+      elements.detailCallBtn.setAttribute("aria-label", callLabel);
+      elements.detailCallBtn.title = callLabel;
+    }
     if (phone) {
       elements.detailCallBtn.href = `tel:+${phone}`;
       elements.detailCallBtn.classList.remove("hidden");
@@ -297,10 +389,10 @@ export const closeDetailModal = () => {
 
 export const switchToEditView = (prospect) => {
   if (elements.detailDisplayView && elements.detailEditView) {
-    elements.editBusinessName.value = prospect.businessName;
-    elements.editContactPerson.value = prospect.contactPerson;
-    elements.editEmail.value = prospect.email;
-    elements.editPhone.value = prospect.phone;
+    elements.editBusinessName.value = displayValue(prospect.businessName);
+    elements.editContactPerson.value = displayValue(prospect.contactPerson);
+    elements.editEmail.value = displayValue(prospect.email);
+    elements.editPhone.value = displayValue(prospect.phone);
     elements.editClassificationSelect.value = prospect.classification;
     elements.editStatus.value = prospect.status;
     elements.editObservations.value = prospect.observations;
@@ -363,11 +455,9 @@ export const addNewNoteToView = (note) => {
 // El nombre del modal nunca queda vacío: si no hay persona de contacto se
 // muestra el negocio (caso Estudio Arki3d) y, como último recurso, "prospecto".
 export const whatsappGreetingName = (prospect = {}) =>
-  String(
-    prospect.contactPerson ||
-      prospect.businessName ||
-      "prospecto",
-  ).trim();
+  displayValue(prospect.contactPerson) ||
+  displayValue(prospect.businessName) ||
+  "prospecto";
 
 export const openWhatsappModal = (prospect) => {
   if (elements.whatsappProspectName) {
@@ -777,8 +867,8 @@ export const renderWeeklyPlanner = (prospects) => {
 
   const createProspectCard = (prospect) => `
         <div class="planner-prospect-card view-details-btn" data-id="${prospect.id}">
-            <h4 class="font-bold text-sm text-gray-800 truncate">${prospect.businessName}</h4>
-            <p class="text-xs text-gray-500 truncate">${prospect.contactPerson}</p>
+            <h4 class="font-bold text-sm text-gray-800 truncate">${escapeHtml(displayValue(prospect.businessName, "Sin nombre"))}</h4>
+            ${displayValue(prospect.contactPerson) ? `<p class="text-xs text-gray-500 truncate">${escapeHtml(displayValue(prospect.contactPerson))}</p>` : ""}
         </div>
     `;
 

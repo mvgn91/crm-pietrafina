@@ -289,7 +289,7 @@
         <div class="main-content-wrapper">
             <main class="main-content">
                 <header
-                    class="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-white/50 px-4 backdrop-blur-sm md:justify-end lg:hidden"
+                    class="sticky top-0 z-10 flex items-center justify-between border-b bg-white/50 px-4 backdrop-blur-sm md:justify-end lg:hidden"
                 >
                     <button
                         id="menu-toggle-btn"
@@ -312,9 +312,9 @@
                 </header>
 
                 <div class="p-4 md:p-6">
-                    <div class="mb-8">
-                        <h1 class="font-playfair text-3xl font-bold text-brand-dark">Módulo de Prospección</h1>
-                        <p class="text-gray-500">Enfócate en los prospectos que necesitan tu atención hoy.</p>
+                    <div class="mb-4 md:mb-6">
+                        <h1 class="pf-page-title font-playfair font-bold text-brand-dark">Módulo de Prospección</h1>
+                        <p class="pf-page-subtitle text-gray-500">Enfócate en los prospectos que necesitan tu atención hoy.</p>
                     </div>
 
                     <!-- PLANIFICADOR SEMANAL -->
@@ -328,12 +328,22 @@
                         <div id="weekly-planner-container"></div>
                     </div>
 
-                    <div class="mb-6 border-t pt-6">
-                         <h3 class="flex items-center text-xl font-playfair font-bold text-black mb-4">
+                    <div class="mb-4 border-t pt-4 md:mb-6 md:pt-6">
+                        <button
+                            type="button"
+                            id="filters-toggle"
+                            class="btn btn-secondary pf-filters-toggle"
+                            aria-expanded="false"
+                            aria-controls="prospeccion-filters-panel"
+                        >
+                            <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+                            <span>Filtros</span>
+                        </button>
+                        <h3 class="hidden items-center text-xl font-playfair font-bold text-black mb-4 md:flex">
                             <i data-lucide="filter" class="w-5 h-5 mr-3 text-red-600"></i>
                             Filtros de Prospección
                         </h3>
-                        <div class="space-y-4">
+                        <div id="prospeccion-filters-panel" class="pf-filters space-y-4 md:mt-0">
                             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                 <div class="relative col-span-1 sm:col-span-2 lg:col-span-1">
                                     <i data-lucide="search" class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
@@ -356,7 +366,7 @@
                                 </select>
                             </div>
                             <div class="toggle-switch-container">
-                                <div id="stagnant-filter-toggle" class="toggle-switch" role="switch" aria-checked="false">
+                                <div id="stagnant-filter-toggle" class="toggle-switch" role="switch" aria-checked="false" aria-label="Mostrar sólo prospectos que requieren acción">
                                     <div class="toggle-slider"></div>
                                 </div>
                                 <label for="stagnant-filter-toggle" class="toggle-switch-label">Mostrar sólo prospectos que requieren acción</label>
@@ -364,8 +374,9 @@
                         </div>
                     </div>
 
-                    <!-- LISTA DE PROSPECTOS -->
+                    <!-- LISTA DE PROSPECTOS (paginada en ui.js) -->
                     <div id="prospeccion-cards-container" class="space-y-6"></div>
+                    <div id="prospeccion-pagination"></div>
                     <div id="prospeccion-no-prospects" class="hidden text-center py-20 bg-white rounded-lg mt-8 shadow-sm border">
                         <i data-lucide="archive" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
                         <p class="text-xl text-gray-800 font-semibold">No hay prospectos que coincidan con los filtros</p>
@@ -470,7 +481,7 @@
                     <div class="flex w-full items-center gap-3">
                         <a id="detail-call-btn" class="btn btn-success hidden" aria-label="Llamar al prospecto">
                             <i data-lucide="phone-call"></i>
-                            Llamar
+                            <span id="detail-call-label">Llamar</span>
                         </a>
                         <button id="edit-prospect-btn" class="btn btn-secondary flex-1">
                             <i data-lucide="pencil"></i>

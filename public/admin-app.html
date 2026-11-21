@@ -315,7 +315,7 @@
         <div class="main-content-wrapper">
             <main class="main-content">
                  <header
-                    class="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-white/50 px-4 backdrop-blur-sm md:justify-end lg:hidden"
+                    class="sticky top-0 z-10 flex items-center justify-between border-b bg-white/50 px-4 backdrop-blur-sm md:justify-end lg:hidden"
                 >
                     <button
                         id="menu-toggle-btn"
@@ -338,13 +338,24 @@
                 </header>
 
                 <div class="p-4 md:p-6">
-                    <div class="mb-8">
-                        <h1 class="font-playfair text-3xl font-bold text-brand-dark">Gestión de Prospectos</h1>
-                        <p class="text-gray-500">Administra, filtra y organiza todos tus prospectos.</p>
+                    <div class="mb-4 md:mb-6">
+                        <h1 class="pf-page-title font-playfair font-bold text-brand-dark">Gestión de Prospectos</h1>
+                        <p class="pf-page-subtitle text-gray-500">Administra, filtra y organiza todos tus prospectos.</p>
                     </div>
 
-                    <!-- CONTROLES Y FILTROS -->
-                    <div class="mb-6 space-y-4">
+                    <!-- CONTROLES Y FILTROS (plegables en móvil) -->
+                    <div class="mb-4 md:mb-6">
+                        <button
+                            type="button"
+                            id="filters-toggle"
+                            class="btn btn-secondary pf-filters-toggle"
+                            aria-expanded="false"
+                            aria-controls="admin-filters-panel"
+                        >
+                            <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+                            <span>Filtros</span>
+                        </button>
+                        <div id="admin-filters-panel" class="pf-filters mt-3 space-y-4 md:mt-0">
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                              <button
                                 id="add-prospect-btn"
@@ -378,10 +389,11 @@
                             </select>
                         </div>
                         <div class="toggle-switch-container">
-                            <div id="stagnant-filter-toggle" class="toggle-switch" role="switch" aria-checked="false">
+                            <div id="stagnant-filter-toggle" class="toggle-switch" role="switch" aria-checked="false" aria-label="Mostrar sólo prospectos que requieren acción">
                                 <div class="toggle-slider"></div>
                             </div>
                             <label for="stagnant-filter-toggle" class="toggle-switch-label">Mostrar sólo prospectos que requieren acción</label>
+                        </div>
                         </div>
                     </div>
 
@@ -394,8 +406,9 @@
                         <div id="stagnant-cards-container"></div>
                     </div>
 
-                    <!-- LISTA DE PROSPECTOS PRINCIPAL -->
+                    <!-- LISTA DE PROSPECTOS PRINCIPAL (paginada en ui.js) -->
                     <div id="admin-prospects-cards-container" class="space-y-6"></div>
+                    <div id="admin-pagination"></div>
                     
                     <div id="admin-no-prospects" class="hidden text-center py-20 bg-white rounded-lg mt-8 shadow-sm border">
                         <i data-lucide="archive" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
@@ -501,7 +514,7 @@
                     <div class="flex w-full items-center gap-3">
                         <a id="detail-call-btn" class="btn btn-success hidden" aria-label="Llamar al prospecto">
                             <i data-lucide="phone-call"></i>
-                            Llamar
+                            <span id="detail-call-label">Llamar</span>
                         </a>
                         <button id="edit-prospect-btn" class="btn btn-secondary flex-1">
                             <i data-lucide="pencil"></i>

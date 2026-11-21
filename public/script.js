@@ -8,6 +8,7 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/fi
 import {
   elements,
   renderAdminGrid,
+  resetGridPage,
   renderProspectsStatus,
   showProspectDetailsModal,
   populateClassificationSelects,
@@ -361,7 +362,8 @@ function handleAdminScreenRender() {
   const searchTerm =
     document.getElementById("searchFilter")?.value?.toLowerCase() || "";
   const sortOrder = document.getElementById("sortFilter")?.value || "default";
-  const noFollowUpFilterChecked = document.getElementById("noFollowUpFilter")?.checked || false;
+  const stagnantToggle = document.getElementById("stagnant-filter-toggle");
+  const noFollowUpFilterChecked = stagnantToggle?.classList.contains("active") || false;
 
   const statusFilterElement = document.getElementById("statusFilter");
   if (statusFilterElement) {
@@ -523,16 +525,43 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  const onFilterChange = () => {
+    resetGridPage();
+    handleAdminScreenRender();
+  };
   document
     .getElementById("statusFilter")
-    ?.addEventListener("change", handleAdminScreenRender);
+    ?.addEventListener("change", onFilterChange);
   document
     .getElementById("searchFilter")
-    ?.addEventListener("input", handleAdminScreenRender);
+    ?.addEventListener("input", onFilterChange);
   document
     .getElementById("sortFilter")
-    ?.addEventListener("change", handleAdminScreenRender);
+    ?.addEventListener("change", onFilterChange);
+
   document
-    .getElementById("noFollowUpFilter")
-    ?.addEventListener("change", handleAdminScreenRender);
+    .getElementById("stagnant-filter-toggle")
+    ?.addEventListener("click", (event) => {
+      const toggle = event.currentTarget;
+      toggle.classList.toggle("active");
+      toggle.setAttribute(
+        "aria-checked",
+        toggle.classList.contains("active") ? "true" : "false",
+      );
+      resetGridPage();
+      handleAdminScreenRender();
+    });
+
+  document
+    .getElementById("filters-toggle")
+    ?.addEventListener("click", (event) => {
+      const panel = document.getElementById("admin-filters-panel");
+      const isOpen = panel?.classList.toggle("is-open");
+      event.currentTarget.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+
+  document.addEventListener("pf:grid-pagechange", () => {
+    attachToggleEventListeners();
+    if (typeof lucide !== "undefined") lucide.createIcons();
+  });
 });

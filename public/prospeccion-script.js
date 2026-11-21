@@ -8,6 +8,7 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/fi
 import {
   elements,
   renderAdminGrid,
+  resetGridPage,
   renderProspectsStatus,
   showProspectDetailsModal,
   populateClassificationSelects,
@@ -343,7 +344,7 @@ function handleProspeccionRender() {
 
   const finalGroupedData = Object.fromEntries(Object.entries(groupedData).filter(([, prospects]) => prospects.length > 0));
 
-  renderAdminGrid(finalGroupedData, getGroupIcon, true);
+  renderAdminGrid(finalGroupedData, getGroupIcon, true, { view: "prospecting" });
 
   attachToggleEventListeners();
   if (typeof lucide !== "undefined") lucide.createIcons();
@@ -381,7 +382,19 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById('stagnant-filter-toggle')?.addEventListener('click', (e) => {
       e.currentTarget.classList.toggle('active');
       e.currentTarget.setAttribute('aria-checked', e.currentTarget.classList.contains('active'));
+      resetGridPage();
       handleProspeccionRender();
+  });
+
+  document.getElementById("filters-toggle")?.addEventListener("click", (event) => {
+      const panel = document.getElementById("prospeccion-filters-panel");
+      const isOpen = panel?.classList.toggle("is-open");
+      event.currentTarget.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  });
+
+  document.addEventListener("pf:grid-pagechange", () => {
+      attachToggleEventListeners();
+      if (typeof lucide !== "undefined") lucide.createIcons();
   });
 
   document.getElementById("weekly-planner-container")?.addEventListener("click", (e) => {
@@ -455,7 +468,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  document.getElementById("statusFilter")?.addEventListener("change", handleProspeccionRender);
-  document.getElementById("searchFilter")?.addEventListener("input", handleProspeccionRender);
-  document.getElementById("sortFilter")?.addEventListener("change", handleProspeccionRender);
+  const onFilterChange = () => {
+      resetGridPage();
+      handleProspeccionRender();
+  };
+  document.getElementById("statusFilter")?.addEventListener("change", onFilterChange);
+  document.getElementById("searchFilter")?.addEventListener("input", onFilterChange);
+  document.getElementById("sortFilter")?.addEventListener("change", onFilterChange);
 });

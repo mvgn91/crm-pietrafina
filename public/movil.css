@@ -22,7 +22,6 @@ body {
 .material-checkbox-label span,
 .planner-day-header,
 .prospect-section-header-toggle,
-.toggle-switch,
 .pf-phase2 .btn,
 .pf-phase2 .pf-actions a,
 #add-prospect-btn,
@@ -53,26 +52,124 @@ body {
   padding: 0 0.5rem;
 }
 
+/* ---------- Ronda 4: encabezado y filtros compactos ---------- */
+.pf-page-title {
+  font-size: 1.5rem; /* 24 px en teléfono, no 32 px */
+  line-height: 1.25;
+}
+.pf-page-subtitle {
+  font-size: 0.875rem;
+}
+
+.pf-filters-toggle {
+  min-height: 44px;
+  justify-content: flex-start;
+}
+
+/* Botón de tema del login: dentro del flujo de la tarjeta, sin margen
+   negativo y con contraste propio en claro y oscuro. */
+.pf-login-header {
+  min-height: 44px;
+}
+.pf-login-title {
+  line-height: 1.2;
+}
+.pf-login-theme-toggle {
+  display: inline-flex;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background-color: #ffffff;
+  color: #374151;
+}
+.pf-login-theme-toggle:hover {
+  background-color: #f3f4f6;
+}
+
+/* En móvil los filtros empiezan plegados; el botón "Filtros" los despliega. */
+.pf-filters:not(.is-open) {
+  display: none;
+}
+.pf-filters.is-open {
+  display: block;
+}
+.pf-filters input.form-input,
+.pf-filters select.form-select,
+.pf-filters .form-input,
+.pf-filters .form-select {
+  min-height: 44px;
+}
+
+.grid-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 1rem 0 0.5rem;
+}
+.grid-pagination .btn {
+  min-height: 44px;
+}
+.grid-pagination .page-status {
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+/* Breakpoint móvil explícito (además de la base mobile-first). */
+@media (max-width: 640px) {
+  .main-content > header {
+    height: 3.5rem;
+  }
+  .main-content > header h1 {
+    font-size: 1.0625rem;
+  }
+  .pf-page-title {
+    font-size: 1.5rem;
+  }
+  .pf-filters {
+    padding-top: 0.25rem;
+  }
+}
+
+/* Ronda 4: switch estándar 51x31 con thumb 25. El área táctil se amplía
+   con ::after sin cambiar el rectángulo medido del control. */
 .toggle-switch-container .toggle-switch {
-  width: 52px;
-  height: 32px;
+  width: 51px;
+  height: 31px;
+  min-height: 0;
+  background-color: #64748b; /* apagado: gris oscuro, distinguishable sobre blanco */
+  border-color: transparent;
+}
+.toggle-switch-container .toggle-switch.active {
+  background-color: #dc2626;
 }
 .toggle-switch-container .toggle-slider {
-  width: 26px;
-  height: 26px;
+  width: 25px;
+  height: 25px;
 }
 .toggle-switch-container .toggle-switch.active .toggle-slider {
-  transform: translateX(1.25rem);
+  transform: translateX(22px);
 }
-/* El pill mide 52x32 pero su área táctil efectiva pasa a 68x44 */
 .toggle-switch-container .toggle-switch::after {
   content: "";
   position: absolute;
-  inset: -6px -8px;
+  inset: -7px -9px;
 }
 .toggle-switch-container {
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
+  padding-top: 0.375rem;
+  padding-bottom: 0.375rem;
+}
+.toggle-switch-label {
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 /* ---------- Lista de prospectos: tarjetas apiladas ---------- */
@@ -89,52 +186,83 @@ body {
 
 .prospect-list-container .prospect-cell {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.5rem;
   min-width: 0;
-  overflow: visible;
-  white-space: normal;
-  text-overflow: clip;
-  font-size: 0.875rem;
+  overflow: hidden;
+  font-size: 0.9375rem; /* valores 15 px, sin bajar el tamaño */
   line-height: 1.4;
 }
 
+/* Ronda 4: columna de etiquetas angosta (76 px) y valores con elipsis. */
 .prospect-list-container .prospect-cell::before {
   content: attr(data-label);
-  flex: 0 0 5.75rem;
-  padding-top: 0.0625rem;
-  color: #6b7280;
-  font-size: 0.75rem;
+  flex: 0 0 4.75rem;
+  color: #374151;
+  font-size: 0.8125rem; /* 13 px, contraste alto */
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  line-height: 1.25;
 }
 
 .prospect-list-container .prospect-actions-cell::before {
   content: "Acciones";
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.prospect-list-container .prospect-cell p,
+.prospect-list-container .prospect-cell span,
+.prospect-list-container .prospect-cell > div {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .prospect-list-container .prospect-cell p,
 .prospect-list-container .prospect-cell span {
-  min-width: 0;
-  overflow: visible;
-  white-space: normal;
-  overflow-wrap: anywhere;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .prospect-list-container .prospect-cell > div {
   flex: 1 1 auto;
+}
+
+/* Fila de acciones idéntica en todas las tarjetas: 2x2 con texto y hueco
+   suficiente para no pulsar el botón de al lado. */
+.prospect-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.prospect-actions-grid .btn {
   min-width: 0;
-  justify-content: flex-start;
+  min-height: 44px;
+  padding: 0 0.5rem;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  overflow: hidden;
+}
+
+.prospect-actions-grid .action-label {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.prospect-actions-grid .btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .prospect-list-container .prospect-actions-cell {
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  gap: 0.5rem;
+  display: block;
   margin-top: 0.25rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid #f3f4f6;
+  padding-top: 0.5rem;
+  border-top: 1px solid #e5e7eb;
 }
 
 /* ---------- Modales a pantalla completa ---------- */
@@ -325,12 +453,45 @@ textarea {
     width: 1.25rem;
     height: 1.25rem;
   }
+  .toggle-switch-container .toggle-switch.active .toggle-slider {
+    transform: translateX(1.25rem);
+  }
   .toggle-switch-container .toggle-switch::after {
     content: none;
   }
   .toggle-switch-container {
     padding-top: 0;
     padding-bottom: 0;
+  }
+
+  .pf-page-title {
+    font-size: 1.875rem;
+  }
+  .pf-filters-toggle {
+    display: none !important;
+  }
+  .pf-filters:not(.is-open) {
+    display: block;
+  }
+  .pf-filters .form-input,
+  .pf-filters .form-select,
+  .grid-pagination .btn {
+    min-height: 0;
+  }
+  .prospect-actions-grid {
+    display: flex;
+    justify-content: flex-end;
+    width: auto;
+  }
+  .prospect-actions-grid .btn {
+    min-height: 0;
+    padding: 0 0.625rem;
+  }
+  .prospect-list-container .prospect-actions-cell {
+    display: block;
+  }
+  .prospect-list-container .prospect-actions-cell::before {
+    content: none;
   }
 
   /* La fila vuelve a ser una tabla de 5 columnas */
@@ -483,6 +644,24 @@ textarea {
   color: var(--pf-tinta) !important;
 }
 
+[data-theme="dark"] .toggle-switch-container .toggle-switch:not(.active) {
+  background-color: #94a3b8;
+}
+[data-theme="dark"] .pf-login-theme-toggle {
+  background-color: var(--pf-superficie-2) !important;
+  color: var(--pf-tinta) !important;
+  border-color: var(--pf-linea) !important;
+}
+[data-theme="dark"] .pf-login-theme-toggle:hover {
+  background-color: var(--pf-linea) !important;
+}
+
+[data-theme="dark"] .prospect-list-container .prospect-cell::before,
+[data-theme="dark"] .toggle-switch-label,
+[data-theme="dark"] .grid-pagination .page-status {
+  color: var(--pf-tinta-suave) !important;
+}
+
 [data-theme="dark"] .btn-secondary {
   background-color: var(--pf-superficie-2) !important;
   color: var(--pf-tinta) !important;
@@ -562,7 +741,7 @@ textarea {
 }
 
 [data-theme="dark"] .toggle-switch {
-  background-color: #4b5563 !important;
+  background-color: #94a3b8 !important;
 }
 
 [data-theme="dark"] .toggle-switch.active {
