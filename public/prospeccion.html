@@ -3,6 +3,10 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script>
+            document.documentElement.dataset.theme =
+                localStorage.getItem("pf-theme") === "dark" ? "dark" : "light";
+        </script>
         <title>CRM Pietra Fina - Módulo de Prospección</title>
 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -238,6 +242,10 @@
                     <i data-lucide="target"></i>
                     <span>Prospección</span>
                 </a>
+                <button type="button" class="theme-toggle flex w-full items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-50" aria-label="Activar tema oscuro" title="Activar tema oscuro">
+                    <i data-lucide="moon"></i>
+                    <span>Cambiar tema</span>
+                </button>
             </nav>
             <div class="sidebar-footer mt-auto border-t p-4">
                  <div class="flex items-center gap-3">
@@ -277,7 +285,14 @@
                     <h1 class="font-playfair text-xl font-bold">
                         Prospección
                     </h1>
-                    <div></div>
+                    <button
+                        type="button"
+                        class="theme-toggle rounded-md p-2 text-gray-600 hover:bg-gray-100"
+                        aria-label="Activar tema oscuro"
+                        title="Activar tema oscuro"
+                    >
+                        <i data-lucide="moon" class="h-5 w-5"></i>
+                    </button>
                 </header>
 
                 <div class="p-4 md:p-6">
@@ -437,6 +452,10 @@
                 </div>
                 <div class="modal-footer">
                     <div class="flex w-full items-center gap-3">
+                        <a id="detail-call-btn" class="btn btn-success hidden" aria-label="Llamar al prospecto">
+                            <i data-lucide="phone-call"></i>
+                            Llamar
+                        </a>
                         <button id="edit-prospect-btn" class="btn btn-secondary flex-1">
                             <i data-lucide="pencil"></i>
                             Editar Prospecto
@@ -514,6 +533,7 @@
             </div>
         </div>
 
+        <script src="./theme.js"></script>
         <script type="module" src="./firebase.js"></script>
         <script type="module" src="./ui.js"></script>
         <script type="module" src="./api.js"></script>

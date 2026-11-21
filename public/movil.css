@@ -262,3 +262,191 @@ body {
     line-height: 2.5rem;
   }
 }
+
+/* ---------- Ronda 2: pulido móvil ---------- */
+@media (max-width: 767px) {
+  .theme-toggle {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Evita el auto-zoom de iOS al enfocar campos */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  .prospect-section-header-toggle h2 {
+    font-size: 1.125rem;
+    line-height: 1.35;
+  }
+
+  .prospect-section-header-toggle {
+    gap: 0.75rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .modal-backdrop .modal-footer .flex {
+    gap: 0.5rem;
+  }
+
+  .toggle-switch {
+    min-height: 44px;
+  }
+}
+
+/* ---------- Ronda 2: tema oscuro ---------- */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --pf-fondo: #0f1115;
+  --pf-superficie: #181b21;
+  --pf-superficie-2: #22262e;
+  --pf-tinta: #eef0f4;
+  --pf-tinta-suave: #aeb6c4;
+  --pf-linea: #3a414d;
+}
+
+[data-theme="dark"],
+[data-theme="dark"] body {
+  background: var(--pf-fondo) !important;
+  color: var(--pf-tinta) !important;
+}
+
+/* Estas clases vienen de @apply en style.css y en los <style> de cada vista,
+   por eso no las alcanzan los selectores genéricos de utilidades Tailwind. */
+[data-theme="dark"] .sidebar,
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .prospect-list-container,
+[data-theme="dark"] .prospect-card,
+[data-theme="dark"] .planner-day-column,
+[data-theme="dark"] .planner-prospect-card,
+[data-theme="dark"] .note-item,
+[data-theme="dark"] .wa-section,
+[data-theme="dark"] .dashboard-widget,
+[data-theme="dark"] .material-checkbox-label span {
+  background-color: var(--pf-superficie) !important;
+  color: var(--pf-tinta) !important;
+}
+
+[data-theme="dark"] .modal-header,
+[data-theme="dark"] .modal-footer,
+[data-theme="dark"] .prospect-list-header,
+[data-theme="dark"] .prospect-card-footer,
+[data-theme="dark"] .detail-sidebar {
+  background-color: var(--pf-superficie-2) !important;
+  border-color: var(--pf-linea) !important;
+}
+
+[data-theme="dark"] .modal-title,
+[data-theme="dark"] .detail-sidebar .value,
+[data-theme="dark"] .detail-sidebar .label,
+[data-theme="dark"] .detail-notes h4,
+[data-theme="dark"] .prospect-section-header-toggle h2,
+[data-theme="dark"] .widget-title,
+[data-theme="dark"] .prospect-cell,
+[data-theme="dark"] .note-item p,
+[data-theme="dark"] .material-checkbox-label span,
+[data-theme="dark"] .planner-day-header h3 {
+  color: var(--pf-tinta) !important;
+}
+
+[data-theme="dark"] .btn-secondary {
+  background-color: var(--pf-superficie-2) !important;
+  color: var(--pf-tinta) !important;
+  border-color: var(--pf-linea) !important;
+}
+
+[data-theme="dark"] [class*="bg-white"],
+[data-theme="dark"] [class*="bg-gray-50"],
+[data-theme="dark"] [class*="bg-gray-100"],
+[data-theme="dark"] [class*="bg-brand-light"] {
+  background-color: var(--pf-superficie) !important;
+}
+
+[data-theme="dark"] [class*="bg-red-50"] {
+  background-color: #35161b !important;
+}
+
+[data-theme="dark"] [class*="bg-red-700"] {
+  background-color: #4a1218 !important;
+}
+
+[data-theme="dark"] [class*="text-gray-9"],
+[data-theme="dark"] [class*="text-black"],
+[data-theme="dark"] [class*="text-brand-dark"] {
+  color: var(--pf-tinta) !important;
+}
+
+[data-theme="dark"] [class*="text-gray-7"],
+[data-theme="dark"] [class*="text-gray-6"],
+[data-theme="dark"] [class*="text-gray-5"] {
+  color: var(--pf-tinta-suave) !important;
+}
+
+[data-theme="dark"] [class*="text-red-6"],
+[data-theme="dark"] [class*="text-red-7"] {
+  color: #fca5a5 !important;
+}
+
+[data-theme="dark"] [class*="border-gray-2"],
+[data-theme="dark"] [class*="border-gray-3"],
+[data-theme="dark"] [class*="border-red-2"],
+[data-theme="dark"] .border {
+  border-color: var(--pf-linea) !important;
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background-color: var(--pf-superficie-2) !important;
+  color: var(--pf-tinta) !important;
+  border-color: var(--pf-linea) !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: #9aa3b2;
+}
+
+[data-theme="dark"] .dashboard-widget {
+  background: var(--pf-superficie) !important;
+  border-color: var(--pf-linea) !important;
+}
+
+[data-theme="dark"] .widget-title {
+  color: var(--pf-tinta) !important;
+}
+
+[data-theme="dark"] .toggle-switch {
+  background-color: #4b5563 !important;
+}
+
+[data-theme="dark"] .toggle-switch.active {
+  background-color: #dc2626 !important;
+}
+
+[data-theme="dark"] .snackbar {
+  background-color: #374151 !important;
+  color: #f9fafb;
+}
+
+[data-theme="dark"] .flatpickr-calendar,
+[data-theme="dark"] .flatpickr-months,
+[data-theme="dark"] .flatpickr-innerContainer {
+  background: var(--pf-superficie-2) !important;
+  color: var(--pf-tinta) !important;
+}
+
+[data-theme="dark"] .flatpickr-day,
+[data-theme="dark"] .flatpickr-months .flatpickr-month,
+[data-theme="dark"] .flatpickr-weekday {
+  color: var(--pf-tinta) !important;
+}
+
+[data-theme="dark"] .flatpickr-day:hover,
+[data-theme="dark"] .flatpickr-day.today {
+  background: #3a414d !important;
+  border-color: #3a414d !important;
+}

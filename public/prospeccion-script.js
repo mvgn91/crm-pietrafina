@@ -16,6 +16,7 @@ import {
   closeWhatsappModal,
   populateMaterialsCheckboxes,
   generateWhatsappMessage,
+  normalizePhone,
   showSnackbar,
   showConfirmationModal,
   initFollowUpNotePicker,
@@ -204,17 +205,15 @@ function updateWhatsappMessage() {
 
 async function handleSendWhatsapp() {
   const { prospectId, prospectPhone } = elements.whatsappSendBtn.dataset;
-  let phone = prospectPhone.replace(/[\s-()]/g, "");
+  const phone = normalizePhone(prospectPhone);
 
-  if (!phone.startsWith("52") && phone.length < 11) {
-    phone = `52${phone}`;
+  if (!phone) {
+    showSnackbar("El prospecto no tiene teléfono registrado.", "error");
+    return;
   }
 
   const message = elements.whatsappMessageTextarea.value;
-  window.open(
-    `https://wa.me/${phone}?text=${encodeURIComponent(message)}`,
-    "_blank",
-  );
+  const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
   const selectedMaterialsNames = Array.from(
     document.querySelectorAll(".material-checkbox:checked"),
@@ -240,7 +239,20 @@ async function handleSendWhatsapp() {
       showSnackbar("Error al registrar la nota de WhatsApp.", "error");
     }
   }
+
   closeWhatsappModal();
+
+  // En el celular, navegar en la misma pestaña es lo que abre la app de WhatsApp;
+  // window.open(_blank) suele ser bloqueado o dejar una pestaña vacía.
+  const esMovil =
+    window.matchMedia("(pointer: coarse)").matches ||
+    /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (esMovil) {
+    window.location.href = whatsappUrl;
+  } else {
+    const ventana = window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+    if (!ventana) window.location.href = whatsappUrl;
+  }
 }
 
 function attachToggleEventListeners() {

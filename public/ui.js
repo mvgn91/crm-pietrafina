@@ -19,6 +19,7 @@ export const elements = {
   editClassificationSelect: document.getElementById("edit-classification"), // Edit Prospect View
 
   // Modales
+  detailCallBtn: document.getElementById("detail-call-btn"),
   detailModal: document.getElementById("detail-modal"),
   detailModalContent: document.getElementById("detail-modal-content"),
   detailDisplayView: document.getElementById("detail-display-view"),
@@ -59,6 +60,19 @@ export const elements = {
   whatsappMessageTextarea: document.getElementById("whatsapp-message-textarea"),
   whatsappSendBtn: document.getElementById("whatsapp-send-btn"),
   whatsappCloseBtn: document.getElementById("whatsapp-close-btn"),
+};
+
+/**
+ * Normaliza un teléfono a dígitos con código de país (52 para México).
+ * Devuelve "" cuando no hay un número utilizable, para no dibujar enlaces rotos.
+ */
+export const normalizePhone = (rawPhone) => {
+  if (!rawPhone) return "";
+  let digits = String(rawPhone).replace(/\D/g, "");
+  if (digits.startsWith("00")) digits = digits.slice(2);
+  if (digits.length === 10) digits = `52${digits}`;
+  if (digits.length < 10) return "";
+  return digits;
 };
 
 const formatDate = (isoString) => {
@@ -126,6 +140,7 @@ export const createProspectRowHTML = (prospect) => {
             </div>
         </div>
         <div class="prospect-cell prospect-actions-cell">
+            ${normalizePhone(prospect.phone) ? `<a class="btn btn-success btn-sm call-btn" href="tel:+${normalizePhone(prospect.phone)}" title="Llamar" aria-label="Llamar a ${prospect.contactPerson || prospect.businessName}"><i data-lucide="phone" class="w-4 h-4"></i></a>` : ""}
             ${prospect.status === "Pendiente de Correo" ? `<button class="btn btn-secondary btn-sm mark-as-sent-btn" data-id="${prospect.id}" title="Marcar Enviado"><i data-lucide="send" class="w-4 h-4"></i></button>` : ""}
             <button class="btn btn-secondary btn-sm whatsapp-btn" data-id="${prospect.id}" title="Enviar WhatsApp"><i data-lucide="message-circle" class="w-4 h-4"></i></button>
             <button class="btn btn-primary btn-sm view-details-btn" data-id="${prospect.id}" title="Ver Detalles"><i data-lucide="eye" class="w-4 h-4"></i></button>
@@ -253,6 +268,16 @@ export const showProspectDetailsModal = (prospect) => {
   elements.detailContactPerson.textContent = prospect.contactPerson;
   elements.detailEmail.textContent = prospect.email;
   elements.detailPhone.textContent = prospect.phone;
+  const phone = normalizePhone(prospect.phone);
+  if (elements.detailCallBtn) {
+    if (phone) {
+      elements.detailCallBtn.href = `tel:+${phone}`;
+      elements.detailCallBtn.classList.remove("hidden");
+    } else {
+      elements.detailCallBtn.removeAttribute("href");
+      elements.detailCallBtn.classList.add("hidden");
+    }
+  }
   elements.detailClassification.textContent = prospect.classification;
   elements.detailObservations.textContent =
     prospect.observations || "Sin observaciones.";
@@ -546,6 +571,18 @@ const isSameDay = (date1, date2) => {
 // --- Dashboard helpers (Charts & Stats) ---
 let _statusChart = null;
 let _timeChart = null;
+
+// Chart.js dibuja en canvas: sus colores no se pueden cambiar desde CSS.
+const applyChartTheme = () => {
+  if (typeof Chart === "undefined") return;
+  const dark = document.documentElement.dataset.theme === "dark";
+  Chart.defaults.color = dark ? "#e5e7eb" : "#6b7280";
+  Chart.defaults.borderColor = dark ? "#3f4551" : "#e5e7eb";
+  _statusChart?.update();
+  _timeChart?.update();
+};
+window.addEventListener("themechange", applyChartTheme);
+applyChartTheme();
 
 export const renderStatsCards = (stats) => {
   const container = document.getElementById("stats-cards-container");
