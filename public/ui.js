@@ -76,16 +76,17 @@ export const normalizePhone = (rawPhone) => {
   return digits;
 };
 
+// Rebuild mobile-first: fechas siempre cortas y completas, en una sola línea.
+// "23 de octubre de 2025" partía el año en las notas; "mar, 28 de oct de 2…"
+// perdía el año en la tarjeta. Ambos pasan a "23 oct 2025" / "28 oct 2025".
+const shortDate = (date) =>
+  `${date.getDate()} ${date.toLocaleDateString("es-MX", { month: "short" }).replace(".", "")} ${date.getFullYear()}`;
+
 const formatDate = (isoString) => {
   if (!isoString) return "N/A";
   const date = new Date(isoString);
-  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  return date.toLocaleDateString("es-MX", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    timeZone: userTimezone,
-  });
+  if (Number.isNaN(date.getTime())) return "Fecha inválida";
+  return shortDate(date);
 };
 
 const formatFollowUpDate = (dateString) => {
@@ -93,14 +94,8 @@ const formatFollowUpDate = (dateString) => {
   try {
     const [year, month, day] = dateString.split("-");
     const date = new Date(year, month - 1, day);
-    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    return date.toLocaleDateString("es-MX", {
-      weekday: "short",
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      timeZone: userTimezone,
-    });
+    if (Number.isNaN(date.getTime())) return "Fecha inválida";
+    return shortDate(date);
   } catch (e) {
     return "Fecha inválida";
   }
@@ -123,12 +118,16 @@ const escapeHtml = (value) =>
     "'": "&#39;",
   })[character]);
 
+// Rebuild mobile-first: la tarjeta es la unidad de diseño en todos los anchos.
+// El negocio va solo en su línea y nunca se trunca; el contacto sí puede
+// recortarse. Las 4 acciones se apilan a ancho completo con etiqueta entera.
 export const createProspectRowHTML = (prospect) => {
   const statusBadgeClass = getStatusBadgeClass(prospect.status);
   const businessName = escapeHtml(displayValue(prospect.businessName, "Sin nombre"));
   const contactPerson = displayValue(prospect.contactPerson);
   const classification = escapeHtml(displayValue(prospect.classification, "Sin clasificación"));
   const status = escapeHtml(displayValue(prospect.status, "Sin estatus"));
+  const id = escapeHtml(prospect.id);
   const phone = normalizePhone(prospect.phone);
   const callName =
     displayValue(prospect.contactPerson) ||
@@ -136,39 +135,36 @@ export const createProspectRowHTML = (prospect) => {
   const callLabel = escapeHtml(`Llamar a ${callName}`);
 
   const callButton = phone
-    ? `<a class="btn btn-success btn-sm call-btn" href="tel:+${phone}" title="${callLabel}" aria-label="${callLabel}"><i data-lucide="phone" class="w-4 h-4 flex-shrink-0"></i><span class="action-label">${callLabel}</span></a>`
-    : `<button type="button" class="btn btn-secondary btn-sm call-btn" disabled title="Sin teléfono registrado" aria-label="${callLabel}"><i data-lucide="phone" class="w-4 h-4 flex-shrink-0"></i><span class="action-label">${callLabel}</span></button>`;
+    ? `<a class="btn btn-success pf-action call-btn" href="tel:+${phone}" title="${callLabel}" aria-label="${callLabel}"><i data-lucide="phone" class="pf-action__icon"></i><span class="pf-action__label">${callLabel}</span></a>`
+    : `<button type="button" class="btn btn-secondary pf-action call-btn" disabled title="Sin teléfono registrado" aria-label="${callLabel}"><i data-lucide="phone" class="pf-action__icon"></i><span class="pf-action__label">${callLabel}</span></button>`;
 
   const canMarkSent = prospect.status === "Pendiente de Correo";
-  const markSentButton = `<button type="button" class="btn btn-secondary btn-sm mark-as-sent-btn" data-id="${escapeHtml(prospect.id)}" title="Marcar como enviado" ${canMarkSent ? "" : "disabled"}><i data-lucide="send" class="w-4 h-4 flex-shrink-0"></i><span class="action-label">Marcar enviado</span></button>`;
+  const markSentButton = `<button type="button" class="btn btn-secondary pf-action mark-as-sent-btn" data-id="${id}" title="Marcar como enviado" aria-label="Marcar como enviado" ${canMarkSent ? "" : "disabled"}><i data-lucide="send" class="pf-action__icon"></i><span class="pf-action__label">Marcar enviado</span></button>`;
 
   return `
-    <div class="prospect-row">
-        <div class="prospect-cell" data-label="Prospecto">
-            <p class="font-bold text-gray-900 truncate">${businessName}</p>
-            ${contactPerson ? `<p class="text-xs text-gray-500 truncate">${escapeHtml(contactPerson)}</p>` : ""}
+    <article class="pf-card" data-id="${id}">
+      <div class="pf-card__head">
+        <h3 class="pf-card__name">${businessName}</h3>
+        ${contactPerson ? `<p class="pf-card__contact">${escapeHtml(contactPerson)}</p>` : ""}
+        <span class="pf-card__status ${statusBadgeClass}">${status}</span>
+      </div>
+      <dl class="pf-card__facts">
+        <div class="pf-card__fact">
+          <dt>Clase</dt>
+          <dd>${classification}</dd>
         </div>
-        <div class="prospect-cell" data-label="Clase">
-            <span class="truncate">${classification}</span>
+        <div class="pf-card__fact">
+          <dt>Seguimiento</dt>
+          <dd class="pf-card__date ${prospect.nextFollowUpDate ? "pf-card__date--set" : ""}">${formatFollowUpDate(prospect.nextFollowUpDate)}</dd>
         </div>
-        <div class="prospect-cell" data-label="Estatus">
-            <span class="text-xs font-semibold px-2.5 py-1 rounded-full ${statusBadgeClass}">${status}</span>
-        </div>
-        <div class="prospect-cell" data-label="Seguimiento">
-            <div class="flex items-center justify-end md:justify-start">
-                <i data-lucide="calendar" class="w-4 h-4 mr-2 flex-shrink-0 ${prospect.nextFollowUpDate ? "text-red-500" : "text-gray-400"}"></i>
-                <span class="truncate ${prospect.nextFollowUpDate ? "font-semibold text-gray-800" : "text-gray-500"}">${formatFollowUpDate(prospect.nextFollowUpDate)}</span>
-            </div>
-        </div>
-        <div class="prospect-cell prospect-actions-cell" data-label="Acciones">
-            <div class="prospect-actions-grid">
-                ${callButton}
-                ${markSentButton}
-                <button type="button" class="btn btn-secondary btn-sm whatsapp-btn" data-id="${escapeHtml(prospect.id)}" title="Enviar WhatsApp"><i data-lucide="message-circle" class="w-4 h-4 flex-shrink-0"></i><span class="action-label">WhatsApp</span></button>
-                <button type="button" class="btn btn-primary btn-sm view-details-btn" data-id="${escapeHtml(prospect.id)}" title="Ver detalles"><i data-lucide="eye" class="w-4 h-4 flex-shrink-0"></i><span class="action-label">Detalles</span></button>
-            </div>
-        </div>
-    </div>
+      </dl>
+      <div class="pf-card__actions">
+        ${callButton}
+        <button type="button" class="btn btn-secondary pf-action whatsapp-btn" data-id="${id}" title="Enviar WhatsApp" aria-label="Enviar WhatsApp a ${escapeHtml(callName)}"><i data-lucide="message-circle" class="pf-action__icon"></i><span class="pf-action__label">WhatsApp</span></button>
+        ${markSentButton}
+        <button type="button" class="btn btn-primary pf-action view-details-btn" data-id="${id}" title="Ver detalles" aria-label="Ver detalles de ${businessName}"><i data-lucide="eye" class="pf-action__icon"></i><span class="pf-action__label">Detalles</span></button>
+      </div>
+    </article>
   `;
 };
 
@@ -230,17 +226,8 @@ const renderGridPage = () => {
   const pageProspects = allProspects.slice(start, start + pageSize);
 
   const renderList = (prospects) => `
-      <div class="prospect-list-container">
-          <div class="prospect-list-header">
-              <div class="prospect-header-cell">Prospecto</div>
-              <div class="prospect-header-cell">Clasificación</div>
-              <div class="prospect-header-cell">Estatus</div>
-              <div class="prospect-header-cell">Seguimiento</div>
-              <div class="prospect-header-cell text-right">Acciones</div>
-          </div>
-          <div class="prospect-list-body">
-              ${prospects.map(createProspectRowHTML).join("")}
-          </div>
+      <div class="pf-card-list">
+          ${prospects.map(createProspectRowHTML).join("")}
       </div>`;
 
   if (isGrouped) {
@@ -332,6 +319,37 @@ export const renderProspectsStatus = (message, { isError = false } = {}) => {
   if (typeof lucide !== "undefined") lucide.createIcons();
 };
 
+// Rebuild mobile-first: el historial largo no empuja las acciones principales.
+// Se muestran 3 notas y el resto queda tras un botón explícito; es presentación,
+// no cambia los datos ni el orden de las notas.
+const NOTES_VISIBLE_LIMIT = 3;
+const refreshNotesCollapse = () => {
+  const container = elements.detailFollowUpNotes;
+  if (!container || typeof container.querySelectorAll !== "function") return;
+  const notes = [...container.querySelectorAll(".note-item")];
+  container.querySelector(".pf-notes-toggle")?.remove();
+  if (notes.length <= NOTES_VISIBLE_LIMIT) {
+    notes.forEach((note) => { note.hidden = false; });
+    return;
+  }
+  const expanded = container.dataset.expanded === "true";
+  notes.forEach((note, index) => {
+    note.hidden = !expanded && index >= NOTES_VISIBLE_LIMIT;
+  });
+  const hiddenCount = notes.length - NOTES_VISIBLE_LIMIT;
+  const toggle = document.createElement("button");
+  toggle.type = "button";
+  toggle.className = "btn btn-secondary pf-notes-toggle";
+  toggle.textContent = expanded
+    ? "Ver menos notas"
+    : `Ver ${hiddenCount} ${hiddenCount === 1 ? "nota anterior" : "notas anteriores"}`;
+  toggle.addEventListener("click", () => {
+    container.dataset.expanded = expanded ? "false" : "true";
+    refreshNotesCollapse();
+  });
+  container.appendChild(toggle);
+};
+
 export const showProspectDetailsModal = (prospect) => {
   if (!elements.detailModal) return;
 
@@ -344,8 +362,8 @@ export const showProspectDetailsModal = (prospect) => {
   const phone = normalizePhone(prospect.phone);
   if (elements.detailCallBtn) {
     const callLabel = `Llamar a ${displayValue(prospect.contactPerson) || displayValue(prospect.businessName, "el negocio")}`;
-    const detailCallLabel = document.getElementById("detail-call-label");
-    if (detailCallLabel) detailCallLabel.textContent = callLabel;
+    // La etiqueta visible sigue corta ("Llamar"); el nombre completo queda
+    // en title/aria-label para no partir el botón en 3 líneas en la barra.
     if (typeof elements.detailCallBtn.setAttribute === "function") {
       elements.detailCallBtn.setAttribute("aria-label", callLabel);
       elements.detailCallBtn.title = callLabel;
@@ -370,11 +388,15 @@ export const showProspectDetailsModal = (prospect) => {
   );
 
   elements.detailFollowUpNotes.innerHTML = "";
+  if (elements.detailFollowUpNotes.dataset) {
+    elements.detailFollowUpNotes.dataset.expanded = "false";
+  }
   if (prospect.followUpNotes && prospect.followUpNotes.length > 0) {
     const sortedNotes = [...prospect.followUpNotes].sort(
       (a, b) => new Date(b.date) - new Date(a.date),
     );
     sortedNotes.forEach(addNewNoteToView);
+    refreshNotesCollapse();
   } else {
     elements.detailFollowUpNotes.innerHTML = `<p class="text-sm text-gray-500 italic">No hay notas de seguimiento.</p>`;
   }
@@ -440,9 +462,10 @@ export const addNewNoteToView = (note) => {
   const noteElement = document.createElement("div");
   noteElement.className = "note-item";
   noteElement.innerHTML = `
-    <p class="text-sm text-gray-800">${note.note}</p>
-    <p class="text-xs text-gray-500 mt-1 text-right">
-      <strong>${note.user}</strong> - ${formatDate(note.date)}
+    <p class="pf-note-text">${note.note}</p>
+    <p class="pf-note-meta">
+      <strong class="pf-note-user">${note.user}</strong>
+      <span class="pf-note-date">${formatDate(note.date)}</span>
     </p>`;
 
   const noNotesMessage = elements.detailFollowUpNotes.querySelector("p");
@@ -450,6 +473,7 @@ export const addNewNoteToView = (note) => {
     elements.detailFollowUpNotes.innerHTML = "";
   }
   elements.detailFollowUpNotes.prepend(noteElement);
+  refreshNotesCollapse();
 };
 
 // El nombre del modal nunca queda vacío: si no hay persona de contacto se

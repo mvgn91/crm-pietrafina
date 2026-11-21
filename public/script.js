@@ -472,6 +472,16 @@ document.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("detail-close-btn")
     ?.addEventListener("click", closeDetailModal);
+  // Rebuild: el WhatsApp de la barra superior reutiliza el mismo handler
+  // de la tarjeta; no se toca el deep link wa.me.
+  document
+    .getElementById("detail-whatsapp-btn")
+    ?.addEventListener("click", () => {
+      const prospect = allProspects.find(
+        (p) => p.id === currentProspectIdForModal,
+      );
+      if (prospect) handleOpenWhatsappModal(prospect);
+    });
   document
     .getElementById("edit-prospect-btn")
     ?.addEventListener("click", () => {

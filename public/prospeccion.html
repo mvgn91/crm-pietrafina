@@ -156,14 +156,8 @@
                 body.sidebar-open .page-overlay { @apply block; }
                 body.sidebar-open .sidebar { @apply translate-x-0; }
 
-                /* Lista de prospectos (tabla responsive ligera) */
+                /* Rebuild: la lista son tarjetas .pf-card (movil.css), no una tabla. */
                 .prospect-list-container { @apply rounded-lg border border-gray-200 bg-white shadow-sm; }
-                .prospect-list-header { @apply grid grid-cols-5 gap-4 border-b bg-gray-50 px-4 py-3; }
-                .prospect-header-cell { @apply text-xs font-medium uppercase tracking-wide text-gray-500; }
-                .prospect-list-body { @apply divide-y; }
-                .prospect-row { @apply grid grid-cols-5 items-center gap-4 px-4 py-3; }
-                .prospect-cell { @apply text-sm text-gray-700 truncate; }
-                .prospect-actions-cell { @apply flex items-center justify-end gap-2; }
                 .btn-sm { @apply rounded-md px-2.5 py-1.5 text-xs font-medium; }
                 .prospect-section-header-toggle { @apply border-b border-gray-200; }
 
@@ -398,6 +392,17 @@
                         <i data-lucide="x"></i>
                     </button>
                 </div>
+                <!-- Rebuild mobile-first: acciones principales arriba, siempre visibles. -->
+                <div class="pf-detail-actions" id="detail-actions-bar">
+                    <a id="detail-call-btn" class="btn btn-success pf-detail-action hidden" aria-label="Llamar al prospecto">
+                        <i data-lucide="phone-call"></i>
+                        <span id="detail-call-label">Llamar</span>
+                    </a>
+                    <button id="detail-whatsapp-btn" type="button" class="btn btn-secondary pf-detail-action" aria-label="Enviar WhatsApp">
+                        <i data-lucide="message-circle"></i>
+                        <span>WhatsApp</span>
+                    </button>
+                </div>
                 <div class="flex-1 overflow-y-auto p-5">
                     <div id="detail-display-view" class="detail-grid">
                         <div class="detail-notes">
@@ -479,10 +484,6 @@
                 </div>
                 <div class="modal-footer">
                     <div class="flex w-full items-center gap-3">
-                        <a id="detail-call-btn" class="btn btn-success hidden" aria-label="Llamar al prospecto">
-                            <i data-lucide="phone-call"></i>
-                            <span id="detail-call-label">Llamar</span>
-                        </a>
                         <button id="edit-prospect-btn" class="btn btn-secondary flex-1">
                             <i data-lucide="pencil"></i>
                             Editar Prospecto

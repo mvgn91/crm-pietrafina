@@ -1,22 +1,28 @@
-/* movil.css — CRM Pietra Fina, mobile-first (ronda 3).
-   BASE = diseño móvil (390/360): una columna, tarjetas apiladas, modales a
-   pantalla completa y objetivos táctiles >= 44 px.
+/* movil.css — CRM Pietra Fina. REBUILD mobile-first (2026-11-21).
+   BASE = diseño móvil (360 px): tarjetas .pf-card de una columna, acciones
+   apiladas a ancho completo, modal con barra de acciones arriba.
    El escritorio se construye ENCIMA con @media (min-width: 768px).
-   Solo presentación: no toca lógica, datos ni el listener de sesión. */
+   Solo presentación: no toca lógica, datos, Firebase ni el listener de sesión. */
 
-/* ============ BASE MÓVIL ============ */
+:root {
+  --pf-surface: #ffffff;
+  --pf-surface-2: #f9fafb;
+  --pf-ink: #111827;
+  --pf-muted: #4b5563;
+  --pf-line: #e5e7eb;
+}
+
 html,
 body {
   max-width: 100%;
   overflow-x: clip; /* recorta el sidebar cerrado sin crear contenedor de scroll */
 }
 
-/* ---------- Objetivos táctiles ---------- */
+/* ---------- Objetivos táctiles (base móvil) ---------- */
 #menu-toggle-btn,
 #logout-btn,
 #logout-button,
 .modal-close-btn,
-.prospect-actions-cell .btn,
 .stagnant-prospect-card-actions .btn,
 .btn-sm,
 .material-checkbox-label span,
@@ -26,7 +32,10 @@ body {
 .pf-phase2 .pf-actions a,
 #add-prospect-btn,
 .modal-backdrop .btn,
-.theme-toggle {
+.theme-toggle,
+.pf-card .pf-action,
+.pf-detail-actions .pf-detail-action,
+.pf-notes-toggle {
   min-height: 44px;
 }
 
@@ -34,7 +43,6 @@ body {
 #logout-btn,
 #logout-button,
 .modal-close-btn,
-.prospect-actions-cell .btn,
 .stagnant-prospect-card-actions .btn,
 .theme-toggle {
   min-width: 44px;
@@ -52,22 +60,31 @@ body {
   padding: 0 0.5rem;
 }
 
-/* ---------- Ronda 4: encabezado y filtros compactos ---------- */
+/* ---------- Encabezado, filtros y paginación ---------- */
 .pf-page-title {
-  font-size: 1.5rem; /* 24 px en teléfono, no 32 px */
+  font-size: 1.5rem; /* 24 px en teléfono, nunca 32 px */
   line-height: 1.25;
 }
 .pf-page-subtitle {
   font-size: 0.875rem;
 }
-
 .pf-filters-toggle {
   min-height: 44px;
   justify-content: flex-start;
 }
+.pf-filters:not(.is-open) {
+  display: none;
+}
+.pf-filters.is-open {
+  display: block;
+}
+.pf-filters input.form-input,
+.pf-filters select.form-select,
+.pf-filters .form-input,
+.pf-filters .form-select {
+  min-height: 44px;
+}
 
-/* Botón de tema del login: dentro del flujo de la tarjeta, sin margen
-   negativo y con contraste propio en claro y oscuro. */
 .pf-login-header {
   min-height: 44px;
 }
@@ -92,20 +109,6 @@ body {
   background-color: #f3f4f6;
 }
 
-/* En móvil los filtros empiezan plegados; el botón "Filtros" los despliega. */
-.pf-filters:not(.is-open) {
-  display: none;
-}
-.pf-filters.is-open {
-  display: block;
-}
-.pf-filters input.form-input,
-.pf-filters select.form-select,
-.pf-filters .form-input,
-.pf-filters .form-select {
-  min-height: 44px;
-}
-
 .grid-pagination {
   display: flex;
   align-items: center;
@@ -122,7 +125,7 @@ body {
   color: #374151;
 }
 
-/* Breakpoint móvil explícito (además de la base mobile-first). */
+/* Encabezado compacto: la primera tarjeta cabe en la primera pantalla. */
 @media (max-width: 640px) {
   .main-content > header {
     height: 3.5rem;
@@ -138,13 +141,12 @@ body {
   }
 }
 
-/* Ronda 4: switch estándar 51x31 con thumb 25. El área táctil se amplía
-   con ::after sin cambiar el rectángulo medido del control. */
+/* Switch estándar: pista 51×31, thumb 25; el área táctil se amplía con ::after. */
 .toggle-switch-container .toggle-switch {
   width: 51px;
   height: 31px;
   min-height: 0;
-  background-color: #64748b; /* apagado: gris oscuro, distinguishable sobre blanco */
+  background-color: #64748b;
   border-color: transparent;
 }
 .toggle-switch-container .toggle-switch.active {
@@ -172,104 +174,153 @@ body {
   font-weight: 500;
 }
 
-/* ---------- Lista de prospectos: tarjetas apiladas ---------- */
-.prospect-list-container .prospect-list-header {
-  display: none;
-}
-
-.prospect-list-container .prospect-row {
+/* ============ REBUILD: tarjeta de prospecto ============
+   No hay columna etiqueta/valor ni rejilla 2×2. El negocio ocupa toda la
+   línea y nunca se trunca; las cuatro acciones se apilan con texto entero. */
+.pf-card-list {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 0.5rem;
-  padding: 0.875rem 1rem;
+  gap: 0.75rem;
 }
 
-.prospect-list-container .prospect-cell {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.pf-card-list .pf-card {
+  display: block;
+  min-width: 0;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--pf-line);
+  border-radius: 0.75rem;
+  background-color: var(--pf-surface);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
+}
+
+.pf-card .pf-card__head {
+  display: grid;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
+.pf-card .pf-card__name {
+  margin: 0;
+  color: var(--pf-ink);
+  font-size: 1rem; /* 16 px */
+  font-weight: 700;
+  line-height: 1.3;
+  white-space: normal;
+  overflow-wrap: anywhere; /* el nombre del negocio NUNCA se corta */
+}
+
+.pf-card .pf-card__contact {
+  margin: 0;
   min-width: 0;
   overflow: hidden;
-  font-size: 0.9375rem; /* valores 15 px, sin bajar el tamaño */
+  color: var(--pf-muted);
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  text-overflow: ellipsis; /* el contacto sí puede recortarse */
+  white-space: nowrap;
+}
+
+.pf-card .pf-card__status {
+  justify-self: start;
+  display: inline-block;
+  padding: 0.1875rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
   line-height: 1.4;
 }
 
-/* Ronda 4: columna de etiquetas angosta (76 px) y valores con elipsis. */
-.prospect-list-container .prospect-cell::before {
-  content: attr(data-label);
-  flex: 0 0 4.75rem;
-  color: #374151;
-  font-size: 0.8125rem; /* 13 px, contraste alto */
-  font-weight: 600;
-  line-height: 1.25;
-}
-
-.prospect-list-container .prospect-actions-cell::before {
-  content: "Acciones";
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-.prospect-list-container .prospect-cell p,
-.prospect-list-container .prospect-cell span,
-.prospect-list-container .prospect-cell > div {
-  min-width: 0;
-  max-width: 100%;
-}
-
-.prospect-list-container .prospect-cell p,
-.prospect-list-container .prospect-cell span {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.prospect-list-container .prospect-cell > div {
-  flex: 1 1 auto;
-}
-
-/* Fila de acciones idéntica en todas las tarjetas: 2x2 con texto y hueco
-   suficiente para no pulsar el botón de al lado. */
-.prospect-actions-grid {
+.pf-card .pf-card__facts {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.375rem;
+  margin: 0.75rem 0 0;
+}
+
+.pf-card .pf-card__fact {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-width: 0;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.pf-card .pf-card__fact dt {
+  flex: 0 0 auto;
+  color: var(--pf-muted);
+  font-size: 0.75rem; /* etiqueta legible, sin columna fija */
+  font-weight: 600;
+}
+
+.pf-card .pf-card__fact dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.pf-card .pf-card__date {
+  white-space: nowrap; /* fecha completa en una línea: "28 oct 2025" */
+  font-variant-numeric: tabular-nums;
+}
+
+.pf-card .pf-card__date--set {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.pf-card .pf-card__actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--pf-line);
+}
+
+.pf-card .pf-action {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
   gap: 0.5rem;
   width: 100%;
-}
-
-.prospect-actions-grid .btn {
   min-width: 0;
-  min-height: 44px;
-  padding: 0 0.5rem;
-  gap: 0.375rem;
-  font-size: 0.8125rem;
-  overflow: hidden;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25;
+  text-align: left;
+  white-space: normal; /* la etiqueta larga se lee entera en 2 líneas */
+  overflow-wrap: anywhere;
 }
 
-.prospect-actions-grid .action-label {
-  min-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+.pf-card .pf-action__icon {
+  flex: 0 0 1rem;
+  width: 1rem;
+  height: 1rem;
 }
 
-.prospect-actions-grid .btn:disabled {
+.pf-card .pf-action__label {
+  min-width: 0; /* sin overflow:hidden ni elipsis */
+}
+
+.pf-card .pf-action:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
 
-.prospect-list-container .prospect-actions-cell {
-  display: block;
-  margin-top: 0.25rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid #e5e7eb;
+.prospect-section-header-toggle h2 {
+  font-size: 1.125rem;
+  line-height: 1.35;
+}
+.prospect-section-header-toggle {
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
 }
 
-/* ---------- Modales a pantalla completa ---------- */
+/* ============ REBUILD: modal de detalle ============ */
 .modal-backdrop {
   padding: 0.5rem;
 }
-
 .modal-backdrop .modal-content {
   width: 100%;
   max-width: none;
@@ -277,7 +328,6 @@ body {
   max-height: calc(100dvh - 1rem);
   border-radius: 0.75rem;
 }
-
 .modal-backdrop .modal-content > .p-5,
 .modal-backdrop .modal-content > form.p-5 {
   flex: 1 1 auto;
@@ -285,32 +335,128 @@ body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
-
 .modal-backdrop .modal-header,
 .modal-backdrop .modal-footer {
   padding: 0.875rem 1rem;
 }
-
 .modal-backdrop .modal-header > div:first-child {
   min-width: 0;
 }
-
 .modal-backdrop .modal-title {
   font-size: 1.25rem;
   line-height: 1.3;
   overflow-wrap: anywhere;
 }
-
 .modal-backdrop .modal-footer .flex {
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+/* Barra fija arriba: Llamar y WhatsApp visibles sin bajar por el historial. */
+.pf-detail-actions {
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  flex-shrink: 0;
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid var(--pf-line);
+  background-color: var(--pf-surface-2);
+}
+.pf-detail-actions .pf-detail-action {
+  min-height: 44px;
+  padding: 0.5rem 0.625rem;
+  font-size: 0.875rem;
+  line-height: 1.25;
+  text-align: center;
+  white-space: normal;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+}
+.detail-notes h4,
+.detail-sidebar h4 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--pf-ink);
+}
+.detail-sidebar {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--pf-line);
+  border-radius: 0.75rem;
+  background-color: var(--pf-surface-2);
+}
+.detail-sidebar .section {
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid var(--pf-line);
+}
+.detail-sidebar .section:last-child {
+  border-bottom: 0;
+  margin-bottom: 0;
+}
+.detail-sidebar .label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--pf-muted);
+}
+.detail-sidebar .value {
+  font-weight: 600;
+  color: var(--pf-ink);
+  overflow-wrap: anywhere;
+}
+
+.note-item {
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--pf-line);
+  border-radius: 0.5rem;
+  background-color: var(--pf-surface);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
+}
+#detail-followUpNotes .note-item[hidden] {
+  display: none !important;
+}
+.pf-note-text {
+  margin: 0;
+  color: var(--pf-ink);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.pf-note-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.5rem;
+  margin: 0.5rem 0 0;
+  color: var(--pf-muted);
+  font-size: 0.75rem;
+}
+.pf-note-user {
+  font-weight: 600;
+}
+.pf-note-date {
+  white-space: nowrap; /* la fecha de la nota nunca se parte */
+  font-variant-numeric: tabular-nums;
+}
+.pf-notes-toggle {
+  width: 100%;
+  margin-top: 0.5rem;
 }
 
 #whatsapp-message-textarea {
   height: 9rem;
   min-height: 9rem;
 }
-
 #materials-checkbox-container {
   max-height: 12rem;
 }
@@ -319,7 +465,6 @@ body {
 body.sidebar-open #sidebar {
   transform: translateX(0);
 }
-
 body.sidebar-open #sidebar-overlay {
   display: block;
 }
@@ -328,32 +473,28 @@ body.sidebar-open #sidebar-overlay {
 .dashboard-widget {
   min-width: 0;
   padding: 1rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--pf-line);
   border-radius: 0.75rem;
-  background: #fff;
+  background: var(--pf-surface);
   box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
 }
-
 .widget-title {
   margin: 0;
-  color: #111827;
+  color: var(--pf-ink);
   font-family: "Playfair Display", serif;
   font-size: 1.125rem;
   font-weight: 700;
   line-height: 1.3;
 }
-
 #prospects-by-status-chart-container,
 #prospects-over-time-chart-container {
   position: relative;
   width: 100%;
   min-width: 0;
 }
-
 .dashboard-widget canvas {
   max-width: 100%;
 }
-
 #prospects-by-status-chart-container {
   height: 340px;
 }
@@ -369,7 +510,6 @@ body.sidebar-open #sidebar-overlay {
 .snackbar {
   overflow-wrap: anywhere;
 }
-
 .flatpickr-calendar.static {
   width: calc(100vw - 2rem);
   max-width: 20rem;
@@ -378,7 +518,6 @@ body.sidebar-open #sidebar-overlay {
   height: 2.5rem;
   line-height: 2.5rem;
 }
-
 /* Evita el auto-zoom de iOS al enfocar campos */
 input,
 select,
@@ -386,22 +525,11 @@ textarea {
   font-size: 16px;
 }
 
-.prospect-section-header-toggle h2 {
-  font-size: 1.125rem;
-  line-height: 1.35;
-}
-.prospect-section-header-toggle {
-  gap: 0.75rem;
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
-}
-
-/* ============ ESCRITORIO (mejora sobre la base móvil) ============ */
+/* ============ ESCRITORIO: mejora sobre la base móvil ============ */
 @media (min-width: 768px) {
   #menu-toggle-btn {
     display: none;
   }
-  /* Ningún overlay debe oscurecer el escritorio, incluso si queda una clase colgada. */
   body.sidebar-open #sidebar-overlay,
   body.sidebar-open .page-overlay {
     display: none !important;
@@ -410,7 +538,6 @@ textarea {
   #logout-btn,
   #logout-button,
   .modal-close-btn,
-  .prospect-actions-cell .btn,
   .stagnant-prospect-card-actions .btn,
   .btn-sm,
   .material-checkbox-label span,
@@ -424,22 +551,18 @@ textarea {
   .theme-toggle {
     min-height: 0;
   }
-
   #logout-btn,
   #logout-button,
   .modal-close-btn,
-  .prospect-actions-cell .btn,
   .stagnant-prospect-card-actions .btn,
   .theme-toggle {
     min-width: 0;
   }
-
   .sidebar-nav a,
   #sidebar nav a,
   #sidebar li > a[data-phase2] {
     min-height: 0;
   }
-
   .pf-phase2 .pf-actions a {
     display: inline;
     padding: 0;
@@ -478,63 +601,12 @@ textarea {
   .grid-pagination .btn {
     min-height: 0;
   }
-  .prospect-actions-grid {
-    display: flex;
-    justify-content: flex-end;
-    width: auto;
-  }
-  .prospect-actions-grid .btn {
-    min-height: 0;
-    padding: 0 0.625rem;
-  }
-  .prospect-list-container .prospect-actions-cell {
-    display: block;
-  }
-  .prospect-list-container .prospect-actions-cell::before {
-    content: none;
+
+  /* Misma tarjeta, distribuida en rejilla: el contenido no cambia. */
+  .pf-card-list {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   }
 
-  /* La fila vuelve a ser una tabla de 5 columnas */
-  .prospect-list-container .prospect-list-header {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 1rem;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #f3f4f6;
-    background-color: #f9fafb;
-  }
-  .prospect-list-container .prospect-row {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    align-items: center;
-    gap: 1rem;
-    padding: 0.75rem 1rem;
-  }
-  .prospect-list-container .prospect-cell {
-    display: block;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-  .prospect-list-container .prospect-cell::before,
-  .prospect-list-container .prospect-actions-cell::before {
-    content: none;
-  }
-  .prospect-list-container .prospect-cell p,
-  .prospect-list-container .prospect-cell span {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-  .prospect-list-container .prospect-actions-cell {
-    flex-wrap: nowrap;
-    justify-content: flex-end;
-    gap: 0.5rem;
-    margin-top: 0;
-    padding-top: 0;
-    border-top: 0;
-  }
-
-  /* Modales con su tamaño de escritorio */
   .modal-backdrop {
     padding: 0;
   }
@@ -558,6 +630,14 @@ textarea {
   }
   .modal-backdrop .modal-footer .flex {
     flex-wrap: nowrap;
+  }
+  .pf-detail-actions {
+    grid-template-columns: repeat(2, minmax(0, 12rem));
+    justify-content: flex-end;
+    padding: 0.75rem 1.25rem;
+  }
+  .detail-grid {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   }
   #whatsapp-message-textarea {
     height: auto;
@@ -593,6 +673,12 @@ textarea {
   --pf-tinta: #eef0f4;
   --pf-tinta-suave: #aeb6c4;
   --pf-linea: #3a414d;
+  /* Alias usados por los componentes del rebuild */
+  --pf-surface: #181b21;
+  --pf-surface-2: #22262e;
+  --pf-ink: #eef0f4;
+  --pf-muted: #aeb6c4;
+  --pf-line: #3a414d;
 }
 
 [data-theme="dark"],
@@ -601,13 +687,10 @@ textarea {
   color: var(--pf-tinta) !important;
 }
 
-/* Logo original es negro sobre transparente: se invierte sobre la barra oscura */
 [data-theme="dark"] .sidebar-header img {
   filter: invert(1);
 }
 
-/* Estas clases vienen de @apply en style.css y en los <style> de cada vista,
-   por eso no las alcanzan los selectores genéricos de utilidades Tailwind. */
 [data-theme="dark"] .sidebar,
 [data-theme="dark"] .modal-content,
 [data-theme="dark"] .prospect-list-container,
@@ -624,9 +707,9 @@ textarea {
 
 [data-theme="dark"] .modal-header,
 [data-theme="dark"] .modal-footer,
-[data-theme="dark"] .prospect-list-header,
-[data-theme="dark"] .prospect-card-footer,
-[data-theme="dark"] .detail-sidebar {
+[data-theme="dark"] .pf-detail-actions,
+[data-theme="dark"] .detail-sidebar,
+[data-theme="dark"] .prospect-card-footer {
   background-color: var(--pf-superficie-2) !important;
   border-color: var(--pf-linea) !important;
 }
@@ -637,11 +720,35 @@ textarea {
 [data-theme="dark"] .detail-notes h4,
 [data-theme="dark"] .prospect-section-header-toggle h2,
 [data-theme="dark"] .widget-title,
-[data-theme="dark"] .prospect-cell,
 [data-theme="dark"] .note-item p,
+[data-theme="dark"] .pf-note-text,
+[data-theme="dark"] .pf-note-meta,
 [data-theme="dark"] .material-checkbox-label span,
 [data-theme="dark"] .planner-day-header h3 {
   color: var(--pf-tinta) !important;
+}
+
+[data-theme="dark"] .pf-card,
+[data-theme="dark"] .pf-card .pf-card__name,
+[data-theme="dark"] .pf-card .pf-card__fact,
+[data-theme="dark"] .pf-card .pf-card__fact dd,
+[data-theme="dark"] .pf-card .pf-action__label {
+  color: var(--pf-tinta) !important;
+}
+[data-theme="dark"] .pf-card .pf-card__contact,
+[data-theme="dark"] .pf-card .pf-card__fact dt,
+[data-theme="dark"] .toggle-switch-label,
+[data-theme="dark"] .grid-pagination .page-status {
+  color: var(--pf-tinta-suave) !important;
+}
+[data-theme="dark"] .pf-card .pf-card__date--set {
+  color: #fca5a5 !important;
+}
+[data-theme="dark"] .pf-card,
+[data-theme="dark"] .pf-card .pf-card__actions,
+[data-theme="dark"] .pf-detail-actions,
+[data-theme="dark"] .note-item {
+  border-color: var(--pf-linea) !important;
 }
 
 [data-theme="dark"] .toggle-switch-container .toggle-switch:not(.active) {
@@ -656,12 +763,6 @@ textarea {
   background-color: var(--pf-linea) !important;
 }
 
-[data-theme="dark"] .prospect-list-container .prospect-cell::before,
-[data-theme="dark"] .toggle-switch-label,
-[data-theme="dark"] .grid-pagination .page-status {
-  color: var(--pf-tinta-suave) !important;
-}
-
 [data-theme="dark"] .btn-secondary {
   background-color: var(--pf-superficie-2) !important;
   color: var(--pf-tinta) !important;
@@ -674,32 +775,26 @@ textarea {
 [data-theme="dark"] [class*="bg-brand-light"] {
   background-color: var(--pf-superficie) !important;
 }
-
 [data-theme="dark"] [class*="bg-red-50"] {
   background-color: #35161b !important;
 }
-
 [data-theme="dark"] [class*="bg-red-700"] {
   background-color: #4a1218 !important;
 }
-
 [data-theme="dark"] [class*="text-gray-9"],
 [data-theme="dark"] [class*="text-black"],
 [data-theme="dark"] [class*="text-brand-dark"] {
   color: var(--pf-tinta) !important;
 }
-
 [data-theme="dark"] [class*="text-gray-7"],
 [data-theme="dark"] [class*="text-gray-6"],
 [data-theme="dark"] [class*="text-gray-5"] {
   color: var(--pf-tinta-suave) !important;
 }
-
 [data-theme="dark"] [class*="text-red-6"],
 [data-theme="dark"] [class*="text-red-7"] {
   color: #fca5a5 !important;
 }
-
 [data-theme="dark"] [class*="border-gray-2"],
 [data-theme="dark"] [class*="border-gray-3"],
 [data-theme="dark"] [class*="border-red-2"],
@@ -714,23 +809,18 @@ textarea {
   color: var(--pf-tinta) !important;
   border-color: var(--pf-linea) !important;
 }
-
 [data-theme="dark"] input::placeholder,
 [data-theme="dark"] textarea::placeholder {
   color: #9aa3b2;
 }
-
 [data-theme="dark"] .dashboard-widget {
   background: var(--pf-superficie) !important;
   border-color: var(--pf-linea) !important;
 }
-
 [data-theme="dark"] .widget-title {
   color: var(--pf-tinta) !important;
 }
 
-/* El interruptor "Mostrar sólo prospectos que requieren acción" venía de
-   @apply bg-white/text-gray-700; en oscuro debe seguir el tema. */
 [data-theme="dark"] .toggle-switch-container {
   background-color: var(--pf-superficie-2) !important;
   border-color: var(--pf-linea) !important;
@@ -739,40 +829,34 @@ textarea {
 [data-theme="dark"] .toggle-switch-label {
   color: var(--pf-tinta) !important;
 }
-
 [data-theme="dark"] .toggle-switch {
   background-color: #94a3b8 !important;
 }
-
 [data-theme="dark"] .toggle-switch.active {
   background-color: #dc2626 !important;
 }
-
 [data-theme="dark"] .snackbar {
   background-color: #374151 !important;
   color: #f9fafb;
 }
-
 [data-theme="dark"] .flatpickr-calendar,
 [data-theme="dark"] .flatpickr-months,
 [data-theme="dark"] .flatpickr-innerContainer {
   background: var(--pf-superficie-2) !important;
   color: var(--pf-tinta) !important;
 }
-
 [data-theme="dark"] .flatpickr-day,
 [data-theme="dark"] .flatpickr-months .flatpickr-month,
 [data-theme="dark"] .flatpickr-weekday {
   color: var(--pf-tinta) !important;
 }
-
 [data-theme="dark"] .flatpickr-day:hover,
 [data-theme="dark"] .flatpickr-day.today {
   background: #3a414d !important;
   border-color: #3a414d !important;
 }
 
-/* Pantallas de Fase 2 (phase2.css tiene selectores más específicos) */
+/* Fase 2 (phase2.css tiene selectores más específicos) */
 [data-theme="dark"] .pf-phase2 .pf-panel,
 [data-theme="dark"] .pf-phase2 pre,
 [data-theme="dark"] .pf-phase2 input:not([type="checkbox"]),
@@ -783,17 +867,14 @@ textarea {
   color: var(--pf-tinta) !important;
   border-color: var(--pf-linea) !important;
 }
-
 [data-theme="dark"] .pf-local-banner {
   background: #2b2016 !important;
   border-left-color: #f59e0b !important;
   color: var(--pf-tinta) !important;
 }
-
 [data-theme="dark"] #phase2-notice {
   color: #fca5a5 !important;
 }
-
 [data-theme="dark"] .pf-phase2 th,
 [data-theme="dark"] .pf-phase2 td {
   border-color: var(--pf-linea) !important;
