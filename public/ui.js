@@ -360,9 +360,19 @@ export const addNewNoteToView = (note) => {
   elements.detailFollowUpNotes.prepend(noteElement);
 };
 
+// El nombre del modal nunca queda vacío: si no hay persona de contacto se
+// muestra el negocio (caso Estudio Arki3d) y, como último recurso, "prospecto".
+export const whatsappGreetingName = (prospect = {}) =>
+  String(
+    prospect.contactPerson ||
+      prospect.businessName ||
+      "prospecto",
+  ).trim();
+
 export const openWhatsappModal = (prospect) => {
-  elements.whatsappProspectName.textContent =
-    prospect.contactPerson || prospect.businessName;
+  if (elements.whatsappProspectName) {
+    elements.whatsappProspectName.textContent = whatsappGreetingName(prospect);
+  }
   elements.whatsappSendBtn.dataset.prospectId = prospect.id;
   elements.whatsappSendBtn.dataset.prospectPhone = prospect.phone;
   elements.whatsappModal.classList.add("is-open");
@@ -384,22 +394,6 @@ export const populateMaterialsCheckboxes = (materials) => {
         <span class="text-sm font-medium text-gray-800">${material.name}</span>`;
     elements.materialsCheckboxContainer.appendChild(label);
   });
-};
-
-export const generateWhatsappMessage = (
-  template,
-  contactName,
-  userName,
-  materials,
-) => {
-  const materialsList = materials
-    .map((m) => `• ${m.name}: ${m.url}`)
-    .join("\n");
-  const message = template
-    .replace("{contactName}", contactName)
-    .replace("{materialsList}", materialsList)
-    .replace("{userName}", userName);
-  elements.whatsappMessageTextarea.value = message;
 };
 
 export const showSnackbar = (message, type = "info") => {

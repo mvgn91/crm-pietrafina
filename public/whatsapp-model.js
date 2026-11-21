@@ -52,9 +52,12 @@ export const datosPlantillaDe = (
   { envios = [], enlaces = {} } = {},
 ) => {
   const envio = ultimoEnvioCorreoDe(envios);
+  // Sin persona de contacto, el negocio es el saludo; si tampoco hay negocio,
+  // el render deja un saludo neutro en vez de "¡Hola, !".
   const nombreContacto =
     String(prospect?.contactPerson || "").trim() ||
-    String(decisorDe(prospect)?.nombre || "").trim();
+    String(decisorDe(prospect)?.nombre || "").trim() ||
+    String(prospect?.businessName || "").trim();
   return {
     nombre_contacto: nombreContacto,
     empresa: String(prospect?.businessName || "").trim(),
@@ -97,7 +100,14 @@ export const renderPlantillaWhatsapp = (texto, datos = {}) => {
   if (nombre) {
     salida = salida.split("{{nombre_contacto}}").join(nombre);
   } else {
-    salida = salida.split("Hola, {{nombre_contacto}}, buen día.").join("Hola, buen día.");
+    // Cubre las formas de saludo que un operador pueda editar en una plantilla.
+    // Nunca debe llegar al textarea un "¡Hola, !" ni un "Hola, ,".
+    salida = salida
+      .replace(/¡?Hola,\s*\{\{nombre_contacto\}\}\s*,?\s*buen día[.!]?/gi, "Hola, buen día.")
+      .replace(/¡Hola,\s*\{\{nombre_contacto\}\}!/gi, "¡Hola, buen día!")
+      .replace(/Hola,\s*\{\{nombre_contacto\}\}/gi, "Hola")
+      .split("Hola, {{nombre_contacto}}, buen día.")
+      .join("Hola, buen día.");
   }
 
   const fecha = String(datos.fecha_envio || "").trim();

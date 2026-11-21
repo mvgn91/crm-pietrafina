@@ -24,4 +24,7 @@
 .pf-phase2 table {border-collapse:collapse;min-width:620px;width:100%;}
 .pf-phase2 th,.pf-phase2 td {text-align:left;border-bottom:1px solid #e5e7eb;padding:.7rem;}
 .pf-phase2 [hidden] {display:none!important;}
-@media(max-width:767px){body.sidebar-open #sidebar{transform:translateX(0);}body.sidebar-open .page-overlay{display:block;position:fixed;inset:0;background:#0006;z-index:99;}}
+/* Base móvil: el menú se abre con `body.sidebar-open` (el overlay lo gestiona movil.css). */
+body.sidebar-open #sidebar { transform: translateX(0); }
+/* Escritorio: la barra ya es estática; solo se asegura el overlay apagado. */
+@media(min-width:768px){body.sidebar-open .page-overlay{display:none;}}
