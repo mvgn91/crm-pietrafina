@@ -1,3 +1,4 @@
+import { STATUS_META, getStatusBadgeClass } from "./status-model.js";
 // ui.js
 
 // Nota Importante: Las funciones de control de UI (modales, snackbar, etc.) se definen aquí
@@ -103,20 +104,6 @@ const formatFollowUpDate = (dateString) => {
   } catch (e) {
     return "Fecha inválida";
   }
-};
-
-const getStatusBadgeClass = (status) => {
-  const statusClasses = {
-    "Pendiente de Correo": "bg-yellow-100 text-yellow-800",
-    "En Prospección": "bg-blue-100 text-blue-800",
-    Interesado: "bg-green-100 text-green-800",
-    Rechazado: "bg-red-100 text-red-800",
-    "Convertido a cliente": "bg-purple-100 text-purple-800",
-    "Ya es nuestro cliente": "bg-indigo-100 text-indigo-800",
-    "Seguimiento agendado": "bg-cyan-100 text-cyan-800",
-    "No contesta": "bg-gray-100 text-gray-800",
-  };
-  return statusClasses[status] || "bg-gray-100 text-gray-800";
 };
 
 export const createProspectRowHTML = (prospect) => {
@@ -265,6 +252,7 @@ export const showProspectDetailsModal = (prospect) => {
 
   elements.detailBusinessName.textContent = prospect.businessName;
   elements.detailStatus.textContent = prospect.status;
+  elements.detailStatus.className = `text-xs font-semibold px-2.5 py-1 rounded-full inline-block ${getStatusBadgeClass(prospect.status)}`;
   elements.detailContactPerson.textContent = prospect.contactPerson;
   elements.detailEmail.textContent = prospect.email;
   elements.detailPhone.textContent = prospect.phone;
@@ -274,7 +262,11 @@ export const showProspectDetailsModal = (prospect) => {
       elements.detailCallBtn.href = `tel:+${phone}`;
       elements.detailCallBtn.classList.remove("hidden");
     } else {
-      elements.detailCallBtn.removeAttribute("href");
+      if (typeof elements.detailCallBtn.removeAttribute === "function") {
+        elements.detailCallBtn.removeAttribute("href");
+      } else {
+        elements.detailCallBtn.href = "";
+      }
       elements.detailCallBtn.classList.add("hidden");
     }
   }
@@ -581,8 +573,10 @@ const applyChartTheme = () => {
   _statusChart?.update();
   _timeChart?.update();
 };
-window.addEventListener("themechange", applyChartTheme);
-applyChartTheme();
+if (typeof window !== "undefined") {
+  window.addEventListener("themechange", applyChartTheme);
+  applyChartTheme();
+}
 
 export const renderStatsCards = (stats) => {
   const container = document.getElementById("stats-cards-container");
@@ -612,35 +606,45 @@ export const renderProspectsByStatusChart = (prospects = []) => {
   const ctx = document.getElementById("prospectsByStatusChart");
   if (!ctx || typeof Chart === "undefined") return;
 
-  const labels = [
-    "Pendiente de Correo",
-    "En Prospección",
-    "Interesado",
-    "Seguimiento agendado",
-    "No contesta",
-    "Rechazado",
-    "Convertido a cliente",
-    "Ya es nuestro cliente",
-  ];
-  const colors = [
-    "#f59e0b", // amber
-    "#3b82f6", // blue
-    "#10b981", // green
-    "#06b6d4", // cyan
-    "#6b7280", // gray
-    "#ef4444", // red
-    "#8b5cf6", // violet
-    "#6366f1", // indigo
-  ];
-  const counts = labels.map((label) => prospects.filter((p) => (p.status || "").trim() === label).length);
+  const totals = new Map();
+  for (const p of prospects) {
+    const status = p.status || 'Sin estatus';
+    totals.set(status, (totals.get(status) || 0) + 1);
+  }
+  const labels = [...Object.keys(STATUS_META), ...[...totals.keys()].filter(s => !STATUS_META[s])]
+    .filter(status => totals.has(status));
+  const colors = labels.map(status => STATUS_META[status]?.color || '#6b7280');
+  const counts = labels.map(status => totals.get(status));
 
   if (_statusChart) {
     _statusChart.data.labels = labels;
     _statusChart.data.datasets[0].data = counts;
+    _statusChart.data.datasets[0].backgroundColor = colors;
     _statusChart.update();
     return;
   }
   _statusChart = new Chart(ctx, {
+    plugins: [{
+      id: 'statusCounts',
+      afterDatasetsDraw(chart) {
+        const { ctx } = chart;
+        ctx.save();
+        ctx.font = 'bold 12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        chart.getDatasetMeta(0).data.forEach((arc, index) => {
+          if (!chart.getDataVisibility(index)) return;
+          const { x, y } = arc.tooltipPosition();
+          const value = String(chart.data.datasets[0].data[index]);
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = '#1f2937';
+          ctx.strokeText(value, x, y);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillText(value, x, y);
+        });
+        ctx.restore();
+      },
+    }],
     type: "doughnut",
     data: {
       labels,

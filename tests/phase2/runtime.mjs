@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import { startWorkspace } from '../../public/phase2-runtime.js';
+const values=new Map(),badge={};
+globalThis.localStorage={getItem:k=>values.get(k),setItem:(k,v)=>values.set(k,v)};
+globalThis.location={search:'?preview=1'};
+globalThis.document={getElementById:()=>badge};
+let ws;await startWorkspace(value=>{ws=value;});
+assert.equal(ws.rows.length,103);assert.equal(ws.user,'Demo');assert.ok(badge.textContent.includes('ficticios'));
+ws.store.save({...ws.rows[0],businessName:'Cambio de demo'});
+assert.equal(ws.store.rows(ws.rows)[0].businessName,'Cambio de demo');
+assert.ok([...values.keys()].every(key=>key.endsWith(':preview')));
+delete globalThis.localStorage;delete globalThis.location;delete globalThis.document;
+console.log('runtime: PASS full preview bootstrap without loading Firebase, isolated demo persistence');

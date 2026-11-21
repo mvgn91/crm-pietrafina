@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import { normalizarTelefono, enlaceWhatsapp } from '../../public/whatsapp-model.js';
+import { enviarWhatsappDeProspecto } from '../../public/whatsapp-envio.js';
+import { createDraftStore } from '../../public/draft-store.js';
+const values=new Map(),store=createDraftStore({getItem:k=>values.get(k),setItem:(k,v)=>values.set(k,v)});
+assert.equal(normalizarTelefono('33 1830 9448'),'523318309448');assert.equal(normalizarTelefono('+52 1 3318309448'),'523318309448');assert.equal(normalizarTelefono('null'),'');assert.equal(normalizarTelefono('123'),'');assert.equal(enlaceWhatsapp('','x'),null);
+let opened=0;
+const p={id:'1',phone:'3318309448',status:'En Prospección',followUpNotes:[]};
+await assert.rejects(()=>enviarWhatsappDeProspecto({prospect:p,mensaje:'Hola',store,open:()=>null}),/bloqueo/);
+assert.equal(store.rows([p])[0].followUpNotes.length,0);
+const result=await enviarWhatsappDeProspecto({prospect:p,mensaje:'Hola, soy Nicolás.',store,open:(url)=>{opened++;assert.ok(url.startsWith('https://wa.me/523318309448?text='));return {};}});
+assert.equal(opened,1);assert.equal(result.prospect.status,p.status);assert.equal(result.prospect.followUpNotes[0].event,'whatsapp_preparado');assert.equal(result.prospect.sequence,undefined);assert.equal(result.prospect.followUpNotes[0].message,'Hola, soy Nicolas.');
+console.log('whatsapp: PASS normalized phone, popup failures, automatic local preparation note, no false sent/cadence event');

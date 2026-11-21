@@ -1,0 +1,38 @@
+{
+  "whatsapp": {
+    "enlaces": {},
+    "plantillas": {
+      "primer_contacto": {
+        "titulo": "Primer contacto diseñador o arquitecto",
+        "texto": "Hola, soy Nicolas de Pietra Fina de Occidente en Zapopan. Trabajamos piedra natural para cocinas, banos, escaleras y mobiliario a medida, con entrega inmediata porque el mueble va prearmado y solo las cubiertas se hacen a su diseno. Me gustaria platicar de una colaboracion para sus proyectos, nosotros hacemos la maquila de piedra. Le puedo mandar unas fotos de trabajos recientes por aqui?",
+        "propuesta": false
+      },
+      "recontacto": {
+        "titulo": "Recontacto",
+        "texto": "Hola, soy Nicolas de Pietra Fina. Hace un tiempo platicamos de un proyecto en piedra y me quede con ganas de retomarlo. Sigue en pie o ya lo resolvieron por otro lado?",
+        "propuesta": false
+      },
+      "interesado": {
+        "titulo": "Precio o visita",
+        "texto": "Claro, con gusto. Me dice que espacio es y que piedra tiene en mente o le mando opciones? Si quiere lo vemos en el taller en Mariano Otero 5050, ahi tenemos material para que lo vea en persona. Que dia le acomoda?",
+        "propuesta": false
+      },
+      "rechazo": {
+        "titulo": "Rechazo amable",
+        "texto": "Sin problema, gracias por contestar. Si en algun proyecto necesita una segunda opcion en piedra, aqui estamos a la orden. Le puedo mandar de vez en cuando fotos de trabajos nuevos?",
+        "propuesta": false
+      },
+      "cultivo": {
+        "titulo": "Cultivo de convertido",
+        "texto": "Hola, soy Nicolas de Pietra Fina. Gracias por la confianza. Tiene algun proyecto en piedra en el que podamos apoyar?",
+        "propuesta": true
+      },
+      "cierre": {
+        "titulo": "Cierre de tres toques",
+        "texto": "Hola, soy Nicolas de Pietra Fina. Le dejo mi contacto por si mas adelante necesita apoyo con piedra para sus proyectos. Quedo a la orden.",
+        "propuesta": true
+      }
+    },
+    "nota": "Textos adaptados de estrategia-contacto-recontacto.md. Cultivo y cierre son propuestas editables para revision."
+  }
+}

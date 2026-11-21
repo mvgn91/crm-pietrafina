@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import { createDraftStore } from '../../public/draft-store.js';
+const map=new Map(),storage={getItem:k=>map.get(k) || null,setItem:(k,v)=>map.set(k,v)};
+const base=[{id:'1',status:'Interesado'}];
+const a=createDraftStore(storage,'a'),b=createDraftStore(storage,'b');
+a.save({...base[0],extra:'local'});assert.equal(a.rows(base)[0].extra,'local');assert.equal(b.rows(base)[0].extra,undefined);
+assert.equal(createDraftStore(storage,'a').rows(base)[0].extra,'local');
+a.setTemplates({text:'x'});assert.deepEqual(a.getTemplates(),{text:'x'});
+a.importRows([{id:'2',status:'Rechazado'}]);assert.deepEqual(a.rows(base),[{id:'2',status:'Rechazado'}]);
+assert.throws(()=>a.importRows([]),/vacío/);
+const full=createDraftStore({getItem:()=>null,setItem:()=>{throw new Error('Quota exceeded');}},'full');
+assert.throws(()=>full.save(base[0]),/Quota/);assert.equal(full.rows(base)[0].extra,undefined);
+console.log('draft-store: PASS persistence, user isolation, import replacement, quota failure without silent mutation');

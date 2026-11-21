@@ -1,3 +1,20 @@
+import { auth, getAppDisplayName } from './firebase.js';
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+
+function renderUser(user) {
+    const name = user ? getAppDisplayName(user) : 'Sin sesión';
+    for (const id of ['sidebar-user-name', 'user-name-display']) {
+        const element = document.getElementById(id);
+        if (element) element.textContent = name;
+    }
+    const avatar = document.getElementById('user-avatar-initials');
+    if (avatar) avatar.textContent = name.charAt(0).toUpperCase();
+    try {
+        if (user) sessionStorage.setItem('pf_currentUserName', name);
+        else sessionStorage.removeItem('pf_currentUserName');
+    } catch {}
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const sidebarToggle = document.querySelector('.sidebar-toggle');
     const menuToggleBtn = document.getElementById('menu-toggle-btn');
@@ -41,19 +58,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Poblar Información de Usuario ---
-    // Se asume que el nombre de usuario se guarda en sessionStorage al hacer login
-    const userName = sessionStorage.getItem('pf_currentUserName') || 'Usuario';
-    const sidebarUserName = document.getElementById('sidebar-user-name');
-    const userAvatar = document.getElementById('user-avatar-initials');
+    // Firebase may resolve after DOMContentLoaded: update when auth is ready.
+    onAuthStateChanged(auth, renderUser);
 
-    if (sidebarUserName) {
-        sidebarUserName.textContent = userName;
-    }
-    if (userAvatar && userName && userName !== 'Usuario') {
-        userAvatar.textContent = userName.charAt(0).toUpperCase();
-    }
-    
     // --- Lógica de Logout ---
     if (logoutBtn) {
          logoutBtn.addEventListener("click", () => {

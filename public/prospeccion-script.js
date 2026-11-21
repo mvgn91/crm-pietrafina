@@ -1,3 +1,6 @@
+import { renderModalMessage, renderDetailCadence, modalDraft } from "./modal-whatsapp.js";
+import { enviarWhatsappDeProspecto } from "./whatsapp-envio.js";
+import { groupProspects, populateStatusFilter } from "./status-model.js";
 // prospeccion-script.js (Módulo de Prospección)
 
 import { auth, getAppDisplayName } from "./firebase.js";
@@ -15,8 +18,6 @@ import {
   openWhatsappModal,
   closeWhatsappModal,
   populateMaterialsCheckboxes,
-  generateWhatsappMessage,
-  normalizePhone,
   showSnackbar,
   showConfirmationModal,
   initFollowUpNotePicker,
@@ -54,7 +55,6 @@ const ESTATUS_CONSOLIDADOS = {
 };
 
 const WHATSAPP_CONFIG = {
-  messageTemplate: `¡Hola, {contactName}!\n\nComo acordamos, te comparto los siguientes materiales de Pietrafina:\n\n{materialsList}\n\nQuedo atento a tus comentarios.\n\nSaludos cordiales,\n{userName}\nPietra Fina`,
   materials: [
     { name: "CATALOGO DE PRODUCTOS", url: "https://kutt.it/catalogopf" },
     { name: "LOOKBOOK DE OBRAS", url: "https://kutt.it/lookbook" },
@@ -83,7 +83,13 @@ function getGroupIcon(groupName) {
 function handleShowProspectDetails(prospectId) {
   currentProspectIdForModal = prospectId;
   const prospect = allProspects.find((p) => p.id === prospectId);
-  if (prospect) showProspectDetailsModal(prospect);
+  if (prospect) {
+    try {
+      const local = modalDraft(prospect, auth.currentUser?.uid).prospect;
+      showProspectDetailsModal(local);
+      renderDetailCadence(local);
+    } catch (error) { showSnackbar(error.message, "error"); }
+  }
 }
 
 async function handleUpdateProspectSubmit(event) {
@@ -184,74 +190,37 @@ async function handleAddNoteSubmit(event) {
 function handleOpenWhatsappModal(prospect) {
   openWhatsappModal(prospect);
   populateMaterialsCheckboxes(WHATSAPP_CONFIG.materials);
-  updateWhatsappMessage();
+  updateWhatsappMessage(true);
 }
 
-function updateWhatsappMessage() {
-  const selectedMaterials = Array.from(
-    document.querySelectorAll(".material-checkbox:checked"),
-  ).map((checkbox) => ({ name: checkbox.dataset.name, url: checkbox.value }));
+async function updateWhatsappMessage(reset = false) {
   const prospectId = elements.whatsappSendBtn.dataset.prospectId;
-  const prospect = allProspects.find((p) => p.id === prospectId);
+  const prospect = allProspects.find(p => p.id === prospectId);
   if (!prospect) return;
-  const contactName = prospect.contactPerson || prospect.businessName;
-  generateWhatsappMessage(
-    WHATSAPP_CONFIG.messageTemplate,
-    contactName,
-    currentUserName,
-    selectedMaterials,
-  );
+  const materials = Array.from(document.querySelectorAll(".material-checkbox:checked"))
+    .map(checkbox => ({ name: checkbox.dataset.name, url: checkbox.value }));
+  try {
+    await renderModalMessage({ prospect, uid: auth.currentUser?.uid,
+      textarea: elements.whatsappMessageTextarea, materials, reset: reset === true });
+  } catch (error) { showSnackbar(error.message, "error"); }
 }
 
 async function handleSendWhatsapp() {
-  const { prospectId, prospectPhone } = elements.whatsappSendBtn.dataset;
-  const phone = normalizePhone(prospectPhone);
-
-  if (!phone) {
-    showSnackbar("El prospecto no tiene teléfono registrado.", "error");
-    return;
-  }
-
-  const message = elements.whatsappMessageTextarea.value;
-  const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-
-  const selectedMaterialsNames = Array.from(
-    document.querySelectorAll(".material-checkbox:checked"),
-  )
-    .map((cb) => cb.dataset.name)
-    .join(", ");
-
-  if (selectedMaterialsNames || message.trim().length > 0) {
-    const noteContent = selectedMaterialsNames
-      ? `Se envió WhatsApp con materiales: ${selectedMaterialsNames}`
-      : "Se envió un mensaje de WhatsApp (sin materiales seleccionados).";
-
-    const noteObject = {
-      note: noteContent,
-      date: new Date().toISOString(),
-      user: currentUserName,
-    };
-    try {
-      await addFollowUpNote(prospectId, noteObject);
-      showSnackbar("Nota de WhatsApp registrada.", "info");
-    } catch (error) {
-      console.error("Error al guardar nota de WhatsApp:", error);
-      showSnackbar("Error al registrar la nota de WhatsApp.", "error");
-    }
-  }
-
-  closeWhatsappModal();
-
-  // En el celular, navegar en la misma pestaña es lo que abre la app de WhatsApp;
-  // window.open(_blank) suele ser bloqueado o dejar una pestaña vacía.
-  const esMovil =
-    window.matchMedia("(pointer: coarse)").matches ||
-    /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  if (esMovil) {
-    window.location.href = whatsappUrl;
-  } else {
-    const ventana = window.open(whatsappUrl, "_blank", "noopener,noreferrer");
-    if (!ventana) window.location.href = whatsappUrl;
+  const { prospectId } = elements.whatsappSendBtn.dataset;
+  const prospect = allProspects.find(p => p.id === prospectId);
+  if (!prospect) return;
+  elements.whatsappSendBtn.disabled = true;
+  try {
+    const result = await enviarWhatsappDeProspecto({
+      prospect, mensaje: elements.whatsappMessageTextarea.value, user: currentUserName,
+    });
+    allProspects = allProspects.map(p => p.id === result.prospect.id ? result.prospect : p);
+    showSnackbar("WhatsApp preparado; nota en borrador local. Confirma el resultado en Fase 2.", "info");
+    closeWhatsappModal();
+  } catch (error) {
+    showSnackbar(error.message, "error");
+  } finally {
+    elements.whatsappSendBtn.disabled = false;
   }
 }
 
@@ -326,7 +295,7 @@ function handleProspeccionRender() {
     ESTATUS_CONSOLIDADOS.CLIENTE,
   ];
 
-  const filterStatus = document.getElementById("statusFilter")?.value || "active";
+  const filterStatus = document.getElementById("statusFilter")?.value || "all";
   const searchTerm = document.getElementById("searchFilter")?.value?.toLowerCase() || "";
   const sortOrder = document.getElementById("sortFilter")?.value || "followup_asc";
   const stagnantFilterToggle = document.getElementById("stagnant-filter-toggle");
@@ -347,9 +316,9 @@ function handleProspeccionRender() {
           const isStagnant = p.status === ESTATUS_CONSOLIDADOS.PROSPECCION && Array.isArray(p.followUpNotes) && p.followUpNotes.length === 1;
           return isStagnant && searchMatch;
       } else {
-          const statusMatch = filterStatus === "active" 
+          const statusMatch = filterStatus === "all" || (filterStatus === "active"
               ? !ARCHIVED_PENDING_STATUSES.includes(p.status)
-              : p.status === filterStatus;
+              : p.status === filterStatus);
           return statusMatch && searchMatch;
       }
   });
@@ -370,13 +339,7 @@ function handleProspeccionRender() {
 
   renderWeeklyPlanner(filteredProspects);
 
-  const LEGACY_STATUSES = ["Seguimiento agendado", "No contesta"];
-
-  const groupedData = {
-    "Interesados (Seguimiento Agendado)": filteredProspects.filter(p => p.nextFollowUpDate),
-    "Prospección Activa (Sin Fecha Agendada)": filteredProspects.filter(p => !p.nextFollowUpDate && p.status === ESTATUS_CONSOLIDADOS.PROSPECCION),
-    "Prospectos Legado (Revisar Estatus)": filteredProspects.filter(p => !p.nextFollowUpDate && LEGACY_STATUSES.includes(p.status)),
-  };
+  const groupedData = groupProspects(filteredProspects, "prospecting");
 
   const finalGroupedData = Object.fromEntries(Object.entries(groupedData).filter(([, prospects]) => prospects.length > 0));
 
@@ -409,6 +372,7 @@ document.addEventListener("visibilitychange", () => {
 window.addEventListener("online", reconnectProspectsIfNeeded);
 
 document.addEventListener("DOMContentLoaded", () => {
+  populateStatusFilter(document.getElementById("statusFilter"), { active: true });
   initFollowUpNotePicker();
   initEditDatePicker(); 
 

@@ -1,3 +1,6 @@
+import { renderModalMessage, renderDetailCadence, modalDraft } from "./modal-whatsapp.js";
+import { enviarWhatsappDeProspecto } from "./whatsapp-envio.js";
+import { groupProspects, populateStatusFilter } from "./status-model.js";
 // script.js (Módulo de Administración/Gestión)
 
 import { auth, getAppDisplayName } from "./firebase.js";
@@ -15,7 +18,6 @@ import {
   openWhatsappModal,
   closeWhatsappModal,
   populateMaterialsCheckboxes,
-  generateWhatsappMessage,
   showSnackbar,
   showConfirmationModal,
   openAddProspectModal,
@@ -48,7 +50,6 @@ const CLASSIFICATIONS = [
 ];
 
 const WHATSAPP_CONFIG = {
-  messageTemplate: `¡Hola, {contactName}!\n\nComo acordamos, te comparto los siguientes materiales de Pietrafina:\n\n{materialsList}\n\nQuedo atento a tus comentarios.\n\nSaludos cordiales,\n{userName}\nPietra Fina`,
   materials: [
     { name: "CATALOGO DE PRODUCTOS", url: "https://kutt.it/catalogopf" },
     { name: "LOOKBOOK DE OBRAS", url: "https://kutt.it/lookbook" },
@@ -86,7 +87,13 @@ function getGroupIcon(groupName) {
 function handleShowProspectDetails(prospectId) {
   currentProspectIdForModal = prospectId;
   const prospect = allProspects.find((p) => p.id === prospectId);
-  if (prospect) showProspectDetailsModal(prospect);
+  if (prospect) {
+    try {
+      const local = modalDraft(prospect, auth.currentUser?.uid).prospect;
+      showProspectDetailsModal(local);
+      renderDetailCadence(local);
+    } catch (error) { showSnackbar(error.message, "error"); }
+  }
 }
 
 async function handleAddProspectSubmit(event) {
@@ -252,63 +259,38 @@ async function handleMarkAsSent(prospectId) {
 function handleOpenWhatsappModal(prospect) {
   openWhatsappModal(prospect);
   populateMaterialsCheckboxes(WHATSAPP_CONFIG.materials);
-  updateWhatsappMessage();
+  updateWhatsappMessage(true);
 }
 
-function updateWhatsappMessage() {
-  const selectedMaterials = Array.from(
-    document.querySelectorAll(".material-checkbox:checked"),
-  ).map((checkbox) => ({ name: checkbox.dataset.name, url: checkbox.value }));
+async function updateWhatsappMessage(reset = false) {
   const prospectId = elements.whatsappSendBtn.dataset.prospectId;
-  const prospect = allProspects.find((p) => p.id === prospectId);
+  const prospect = allProspects.find(p => p.id === prospectId);
   if (!prospect) return;
-  const contactName = prospect.contactPerson || prospect.businessName;
-  generateWhatsappMessage(
-    WHATSAPP_CONFIG.messageTemplate,
-    contactName,
-    currentUserName,
-    selectedMaterials,
-  );
+  const materials = Array.from(document.querySelectorAll(".material-checkbox:checked"))
+    .map(checkbox => ({ name: checkbox.dataset.name, url: checkbox.value }));
+  try {
+    await renderModalMessage({ prospect, uid: auth.currentUser?.uid,
+      textarea: elements.whatsappMessageTextarea, materials, reset: reset === true });
+  } catch (error) { showSnackbar(error.message, "error"); }
 }
 
 async function handleSendWhatsapp() {
-  const { prospectId, prospectPhone } = elements.whatsappSendBtn.dataset;
-  let phone = prospectPhone.replace(/[\s-()]/g, "");
-  if (!phone.startsWith("52") && phone.length < 11) {
-    phone = `52${phone}`;
+  const { prospectId } = elements.whatsappSendBtn.dataset;
+  const prospect = allProspects.find(p => p.id === prospectId);
+  if (!prospect) return;
+  elements.whatsappSendBtn.disabled = true;
+  try {
+    const result = await enviarWhatsappDeProspecto({
+      prospect, mensaje: elements.whatsappMessageTextarea.value, user: currentUserName,
+    });
+    allProspects = allProspects.map(p => p.id === result.prospect.id ? result.prospect : p);
+    showSnackbar("WhatsApp preparado; nota en borrador local. Confirma el resultado en Fase 2.", "info");
+    closeWhatsappModal();
+  } catch (error) {
+    showSnackbar(error.message, "error");
+  } finally {
+    elements.whatsappSendBtn.disabled = false;
   }
-
-  const message = elements.whatsappMessageTextarea.value;
-  window.open(
-    `https://wa.me/${phone}?text=${encodeURIComponent(message)}`,
-    "_blank",
-  );
-
-  const selectedMaterialsNames = Array.from(
-    document.querySelectorAll(".material-checkbox:checked"),
-  )
-    .map((cb) => cb.dataset.name)
-    .join(", ");
-
-  if (selectedMaterialsNames || message.trim().length > 0) {
-    const noteContent = selectedMaterialsNames
-      ? `Se envió WhatsApp con materiales: ${selectedMaterialsNames}`
-      : "Se envió un mensaje de WhatsApp (sin materiales seleccionados).";
-
-    const noteObject = {
-      note: noteContent,
-      date: new Date().toISOString(),
-      user: currentUserName,
-    };
-    try {
-      await addFollowUpNote(prospectId, noteObject);
-      showSnackbar("Nota de WhatsApp registrada.", "info");
-    } catch (error) {
-      console.error("Error al guardar nota de WhatsApp:", error);
-      showSnackbar("Error al registrar la nota de WhatsApp.", "error");
-    }
-  }
-  closeWhatsappModal();
 }
 
 function attachToggleEventListeners() {
@@ -416,29 +398,7 @@ function handleAdminScreenRender() {
     });
     renderAdminGrid(filteredProspects, getGroupIcon, false);
   } else {
-    const groups = {
-      "Pendientes de Correo": [ESTATUS_CONSOLIDADOS.PENDIENTE],
-      Activos: [
-        ESTATUS_CONSOLIDADOS.PROSPECCION,
-        ESTATUS_CONSOLIDADOS.INTERESADO,
-        "Seguimiento agendado",
-        "No contesta",
-      ],
-      Archivo: [
-        ESTATUS_CONSOLIDADOS.RECHAZADO,
-        ESTATUS_CONSOLIDADOS.CONVERTIDO,
-        ESTATUS_CONSOLIDADOS.CLIENTE,
-      ],
-    };
-
-    const groupedData = Object.fromEntries(
-      Object.entries(groups).map(([name, statuses]) => {
-        return [
-          name,
-          filteredProspects.filter((p) => statuses.includes(p.status)),
-        ];
-      }),
-    );
+    const groupedData = groupProspects(filteredProspects);
 
     renderAdminGrid(groupedData, getGroupIcon, true);
   }
@@ -474,6 +434,7 @@ document.addEventListener("visibilitychange", () => {
 window.addEventListener("online", reconnectProspectsIfNeeded);
 
 document.addEventListener("DOMContentLoaded", () => {
+  populateStatusFilter(document.getElementById("statusFilter"));
   populateClassificationSelects(CLASSIFICATIONS);
   initFollowUpNotePicker();
   initEditDatePicker(); // NUEVO: Llamar al inicializador para el modal de edición

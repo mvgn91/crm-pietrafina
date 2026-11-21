@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import { validarTransicion, siguientesEstatus, toDate, daysBetween, addDays, ultimoContactoAt } from '../../public/pipeline-model.js';
+import { ESTATUS_PIPELINE } from '../../public/config.js';
+assert.equal(ESTATUS_PIPELINE.length,11);assert.equal(siguientesEstatus('Interesado').length,11);
+for(const s of ESTATUS_PIPELINE) assert.ok(validarTransicion({actual:'En Prospección',nuevo:s,nota:'Cambio explícito',nextFollowUpDate:'2026-11-20'}).ok);
+assert.ok(!validarTransicion({actual:'En Prospección',nuevo:'Seguimiento agendado',nota:'Cambio'}).ok);
+assert.ok(!validarTransicion({actual:'Rechazado',nuevo:'Interesado',nota:'Cambio'}).ok);
+assert.ok(validarTransicion({actual:'Rechazado',nuevo:'Interesado',nota:'Corrección',permitirReapertura:true}).ok);
+assert.ok(!validarTransicion({actual:'En Prospección',nuevo:'Inventado',nota:'Cambio'}).ok);
+assert.ok(!validarTransicion({actual:'En Prospección',nuevo:'Interesado'}).ok);
+assert.equal(toDate('2026-02-31'),null);assert.equal(daysBetween('2026-11-17','2026-11-20'),3);assert.equal(addDays('2026-12-20',30),'2027-01-19');
+assert.ok(ultimoContactoAt({lastContactAt:'2026-11-17'}).includes('2026-11-17'));
+console.log('pipeline: PASS 11 statuses, note/date/reopening guards, strict dates');

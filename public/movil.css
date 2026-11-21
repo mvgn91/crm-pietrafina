@@ -33,7 +33,8 @@ body {
   }
 
   .sidebar-nav a,
-  #sidebar nav a {
+  #sidebar nav a,
+  #sidebar li > a[data-phase2] {
     min-height: 48px;
   }
 
@@ -292,8 +293,16 @@ body {
     gap: 0.5rem;
   }
 
-  .toggle-switch {
+  .toggle-switch,
+  .pf-phase2 .btn,
+  .pf-phase2 .pf-actions a {
     min-height: 44px;
+  }
+
+  .pf-phase2 .pf-actions a {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 0.5rem;
   }
 }
 
@@ -449,4 +458,31 @@ body {
 [data-theme="dark"] .flatpickr-day.today {
   background: #3a414d !important;
   border-color: #3a414d !important;
+}
+
+/* Pantallas nuevas de Fase 2 (phase2.css tiene selectores más específicos) */
+[data-theme="dark"] .pf-phase2 .pf-panel,
+[data-theme="dark"] .pf-phase2 pre,
+[data-theme="dark"] .pf-phase2 input:not([type="checkbox"]),
+[data-theme="dark"] .pf-phase2 select,
+[data-theme="dark"] .pf-phase2 textarea,
+[data-theme="dark"] .pf-phase2 .btn:not(.btn-primary) {
+  background-color: var(--pf-superficie) !important;
+  color: var(--pf-tinta) !important;
+  border-color: var(--pf-linea) !important;
+}
+
+[data-theme="dark"] .pf-local-banner {
+  background: #2b2016 !important;
+  border-left-color: #f59e0b !important;
+  color: var(--pf-tinta) !important;
+}
+
+[data-theme="dark"] #phase2-notice {
+  color: #fca5a5 !important;
+}
+
+[data-theme="dark"] .pf-phase2 th,
+[data-theme="dark"] .pf-phase2 td {
+  border-color: var(--pf-linea) !important;
 }
