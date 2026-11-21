@@ -6,15 +6,15 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth
 import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 // Tu configuración de Firebase para la aplicación web
-// CRM v2 definitivo — proyecto crm-pietrafina-v2 (la v1, crm-pietrafina, quedó deprecada)
+// ✨ ¡Estas son tus credenciales de producción! ✨
 const firebaseConfig = {
-  apiKey: "<redacted>",
-  authDomain: "crm-pietrafina-v2.firebaseapp.com",
-  projectId: "crm-pietrafina-v2",
-  storageBucket: "crm-pietrafina-v2.firebasestorage.app",
-  messagingSenderId: "14969282275",
-  appId: "1:14969282275:web:6bf162d0114b769bcfafd6",
-  measurementId: "G-V2D7EZPQPD",
+  apiKey: "AIzaSyB2VgG-spKXngIcC5pbP_Knpi3e06c6z4E",
+  authDomain: "crm-pietrafina.firebaseapp.com",
+  projectId: "crm-pietrafina",
+  storageBucket: "crm-pietrafina.firebasestorage.app", // Corregido, puede que sea .app o no, verifica en tu consola
+  messagingSenderId: "765972736898",
+  appId: "1:765972736898:web:2fef1247ca6a8641607d9b",
+  measurementId: "G-FG5ZMLTQLX",
 };
 
 // Inicializa Firebase
