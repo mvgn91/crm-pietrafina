@@ -1,6 +1,7 @@
 import { renderModalMessage, renderDetailCadence, modalDraft } from "./modal-whatsapp.js";
 import { enviarWhatsappDeProspecto } from "./whatsapp-envio.js";
 import { groupProspects, populateStatusFilter } from "./status-model.js";
+import { buildStoneworksQueue } from "./stoneworks-campaign-model.js";
 // script.js (Módulo de Administración/Gestión)
 
 import { auth, getAppDisplayName } from "./firebase.js";
@@ -8,6 +9,7 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/fi
 import {
   elements,
   renderAdminGrid,
+  renderStoneworksCampaign,
   resetGridPage,
   renderProspectsStatus,
   showProspectDetailsModal,
@@ -358,6 +360,10 @@ function handleAdminScreenRender() {
     return;
   }
 
+  // La campaña es su propia cola de trabajo: no depende de los filtros ni de
+  // la paginación de los grupos por estatus.
+  renderStoneworksCampaign(buildStoneworksQueue(allProspects));
+
   const filterStatus = document.getElementById("statusFilter")?.value || "all";
   const searchTerm =
     document.getElementById("searchFilter")?.value?.toLowerCase() || "";
@@ -451,9 +457,10 @@ document.addEventListener("DOMContentLoaded", () => {
     .getElementById("add-prospect-form")
     ?.addEventListener("submit", handleAddProspectSubmit);
 
-  document
-    .getElementById("admin-prospects-cards-container")
-    ?.addEventListener("click", (e) => {
+  // Las tarjetas de la campaña Stoneworks tienen las mismas acciones que la
+  // lista: comparten manejador, no hay lógica duplicada.
+  const bindProspectActions = (container) =>
+    container?.addEventListener("click", (e) => {
       const detailsBtn = e.target.closest(".view-details-btn");
       if (detailsBtn) return handleShowProspectDetails(detailsBtn.dataset.id);
 
@@ -468,6 +475,19 @@ document.addEventListener("DOMContentLoaded", () => {
       const sentBtn = e.target.closest(".mark-as-sent-btn");
       if (sentBtn) return handleMarkAsSent(sentBtn.dataset.id);
     });
+
+  bindProspectActions(document.getElementById("admin-prospects-cards-container"));
+  bindProspectActions(document.getElementById("stoneworks-campaign-cards"));
+
+  // La sección abre expandida; el botón solo cambia la presentación.
+  document.getElementById("stoneworks-toggle")?.addEventListener("click", (e) => {
+    const button = e.currentTarget;
+    const open = button.getAttribute("aria-expanded") !== "true";
+    button.setAttribute("aria-expanded", String(open));
+    const list = document.getElementById("stoneworks-campaign-cards");
+    if (list) list.hidden = !open;
+    button.querySelector(".pf-stoneworks__chevron")?.classList.toggle("is-open", open);
+  });
 
   document
     .getElementById("detail-close-btn")

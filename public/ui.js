@@ -121,7 +121,7 @@ const escapeHtml = (value) =>
 // Rebuild mobile-first: la tarjeta es la unidad de diseño en todos los anchos.
 // El negocio va solo en su línea y nunca se trunca; el contacto sí puede
 // recortarse. Las 4 acciones se apilan a ancho completo con etiqueta entera.
-export const createProspectRowHTML = (prospect) => {
+export const createProspectRowHTML = (prospect, options = {}) => {
   const statusBadgeClass = getStatusBadgeClass(prospect.status);
   const businessName = escapeHtml(displayValue(prospect.businessName, "Sin nombre"));
   const contactPerson = displayValue(prospect.contactPerson);
@@ -141,12 +141,19 @@ export const createProspectRowHTML = (prospect) => {
   const canMarkSent = prospect.status === "Pendiente de Correo";
   const markSentButton = `<button type="button" class="btn btn-secondary pf-action mark-as-sent-btn" data-id="${id}" title="Marcar como enviado" aria-label="Marcar como enviado" ${canMarkSent ? "" : "disabled"}><i data-lucide="send" class="pf-action__icon"></i><span class="pf-action__label">Marcar enviado</span></button>`;
 
+  // La sección Stoneworks reutiliza esta tarjeta tal cual y solo añade su
+  // estado de campaña; el resto de listas no reciben el badge.
+  const campaignBadge = options.campaignState
+    ? `<span class="pf-card__campaign ${options.campaignKey ? `pf-card__campaign--${escapeHtml(options.campaignKey)}` : ""}">${escapeHtml(options.campaignState)}</span>`
+    : "";
+
   return `
-    <article class="pf-card" data-id="${id}">
+    <article class="pf-card${campaignBadge ? " pf-card--stoneworks" : ""}" data-id="${id}"${options.campaignWave ? ` data-wave="${options.campaignWave}"` : ""}>
       <div class="pf-card__head">
         <h3 class="pf-card__name">${businessName}</h3>
         ${contactPerson ? `<p class="pf-card__contact">${escapeHtml(contactPerson)}</p>` : ""}
         <span class="pf-card__status ${statusBadgeClass}">${status}</span>
+        ${campaignBadge}
       </div>
       <dl class="pf-card__facts">
         <div class="pf-card__fact">
@@ -278,6 +285,35 @@ export const renderAdminGrid = (data, getGroupIcon, isGrouped, options = {}) => 
     page: options.resetPage ? 1 : gridState?.page || 1,
   };
   renderGridPage();
+};
+
+/**
+ * Campaña Stoneworks: cola rodante de 10, primero en Gestión.
+ * La cola viene calculada de stoneworks-campaign-model.js; aquí solo se pinta
+ * con la misma tarjeta del rebuild y los contadores de la sección.
+ */
+export const renderStoneworksCampaign = (result) => {
+  const list = document.getElementById("stoneworks-campaign-cards");
+  if (!list) return;
+  const counters = document.getElementById("stoneworks-counters");
+  const empty = document.getElementById("stoneworks-empty");
+  const queue = result?.queue || [];
+
+  if (counters) {
+    counters.textContent = `${result?.porContactar ?? 0} por contactar ahora · Quedan ${result?.remaining ?? 0} en campaña`;
+  }
+  if (empty) empty.classList.toggle("hidden", queue.length > 0);
+  list.innerHTML = queue
+    .map(({ prospect, state, wave }) =>
+      createProspectRowHTML(prospect, {
+        campaignState: state.label,
+        campaignKey: state.key,
+        campaignWave: wave,
+      }),
+    )
+    .join("");
+
+  if (typeof lucide !== "undefined") lucide.createIcons();
 };
 
 /**
