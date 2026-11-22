@@ -64,13 +64,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Marcar Link Activo ---
     const currentPage = window.location.pathname.split('/').pop();
     document.querySelectorAll('.sidebar-nav a').forEach(link => {
-        const href = link.getAttribute('href') || '';
+        // Los href del sidebar llevan `./`; el pathname no. Sin quitar el
+        // prefijo ningún enlace se marcaba como activo.
+        const href = (link.getAttribute('href') || '').replace(/^\.\//, '');
         if (href === currentPage) {
             link.classList.add('bg-gray-100', 'text-gray-900');
             link.classList.remove('text-gray-600');
+            link.setAttribute('aria-current', 'page');
         } else {
             link.classList.add('text-gray-600');
             link.classList.remove('bg-gray-100', 'text-gray-900');
+            link.removeAttribute('aria-current');
         }
         // En móvil el menú se cierra al elegir una vista.
         link.addEventListener('click', closeSidebar);

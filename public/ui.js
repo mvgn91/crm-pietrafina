@@ -288,9 +288,10 @@ export const renderAdminGrid = (data, getGroupIcon, isGrouped, options = {}) => 
 };
 
 /**
- * Campaña Stoneworks: cola rodante de 10, primero en Gestión.
- * La cola viene calculada de stoneworks-campaign-model.js; aquí solo se pinta
- * con la misma tarjeta del rebuild y los contadores de la sección.
+ * Campaña Stoneworks: cola rodante de 10 en la vista independiente
+ * `campanas-stoneworks.html`. La cola viene calculada de
+ * stoneworks-campaign-model.js; aquí solo se pinta con la misma tarjeta del
+ * rebuild y los contadores de la vista. Gestión ya no contiene esta sección.
  */
 export const renderStoneworksCampaign = (result) => {
   const list = document.getElementById("stoneworks-campaign-cards");
@@ -326,7 +327,8 @@ export const renderStoneworksCampaign = (result) => {
 export const renderProspectsStatus = (message, { isError = false } = {}) => {
   const listContainer =
     document.getElementById("admin-prospects-cards-container") ||
-    document.getElementById("prospeccion-cards-container");
+    document.getElementById("prospeccion-cards-container") ||
+    document.getElementById("stoneworks-campaign-cards");
   const noProspectsDiv =
     document.getElementById("admin-no-prospects") ||
     document.getElementById("prospeccion-no-prospects");

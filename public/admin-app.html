@@ -250,6 +250,10 @@
                 </a>
             </div>
             <nav class="sidebar-nav flex-1 p-4 space-y-2">
+                 <a href="./campanas-stoneworks.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-50">
+                    <i data-lucide="megaphone"></i>
+                    <span>Campañas Stoneworks</span>
+                </a>
                  <a href="./dashboard.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-50">
                     <i data-lucide="layout-dashboard"></i>
                     <span>Dashboard</span>
@@ -336,23 +340,6 @@
                         <h1 class="pf-page-title font-playfair font-bold text-brand-dark">Gestión de Prospectos</h1>
                         <p class="pf-page-subtitle text-gray-500">Administra, filtra y organiza todos tus prospectos.</p>
                     </div>
-
-                    <!-- CAMPAÑA STONEWORKS: primera sección de Gestión (cola rodante de 10) -->
-                    <section id="stoneworks-campaign-section" class="pf-stoneworks" aria-labelledby="stoneworks-title">
-                        <div class="pf-stoneworks__head">
-                            <button type="button" id="stoneworks-toggle" class="pf-stoneworks__toggle"
-                                aria-expanded="true" aria-controls="stoneworks-campaign-cards">
-                                <span class="pf-stoneworks__title-wrap">
-                                    <i data-lucide="megaphone" class="pf-stoneworks__icon"></i>
-                                    <h2 id="stoneworks-title" class="pf-stoneworks__title">Campaña Stoneworks — por contactar</h2>
-                                </span>
-                                <i data-lucide="chevron-down" class="pf-stoneworks__chevron"></i>
-                            </button>
-                            <p id="stoneworks-counters" class="pf-stoneworks__counters"></p>
-                        </div>
-                        <div id="stoneworks-campaign-cards" class="pf-card-list pf-stoneworks__list"></div>
-                        <p id="stoneworks-empty" class="pf-stoneworks__empty hidden">Sin prospectos en campaña</p>
-                    </section>
 
                     <!-- CONTROLES Y FILTROS (plegables en móvil) -->
                     <div class="mb-4 md:mb-6">

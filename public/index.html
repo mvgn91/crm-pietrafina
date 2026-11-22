@@ -194,18 +194,13 @@
             const loginScreen = document.getElementById("login-screen");
             const loginSubmitBtn = document.getElementById("login-submit-btn");
 
-            // Función para mostrar/ocultar contenedores
-            function showRoleSelection(user) {
-                loginContainer.classList.add("hidden");
-                roleSelection.classList.remove("hidden");
-                // Puedes usar el displayName del usuario si lo configuraste, o el email
-                const userName = user.displayName || user.email.split("@")[0];
-                document
-                    .getElementById("role-selection-buttons")
-                    .querySelector("h2").textContent =
-                    `Bienvenido, ${userName}`;
-                loginScreen.classList.remove("bg-red-700");
-                loginScreen.classList.add("bg-white");
+            // Corrección de Armand (21 nov 2026): la vista por defecto al entrar
+            // es Campañas Stoneworks. La selección de rol ya no obliga a pasar
+            // por Prospección ni Gestión: con sesión activa se aterriza ahí.
+            const DEFAULT_VIEW = "./campanas-stoneworks.html";
+
+            function showRoleSelection() {
+                window.location.replace(DEFAULT_VIEW);
             }
 
             function showLoginForm() {

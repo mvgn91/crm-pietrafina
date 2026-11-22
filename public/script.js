@@ -360,9 +360,12 @@ function handleAdminScreenRender() {
     return;
   }
 
-  // La campaña es su propia cola de trabajo: no depende de los filtros ni de
-  // la paginación de los grupos por estatus.
-  renderStoneworksCampaign(buildStoneworksQueue(allProspects));
+  // La campaña vive en su propia vista (campanas-stoneworks.html) y no
+  // depende de los filtros ni de la paginación de los grupos por estatus.
+  // En Gestión no hay contenedor: no se calcula ni se pinta nada.
+  if (document.getElementById("stoneworks-campaign-cards")) {
+    renderStoneworksCampaign(buildStoneworksQueue(allProspects));
+  }
 
   const filterStatus = document.getElementById("statusFilter")?.value || "all";
   const searchTerm =
@@ -478,16 +481,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   bindProspectActions(document.getElementById("admin-prospects-cards-container"));
   bindProspectActions(document.getElementById("stoneworks-campaign-cards"));
-
-  // La sección abre expandida; el botón solo cambia la presentación.
-  document.getElementById("stoneworks-toggle")?.addEventListener("click", (e) => {
-    const button = e.currentTarget;
-    const open = button.getAttribute("aria-expanded") !== "true";
-    button.setAttribute("aria-expanded", String(open));
-    const list = document.getElementById("stoneworks-campaign-cards");
-    if (list) list.hidden = !open;
-    button.querySelector(".pf-stoneworks__chevron")?.classList.toggle("is-open", open);
-  });
 
   document
     .getElementById("detail-close-btn")
